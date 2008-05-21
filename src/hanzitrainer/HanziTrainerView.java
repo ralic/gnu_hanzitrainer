@@ -40,7 +40,7 @@ public class HanziTrainerView extends FrameView{
         EnglishTextField = new javax.swing.JTextField();
         SaveButton = new javax.swing.JButton();
         ResetButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        PinyinScroll = new javax.swing.JScrollPane();
         DatabasePanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -74,6 +74,8 @@ public class HanziTrainerView extends FrameView{
         ChineseTextField.setText(resourceMap.getString("ChineseTextField.text")); // NOI18N
         ChineseTextField.setName("ChineseTextField"); // NOI18N
 
+        this.ChineseTextField.getDocument().addDocumentListener(new PinyinChooserFrame(PinyinScroll));
+
         EnglishTextField.setText(resourceMap.getString("EnglishTextField.text")); // NOI18N
         EnglishTextField.setName("EnglishTextField"); // NOI18N
 
@@ -83,7 +85,7 @@ public class HanziTrainerView extends FrameView{
         ResetButton.setText(resourceMap.getString("ResetButton.text")); // NOI18N
         ResetButton.setName("ResetButton"); // NOI18N
 
-        jScrollPane1.setName("jScrollPane1"); // NOI18N
+        PinyinScroll.setName("PinyinScroll"); // NOI18N
 
         javax.swing.GroupLayout VocabularyBuilderPanelLayout = new javax.swing.GroupLayout(VocabularyBuilderPanel);
         VocabularyBuilderPanel.setLayout(VocabularyBuilderPanelLayout);
@@ -107,7 +109,7 @@ public class HanziTrainerView extends FrameView{
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(EnglishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)))
+                            .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addContainerGap(349, Short.MAX_VALUE)
                         .addComponent(ResetButton)
@@ -125,7 +127,7 @@ public class HanziTrainerView extends FrameView{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(PinyinLabel)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PinyinScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(13, 13, 13)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EnglishLabel)
@@ -262,13 +264,13 @@ public class HanziTrainerView extends FrameView{
     private javax.swing.JTextField EnglishTextField;
     private javax.swing.JMenuItem OpenDBMenuItem;
     private javax.swing.JLabel PinyinLabel;
+    private javax.swing.JScrollPane PinyinScroll;
     private javax.swing.JButton ResetButton;
     private javax.swing.JButton SaveButton;
     private javax.swing.JMenuItem SaveDBMenuItem;
     private javax.swing.JPanel TestPanel;
     private javax.swing.JPanel VocabularyBuilderPanel;
     private javax.swing.JComboBox jComboBox5;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
