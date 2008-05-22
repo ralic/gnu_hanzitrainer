@@ -31,9 +31,10 @@ public class PinyinChooserFrame extends JPanel
     private ArrayList<javax.swing.JComponent> entry_list;
     private int number_of_boxes;
     private FlowLayout panel_layout;
-    JScrollPane scroller_container;
-    int entry_length;
+    private JScrollPane scroller_container;
+    private int entry_length;
     private javax.swing.JTextArea to_update = null;
+    private HanziDB database;
 
     public PinyinChooserFrame(JScrollPane scroller, HanziDB db, javax.swing.JTextArea log)
     {
@@ -45,6 +46,7 @@ public class PinyinChooserFrame extends JPanel
         setLayout(panel_layout);
         to_update = log;
         entry_length = 0;
+        database = db;
     }
 
     public PinyinChooserFrame(JScrollPane scroller, HanziDB db)
@@ -56,6 +58,7 @@ public class PinyinChooserFrame extends JPanel
         panel_layout = new FlowLayout(FlowLayout.LEFT);
         setLayout(panel_layout);
         entry_length = 0;
+        database = db;
     }
 
     private void debuglog(String log)
@@ -89,12 +92,11 @@ public class PinyinChooserFrame extends JPanel
 
     private void add_item(int index, String entry)
     {
+        
         if (is_chinese_char(entry))
         {
-            add_combo_box(index, new String[]
-                    {
-                        entry, "a", "b"
-                    });
+            ArrayList<String> possibilities = database.get_pinyin_from_character(entry);
+            add_combo_box(index, possibilities);
         }
         else
         {
@@ -102,10 +104,16 @@ public class PinyinChooserFrame extends JPanel
         }
     }
 
-    private void add_combo_box(int index, String[] content)
+    private void add_combo_box(int index, ArrayList<String> content)
     {
+        int i;
         JComboBox temp_box = new JComboBox();
-        temp_box.setModel(new javax.swing.DefaultComboBoxModel(content));
+        //temp_box.setModel(new javax.swing.DefaultComboBoxModel(content));
+        for (i=0; i<content.size(); i++)
+        {
+            temp_box.addItem(content.get(i));
+        }
+        temp_box.setEditable(true);
         entry_list.add(index, temp_box);
         number_of_boxes++;
         update_layout();

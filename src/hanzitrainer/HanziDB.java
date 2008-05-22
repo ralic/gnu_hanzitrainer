@@ -25,35 +25,36 @@ public class HanziDB
     // we dont want this garbage collected until we are done
     public HanziDB(String db_file_name_prefix)
     {
-        try {
-
-        Class.forName("org.h2.Driver");
-
-        conn = DriverManager.getConnection("jdbc:h2:" + db_file_name_prefix, // filenames
-                "sa", // username
-                "");                      // password
-
-        if (check_for_empty_db())
+        try
         {
 
-            System.out.println("database is empty");
-            create_database();
+            Class.forName("org.h2.Driver");
+
+            conn = DriverManager.getConnection("jdbc:h2:" + db_file_name_prefix, // filenames
+                    "sa", // username
+                    "");                      // password
+
             if (check_for_empty_db())
             {
-                System.out.println("still...");
+
+                System.out.println("database is empty");
+                create_database();
+                if (check_for_empty_db())
+                {
+                    System.out.println("still...");
+                }
+                else
+                {
+                    System.out.println("not anymore");
+                }
             }
             else
             {
-                System.out.println("not anymore");
+                System.out.println("database is not empty");
             }
         }
-        else
+        catch (Exception e)
         {
-            System.out.println("database is not empty");
-        }
-        }
-        catch (Exception e) {
-        
         }
     }
 
@@ -126,34 +127,77 @@ public class HanziDB
         st.close();
     }
 
-    public int find_chinese_word(String chinese) throws SQLException
+    private int find_chinese_word(String chinese)
     {
-        int len = chinese.codePointCount(0, chinese.length());
         int res = -1;
-        Statement st = conn.createStatement();
-        ResultSet rs = null;
-
-        if (len == 0)
+        try
         {
+            int len = chinese.codePointCount(0, chinese.length());
+
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            if (len == 0)
+            {
+                st.close();
+                return res;
+            }
+
+            rs = st.executeQuery("SELECT cword_id FROM english_pinyin_chinese WHERE hanzi='" + chinese + "'");
+            if (rs.next())
+            {
+                res = rs.getInt(1);
+            }
+            else
+            {
+                res = -1;
+            }
             st.close();
-            return res;
         }
-
-        rs = st.executeQuery("SELECT cword_id FROM english_pinyin_chinese WHERE hanzi='" + chinese + "'");
-        if (rs.next())
+        catch (SQLException ex)
         {
-            res = rs.getInt(1);
+            ex.printStackTrace();
         }
-        else
-        {
-            res = -1;
-        }
-        st.close();
 
         return res;
     }
 
-    public ArrayList get_pinyin_from_character(String character)
+    public ArrayList<String> get_chinese_word(String chinese)
+    {
+        ArrayList<String> res = new ArrayList<String>();
+        try
+        {
+            int len = chinese.codePointCount(0, chinese.length());
+
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            if (len == 0)
+            {
+                st.close();
+                return res;
+            }
+
+            rs = st.executeQuery("SELECT cword_id FROM english_pinyin_chinese WHERE hanzi='" + chinese + "'");
+            if (rs.next())
+            {
+                res.add(rs.getString(2));
+                res.add(rs.getString(3));
+                res.add(rs.getString(4));
+            }
+
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return res;
+
+    }
+
+    public ArrayList<String> get_pinyin_from_character(String character)
     {
         ArrayList<String> res = new ArrayList<String>();
 
@@ -389,7 +433,7 @@ public class HanziDB
         try
         {
             Statement st = conn.createStatement();
-            ResultSet rs = null, rs2 = null;
+            ResultSet rs = null,rs2  = null;
             int char_pinyin_id = 0;
             int i;
             String chinese = new String("");
@@ -485,9 +529,13 @@ public class HanziDB
 
             rs = st.executeQuery("SELECT COUNT(cword_id) FROM english_pinyin_chinese GROUP BY ALL");
             if (!rs.next())
+            {
                 return 0;
+            }
             else
+            {
                 return rs.getInt(1);
+            }
         }
         catch (SQLException ex)
         {
@@ -512,7 +560,7 @@ public class HanziDB
             ResultSet rs = null;
 
             rs = st.executeQuery("SELECT * FROM english_pinyin_chinese");
-            rs.relative(index+1);
+            rs.relative(index + 1);
             res.add(rs.getString(2));
             res.add(rs.getString(3));
             res.add(rs.getString(4));

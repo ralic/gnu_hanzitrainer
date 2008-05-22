@@ -1,29 +1,28 @@
 /*
  * HanziTrainerView.java
  */
-
 package hanzitrainer;
 
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
 
-
 /**
  * The application's main frame.
  */
-public class HanziTrainerView extends FrameView{
-    
+public class HanziTrainerView extends FrameView
+{
+
     HanziDB main_database;
 
-    public HanziTrainerView(SingleFrameApplication app) {
+    public HanziTrainerView(SingleFrameApplication app)
+    {
         super(app);
-        
+
         main_database = new HanziDB();
 
         initComponents();
- 
-    }
 
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -77,8 +76,8 @@ public class HanziTrainerView extends FrameView{
 
         ChineseTextField.setText(resourceMap.getString("ChineseTextField.text")); // NOI18N
         ChineseTextField.setName("ChineseTextField"); // NOI18N
-
-        this.ChineseTextField.getDocument().addDocumentListener(new PinyinChooserFrame(PinyinScroll,main_database));
+        PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);
+        this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);
 
         EnglishTextField.setText(resourceMap.getString("EnglishTextField.text")); // NOI18N
         EnglishTextField.setName("EnglishTextField"); // NOI18N
@@ -87,6 +86,7 @@ public class HanziTrainerView extends FrameView{
         SaveButton.setName("SaveButton"); // NOI18N
 
         ResetButton.setText(resourceMap.getString("ResetButton.text")); // NOI18N
+        ResetButton.setDefaultCapable(false);
         ResetButton.setName("ResetButton"); // NOI18N
 
         PinyinScroll.setName("PinyinScroll"); // NOI18N
@@ -101,7 +101,7 @@ public class HanziTrainerView extends FrameView{
                         .addContainerGap()
                         .addComponent(ChineseLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE))
+                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
@@ -112,10 +112,10 @@ public class HanziTrainerView extends FrameView{
                                 .addComponent(EnglishLabel)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(EnglishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)
-                            .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)))
+                            .addComponent(EnglishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
+                            .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
-                        .addContainerGap(349, Short.MAX_VALUE)
+                        .addContainerGap()
                         .addComponent(ResetButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(SaveButton)))
@@ -136,11 +136,11 @@ public class HanziTrainerView extends FrameView{
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EnglishLabel)
                     .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(SaveButton)
-                    .addComponent(ResetButton))
-                .addContainerGap(55, Short.MAX_VALUE))
+                    .addComponent(ResetButton)
+                    .addComponent(SaveButton))
+                .addContainerGap())
         );
 
         ChineseLabel.getAccessibleContext().setAccessibleName(resourceMap.getString("jLabel1.AccessibleContext.accessibleName")); // NOI18N
@@ -165,7 +165,7 @@ public class HanziTrainerView extends FrameView{
         DatabasePanel.setLayout(DatabasePanelLayout);
         DatabasePanelLayout.setHorizontalGroup(
             DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
             .addGroup(DatabasePanelLayout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -192,11 +192,11 @@ public class HanziTrainerView extends FrameView{
         TestPanel.setLayout(TestPanelLayout);
         TestPanelLayout.setHorizontalGroup(
             TestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 483, Short.MAX_VALUE)
+            .addGap(0, 524, Short.MAX_VALUE)
         );
         TestPanelLayout.setVerticalGroup(
             TestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 242, Short.MAX_VALUE)
+            .addGap(0, 189, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("TestPanel.TabConstraints.tabTitle"), TestPanel); // NOI18N
@@ -205,11 +205,13 @@ public class HanziTrainerView extends FrameView{
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.getAccessibleContext().setAccessibleName(resourceMap.getString("jTabbedPane1.AccessibleContext.accessibleName")); // NOI18N
@@ -273,6 +275,7 @@ public class HanziTrainerView extends FrameView{
     private javax.swing.JLabel numCharLabel;
     private javax.swing.JLabel numWordLabel;
     // End of variables declaration//GEN-END:variables
+    private PinyinChooserFrame PinyinChooser;
 
 
 }
