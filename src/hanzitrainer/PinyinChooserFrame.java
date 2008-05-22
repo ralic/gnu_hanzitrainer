@@ -35,7 +35,7 @@ public class PinyinChooserFrame extends JPanel
     int entry_length;
     private javax.swing.JTextArea to_update = null;
 
-    public PinyinChooserFrame(JScrollPane scroller, javax.swing.JTextArea log)
+    public PinyinChooserFrame(JScrollPane scroller, HanziDB db, javax.swing.JTextArea log)
     {
         super();
         scroller_container = scroller;
@@ -47,7 +47,7 @@ public class PinyinChooserFrame extends JPanel
         entry_length = 0;
     }
 
-    public PinyinChooserFrame(JScrollPane scroller)
+    public PinyinChooserFrame(JScrollPane scroller, HanziDB db)
     {
         super();
         scroller_container = scroller;

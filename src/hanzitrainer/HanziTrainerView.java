@@ -12,9 +12,13 @@ import org.jdesktop.application.FrameView;
  * The application's main frame.
  */
 public class HanziTrainerView extends FrameView{
+    
+    HanziDB main_database;
 
     public HanziTrainerView(SingleFrameApplication app) {
         super(app);
+        
+        main_database = new HanziDB();
 
         initComponents();
  
@@ -74,7 +78,7 @@ public class HanziTrainerView extends FrameView{
         ChineseTextField.setText(resourceMap.getString("ChineseTextField.text")); // NOI18N
         ChineseTextField.setName("ChineseTextField"); // NOI18N
 
-        this.ChineseTextField.getDocument().addDocumentListener(new PinyinChooserFrame(PinyinScroll));
+        this.ChineseTextField.getDocument().addDocumentListener(new PinyinChooserFrame(PinyinScroll,main_database));
 
         EnglishTextField.setText(resourceMap.getString("EnglishTextField.text")); // NOI18N
         EnglishTextField.setName("EnglishTextField"); // NOI18N
@@ -147,17 +151,7 @@ public class HanziTrainerView extends FrameView{
 
         jScrollPane2.setName("jScrollPane2"); // NOI18N
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
+        jTable1.setModel(new DBTableFiller(main_database));
         jTable1.setName("jTable1"); // NOI18N
         jScrollPane2.setViewportView(jTable1);
 

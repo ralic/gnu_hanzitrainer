@@ -2,9 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package hanzitrainer;
-
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -12,7 +10,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Random;
 import java.util.ArrayList;
 
 public class HanziDB
@@ -20,14 +17,15 @@ public class HanziDB
 
     Connection conn;
 
-    public HanziDB() throws Exception
+    public HanziDB()
     {
-        this(new String("mem:db_" + (new Random()).nextDouble()));
+        this(new String("mem:db_" + Math.random()));
     }
 
     // we dont want this garbage collected until we are done
-    public HanziDB(String db_file_name_prefix) throws Exception
+    public HanziDB(String db_file_name_prefix)
     {
+        try {
 
         Class.forName("org.h2.Driver");
 
@@ -52,6 +50,10 @@ public class HanziDB
         else
         {
             System.out.println("database is not empty");
+        }
+        }
+        catch (Exception e) {
+        
         }
     }
 
@@ -116,8 +118,8 @@ public class HanziDB
                 " JOIN character AS ch ON ch.char_id=cp.char_id" +
                 " GROUP BY cpb.cword_id) AS c_words" +
                 " JOIN english AS e ON e.cword_id=c_words.cword_id " +
-                " GROUP BY e.cword_id )");       
-                                
+                " GROUP BY e.cword_id )");
+
         st.executeUpdate("INSERT INTO database_info(field, value) VALUES('version', '1.0')");
         st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
 
@@ -153,7 +155,7 @@ public class HanziDB
 
     public ArrayList get_pinyin_from_character(String character)
     {
-        ArrayList res = new ArrayList<String>();
+        ArrayList<String> res = new ArrayList<String>();
 
         try
         {
@@ -387,7 +389,7 @@ public class HanziDB
         try
         {
             Statement st = conn.createStatement();
-            ResultSet rs = null,rs2  = null;
+            ResultSet rs = null, rs2 = null;
             int char_pinyin_id = 0;
             int i;
             String chinese = new String("");
@@ -471,4 +473,54 @@ public class HanziDB
 
     }
 
+    /**
+     *  Get the number of chinese words in the database
+     */
+    public int get_number_words()
+    {
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT COUNT(cword_id) FROM english_pinyin_chinese GROUP BY ALL");
+            if (!rs.next())
+                return 0;
+            else
+                return rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Get details about a particular chinese word
+     * 
+     * @param index from 0 to the number of words - 1 
+     * @see get_number_words
+     * @return ArrayList with : Chinese words, pinyin and translations
+     */
+    public ArrayList<String> get_word_details(int index)
+    {
+        ArrayList<String> res = new ArrayList<String>();
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese");
+            rs.relative(index+1);
+            res.add(rs.getString(2));
+            res.add(rs.getString(3));
+            res.add(rs.getString(4));
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
 }    // class Testdb
