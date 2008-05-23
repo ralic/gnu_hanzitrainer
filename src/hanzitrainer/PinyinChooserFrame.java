@@ -137,7 +137,7 @@ public class PinyinChooserFrame extends JPanel
         panel_layout.removeLayoutComponent(item);
     }
 
-    public ArrayList get_pinyins()
+    public ArrayList<String> get_pinyins()
     {
         ArrayList<String> res = new ArrayList<String>();
         int i;
@@ -150,7 +150,9 @@ public class PinyinChooserFrame extends JPanel
             }
             else
             {
-                res.add(entry_list.get(i).toString().toLowerCase());
+                JComboBox box = (JComboBox)(entry_list.get(i));
+                String selected = (String)(box.getSelectedItem());
+                res.add(selected);
             }
         }
         return res;

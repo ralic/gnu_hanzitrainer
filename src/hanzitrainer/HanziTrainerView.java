@@ -5,6 +5,7 @@ package hanzitrainer;
 
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
+import java.util.ArrayList;
 
 /**
  * The application's main frame.
@@ -45,8 +46,9 @@ public class HanziTrainerView extends FrameView
         ResetButton = new javax.swing.JButton();
         PinyinScroll = new javax.swing.JScrollPane();
         DatabasePanel = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        DBScroll = new javax.swing.JScrollPane();
+        DBTable = new javax.swing.JTable();
+        TableFiller = new DBTableFiller(main_database);
         numCharLabel = new javax.swing.JLabel();
         numWordLabel = new javax.swing.JLabel();
         TestPanel = new javax.swing.JPanel();
@@ -84,6 +86,11 @@ public class HanziTrainerView extends FrameView
 
         SaveButton.setText(resourceMap.getString("SaveButton.text")); // NOI18N
         SaveButton.setName("SaveButton"); // NOI18N
+        SaveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveButtonActionPerformed(evt);
+            }
+        });
 
         ResetButton.setText(resourceMap.getString("ResetButton.text")); // NOI18N
         ResetButton.setDefaultCapable(false);
@@ -118,7 +125,7 @@ public class HanziTrainerView extends FrameView
                         .addContainerGap()
                         .addComponent(ResetButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(SaveButton)))
+                        .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         VocabularyBuilderPanelLayout.setVerticalGroup(
@@ -139,7 +146,7 @@ public class HanziTrainerView extends FrameView
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ResetButton)
-                    .addComponent(SaveButton))
+                    .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -149,11 +156,14 @@ public class HanziTrainerView extends FrameView
 
         DatabasePanel.setName("DatabasePanel"); // NOI18N
 
-        jScrollPane2.setName("jScrollPane2"); // NOI18N
+        DBScroll.setName("DBScroll"); // NOI18N
 
-        jTable1.setModel(new DBTableFiller(main_database));
-        jTable1.setName("jTable1"); // NOI18N
-        jScrollPane2.setViewportView(jTable1);
+        DBTable.setModel(TableFiller);
+        DBTable.setColumnSelectionAllowed(true);
+        DBTable.setName("DBTable"); // NOI18N
+        DBTable.getTableHeader().setReorderingAllowed(false);
+        DBScroll.setViewportView(DBTable);
+        DBTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
         numCharLabel.setText(resourceMap.getString("numCharLabel.text")); // NOI18N
         numCharLabel.setName("numCharLabel"); // NOI18N
@@ -165,23 +175,24 @@ public class HanziTrainerView extends FrameView
         DatabasePanel.setLayout(DatabasePanelLayout);
         DatabasePanelLayout.setHorizontalGroup(
             DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
             .addGroup(DatabasePanelLayout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(119, 119, 119))
+            .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
         );
         DatabasePanelLayout.setVerticalGroup(
             DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DatabasePanelLayout.createSequentialGroup()
+            .addGroup(DatabasePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(numCharLabel)
                     .addComponent(numWordLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(DBScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(56, 56, 56))
         );
 
         jTabbedPane1.addTab(resourceMap.getString("DatabasePanel.TabConstraints.tabTitle"), DatabasePanel); // NOI18N
@@ -252,9 +263,38 @@ public class HanziTrainerView extends FrameView
         setMenuBar(menuBar);
     }// </editor-fold>//GEN-END:initComponents
 
+private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveButtonActionPerformed
+    // TODO add your handling code here:
+    String english = EnglishTextField.getText();
+    ArrayList<String> pinyin = PinyinChooser.get_pinyins();
+    String hanzi_string = ChineseTextField.getText();
+    ArrayList<String> hanzi = new ArrayList<String>();
+    int i;
+    for (i = 0; i < hanzi_string.codePointCount(0, hanzi_string.length()); i++)
+    {
+        int from;
+        int to;
+        from = hanzi_string.offsetByCodePoints(0, i);
+        if (i == hanzi_string.codePointCount(0, hanzi_string.length()) - 1)
+        {
+            to = hanzi_string.length();
+        }
+        else
+        {
+            to = hanzi_string.offsetByCodePoints(0, i + 1);
+        }
+        hanzi.add(hanzi_string.substring(from, to));
+    }
+    main_database.add_translation(english, pinyin, hanzi);
+    
+    TableFiller.fireTableDataChanged();
+}//GEN-LAST:event_SaveButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
+    private javax.swing.JScrollPane DBScroll;
+    private javax.swing.JTable DBTable;
     private javax.swing.JPanel DatabasePanel;
     private javax.swing.JLabel EnglishLabel;
     private javax.swing.JTextField EnglishTextField;
@@ -267,15 +307,12 @@ public class HanziTrainerView extends FrameView
     private javax.swing.JPanel TestPanel;
     private javax.swing.JPanel VocabularyBuilderPanel;
     private javax.swing.JComboBox jComboBox5;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JLabel numCharLabel;
     private javax.swing.JLabel numWordLabel;
     // End of variables declaration//GEN-END:variables
     private PinyinChooserFrame PinyinChooser;
-
-
+    private DBTableFiller TableFiller;
 }

@@ -206,7 +206,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT (cp.pinyin+cp.tone) FROM character AS c" +
+            rs = st.executeQuery("SELECT CONCAT(cp.pinyin,cp.tone) FROM character AS c" +
                     " JOIN character_pinyin AS cp ON c.char_id=cp.char_id" +
                     " WHERE c.hanzi='" + character + "'");
 
@@ -527,7 +527,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT COUNT(cword_id) FROM english_pinyin_chinese GROUP BY ALL");
+            rs = st.executeQuery("SELECT COUNT(cword_id) FROM english_pinyin_chinese GROUP BY TRUE");
             if (!rs.next())
             {
                 return 0;

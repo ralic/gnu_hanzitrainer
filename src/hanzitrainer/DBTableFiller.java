@@ -20,10 +20,26 @@ public class DBTableFiller extends AbstractTableModel
     {
         db = database;
     }
+    
+    public String getColumnName(int column)
+    {
+        switch (column){
+        case 0:
+            return "Chinese";
+        case 1:
+            return "Pinyin";
+        case 2:
+            return "Translation";
+        default:
+            return "column "+column+"???";
+        }
+    }
 
     public int getRowCount()
     {
-        return db.get_number_words();
+        int res = db.get_number_words();
+        System.out.println("got "+res+" words...");
+        return res;
     }
 
     public int getColumnCount()
