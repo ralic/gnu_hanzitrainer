@@ -24,6 +24,11 @@ public class HanziTrainerView extends FrameView
         initComponents();
 
     }
+    
+    public void HanziTrainerViewKill()
+    {
+        main_database.shutdown();
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.

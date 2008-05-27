@@ -38,7 +38,7 @@ public class DBTableFiller extends AbstractTableModel
     public int getRowCount()
     {
         int res = db.get_number_words();
-        System.out.println("got "+res+" words...");
+        //System.out.println("got "+res+" words...");
         return res;
     }
 

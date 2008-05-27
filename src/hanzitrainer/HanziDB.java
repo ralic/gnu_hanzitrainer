@@ -15,7 +15,8 @@ import java.util.ArrayList;
 public class HanziDB
 {
 
-    Connection conn;
+    private Connection conn;
+    private boolean initialized = false;
 
     public HanziDB()
     {
@@ -37,25 +38,27 @@ public class HanziDB
             if (check_for_empty_db())
             {
 
-                System.out.println("database is empty");
+                System.out.println("HanziDB : database is empty");
                 create_database();
                 if (check_for_empty_db())
                 {
-                    System.out.println("still...");
+                    System.out.println("HanziDB : still...");
                 }
                 else
                 {
-                    System.out.println("not anymore");
+                    System.out.println("HanziDB : not anymore");
                 }
             }
             else
             {
-                System.out.println("database is not empty");
+                System.out.println("HanziDB : database is not empty");
             }
         }
         catch (Exception e)
         {
         }
+        System.out.println("HanziDB : Done with database initialization");
+        initialized = true;
     }
 
     private Boolean check_for_empty_db() throws SQLException
@@ -165,6 +168,10 @@ public class HanziDB
     public ArrayList<String> get_chinese_word(String chinese)
     {
         ArrayList<String> res = new ArrayList<String>();
+        if (!initialized)
+        {
+            return res;
+        }
         try
         {
             int len = chinese.codePointCount(0, chinese.length());
@@ -200,7 +207,10 @@ public class HanziDB
     public ArrayList<String> get_pinyin_from_character(String character)
     {
         ArrayList<String> res = new ArrayList<String>();
-
+        if (!initialized)
+        {
+            return res;
+        }
         try
         {
             Statement st = conn.createStatement();
@@ -240,7 +250,7 @@ public class HanziDB
         // TODO : this should probably be done outside of this function
         if (!is_chinese_char(character))
         {
-            System.out.println("trying to add pinyin for a non chinese character");
+            System.out.println("find_existing_pinyin_character : trying to add pinyin for a non chinese character");
             st.close();
             return res;
         }
@@ -249,7 +259,7 @@ public class HanziDB
         rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
         if (!rs.next())
         {
-            System.out.println("Could not find the character");
+            System.out.println("find_existing_pinyin_character : Could not find the character");
             st.close();
             return res;
         }
@@ -261,16 +271,16 @@ public class HanziDB
         {
             tone = 0;
             rs = st.executeQuery("SELECT cp.character_pinyin_id FROM character_pinyin AS cp" +
-                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + pinyin + "'");
+                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + pinyin + "' AND cp.tone IS NULL");
             if (rs.next())
             {
                 res = rs.getInt(1);
-                System.out.println("combination of pinyin/character exists (with any tone) " + res);
+                System.out.println("find_existing_pinyin_character : combination of pinyin/character exists (with no tone) " + res);
                 st.close();
             }
             else
             {
-                System.out.println("cannot find combination (no tone)");
+                System.out.println("find_existing_pinyin_character : cannot find combination (no tone)");
             }
             return res;
         }
@@ -283,22 +293,12 @@ public class HanziDB
             if (rs.next())
             {
                 res = rs.getInt(1);
-                System.out.println("combination of pinyin/character exists (same tone) " + res);
+                System.out.println("find_existing_pinyin_character : combination of pinyin/character exists (same tone) " + res);
                 st.close();
                 return res;
             }
 
-
-            rs = st.executeQuery("SELECT cp.pinyin FROM character_pinyin AS cp" +
-                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + radical + "' AND cp.tone=0");
-            if (rs.next())
-            {
-                res = rs.getInt(1);
-                System.out.println("combination of pinyin/character already exists (0) " + res);
-                st.close();
-                return res;
-            }
-            System.out.println("Cannot find " + char_id + " " + radical + " " + tone + "!!");
+            System.out.println("find_existing_pinyin_character : Cannot find " + char_id + " " + radical + " " + tone + "!!");
 
         }
 
@@ -334,14 +334,14 @@ public class HanziDB
 
         if (!is_chinese_char(character))
         {
-            System.out.println("trying to add a non chinese character");
+            System.out.println("add_character : trying to add a non chinese character");
             st.close();
             return;
         }
         rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
         if (rs.next())
         {
-            System.out.println("character already exists");
+            System.out.println("add_character : character already exists");
             st.close();
             return;
         }
@@ -354,7 +354,7 @@ public class HanziDB
     {
         Statement st = conn.createStatement();
         ResultSet rs = null;
-        int char_id;
+        int char_id, res;
         int tone;
         String radical = "";
 
@@ -362,7 +362,16 @@ public class HanziDB
         // TODO : this should probably be done outside of this function
         if (!is_chinese_char(character))
         {
-            System.out.println("trying to add pinyin for a non chinese character");
+            System.out.println("add_pinyin : trying to add pinyin for a non chinese character");
+            st.close();
+            return;
+        }
+
+        // look if this character/pinyin is already there
+        res = find_existing_pinyin_character(character, pinyin);
+        if (res != -1)
+        {
+            System.out.println("add_pinyin : this combination of character/pinyin already exists");
             st.close();
             return;
         }
@@ -371,7 +380,7 @@ public class HanziDB
         rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
         if (!rs.next())
         {
-            System.out.println("Could not find the character");
+            System.out.println("add_pinyin : Could not find the character");
             st.close();
             return;
         }
@@ -381,46 +390,14 @@ public class HanziDB
         tone = pinyin.charAt(pinyin.length() - 1);
         if ((tone < '1') || (tone > '4'))
         {
-            tone = 0;
-            rs = st.executeQuery("SELECT cp.pinyin FROM character_pinyin AS cp" +
-                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + pinyin + "'");
-            if (rs.next())
-            {
-                System.out.println("combination of pinyin/character already exists (with any tone)");
-                st.close();
-                return;
-            }
-            System.out.println("Adding char " + char_id + ", pinyin " + pinyin + ", tone 0");
-            st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + pinyin + "',0)");
+            System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + pinyin + ", tone 0");
+            st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + pinyin + "',NULL)");
         }
         else
         {
             tone = (int) tone - '0';
-            rs = st.executeQuery("SELECT cp.pinyin FROM character_pinyin AS cp" +
-                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + pinyin + "' AND cp.tone=" + tone);
-            if (rs.next())
-            {
-                System.out.println("combination of pinyin/character already exists (same tone)");
-                st.close();
-                return;
-            }
-
             radical = pinyin.substring(0, pinyin.length() - 1);
-            rs = st.executeQuery("SELECT cp.pinyin FROM character_pinyin AS cp" +
-                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + radical + "' AND cp.tone=0");
-            if (rs.next())
-            {
-                System.out.println("Updating char " + char_id + ", pinyin " + radical + ", tone " + tone);
-                // need to update the table to add a tone and be done with it
-                st.executeUpdate("UPDATE character_pinyin SET tone=" + tone + " WHERE pinyin='" + radical + "' AND" +
-                        "char_id=" + char_id + "AND tone=0");
-
-                System.out.println("combination of pinyin/character already exists (updating tone 0 to real one");
-                st.close();
-                return;
-            }
-
-            System.out.println("Adding char " + char_id + ", pinyin " + radical + ", tone " + tone);
+            System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + pinyin + ", tone " + tone);
             st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + radical + "'," + tone + ")");
 
         }
@@ -430,10 +407,14 @@ public class HanziDB
 
     public synchronized void add_translation(String english, ArrayList<String> pinyins, ArrayList<String> hanzi)
     {
+        if (!initialized)
+        {
+            return;
+        }
         try
         {
             Statement st = conn.createStatement();
-            ResultSet rs = null,rs2  = null;
+            ResultSet rs = null, rs2 = null;
             int char_pinyin_id = 0;
             int i;
             String chinese = new String("");
@@ -442,7 +423,7 @@ public class HanziDB
 
             if (pinyins.size() != hanzi.size())
             {
-                System.out.println("size of pinyins and hanzis need to be the same");
+                System.out.println("add_translation : size of pinyins and hanzis need to be the same");
                 st.close();
                 return;
             }
@@ -454,7 +435,7 @@ public class HanziDB
             found_chinese_id = find_chinese_word(chinese);
             if (found_chinese_id != -1)
             {
-                System.out.println("this chinese word already exists");
+                System.out.println("add_translation : this chinese word already exists");
             }
             else
             {
@@ -466,29 +447,30 @@ public class HanziDB
                         " WHERE res IS NULL");
                 if (!rs.next())
                 {
-                    System.out.println("seems like I was not able to insert a new cword ??");
+                    System.out.println("add_translation : seems like I was not able to insert a new cword ??");
                     st.close();
                     return;
                 }
                 found_chinese_id = rs.getInt(1);
-            }
 
 
-            for (i = 0; i < pinyins.size(); i++)
-            {
-                add_character(hanzi.get(i));
-                add_pinyin(hanzi.get(i), pinyins.get(i));
-                char_pinyin_id = find_existing_pinyin_character(hanzi.get(i), pinyins.get(i));
-                tone = pinyins.get(i).charAt(pinyins.get(i).length() - 1);
 
-                System.out.println("adding chinese:" + found_chinese_id + ", char_pinyin:" + char_pinyin_id + " at " + i);
-                if ((tone < '1') || (tone > '4'))
+                for (i = 0; i < pinyins.size(); i++)
                 {
-                    st.executeUpdate("INSERT INTO cword_pinyin_bridge(cword_id, character_pinyin_id, pos, notone) VALUES(" + found_chinese_id + "," + char_pinyin_id + "," + i + ",true)");
-                }
-                else
-                {
-                    st.executeUpdate("INSERT INTO cword_pinyin_bridge(cword_id, character_pinyin_id, pos, notone) VALUES(" + found_chinese_id + "," + char_pinyin_id + "," + i + ",false)");
+                    add_character(hanzi.get(i));
+                    add_pinyin(hanzi.get(i), pinyins.get(i));
+                    char_pinyin_id = find_existing_pinyin_character(hanzi.get(i), pinyins.get(i));
+                    tone = pinyins.get(i).charAt(pinyins.get(i).length() - 1);
+
+                    System.out.println("add_translation : adding chinese:" + found_chinese_id + ", char_pinyin:" + char_pinyin_id + " at " + i);
+                    if ((tone < '1') || (tone > '4'))
+                    {
+                        st.executeUpdate("INSERT INTO cword_pinyin_bridge(cword_id, character_pinyin_id, pos, notone) VALUES(" + found_chinese_id + "," + char_pinyin_id + "," + i + ",true)");
+                    }
+                    else
+                    {
+                        st.executeUpdate("INSERT INTO cword_pinyin_bridge(cword_id, character_pinyin_id, pos, notone) VALUES(" + found_chinese_id + "," + char_pinyin_id + "," + i + ",false)");
+                    }
                 }
             }
 
@@ -504,17 +486,27 @@ public class HanziDB
 
     }
 
-    public void shutdown() throws SQLException
+    public void shutdown()
     {
+        try
+        {
+            Statement st = conn.createStatement();
+            if (!initialized)
+            {
+                return;
 
-        Statement st = conn.createStatement();
+            // db writes out to files and performs clean shuts down
+            // otherwise there will be an unclean shutdown
+            // when program ends
+            }
+            st.execute("SHUTDOWN");
+            conn.close();    // if there are no other open connection
 
-        // db writes out to files and performs clean shuts down
-        // otherwise there will be an unclean shutdown
-        // when program ends
-        st.execute("SHUTDOWN");
-        conn.close();    // if there are no other open connection
-
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -522,6 +514,10 @@ public class HanziDB
      */
     public int get_number_words()
     {
+        if (!initialized)
+        {
+            return 0;
+        }
         try
         {
             Statement st = conn.createStatement();
@@ -554,6 +550,10 @@ public class HanziDB
     public ArrayList<String> get_word_details(int index)
     {
         ArrayList<String> res = new ArrayList<String>();
+        if (!initialized)
+        {
+            return res;
+        }
         try
         {
             Statement st = conn.createStatement();
