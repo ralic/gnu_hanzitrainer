@@ -17,48 +17,72 @@ public class HanziDB
 
     private Connection conn;
     private boolean initialized = false;
+    private String filename = null;
 
     public HanziDB()
     {
-        this(new String("mem:db_" + Math.random()));
+        database_init();
+        try
+        {
+            create_database();
+        }
+        catch (Exception e)
+        {
+        }
+        System.out.println("HanziDB : Created a new empty database");
     }
 
     // we dont want this garbage collected until we are done
-    public HanziDB(String db_file_name_prefix)
+    public void HanziDB_open(String db_file_name)
     {
         try
         {
-
-            Class.forName("org.h2.Driver");
-
-            conn = DriverManager.getConnection("jdbc:h2:" + db_file_name_prefix, // filenames
-                    "sa", // username
-                    "");                      // password
-
+            Statement st;
+            
+            shutdown();
+            database_init();
+            
+            st = conn.createStatement();
+            st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
             if (check_for_empty_db())
             {
-
-                System.out.println("HanziDB : database is empty");
+                System.out.println("reading file " + db_file_name + " failed, creating a new empty one");
                 create_database();
-                if (check_for_empty_db())
-                {
-                    System.out.println("HanziDB : still...");
-                }
-                else
-                {
-                    System.out.println("HanziDB : not anymore");
-                }
             }
             else
             {
-                System.out.println("HanziDB : database is not empty");
+                System.out.println("I think I got it right from file " + db_file_name);
+                filename = db_file_name;
             }
         }
         catch (Exception e)
         {
         }
-        System.out.println("HanziDB : Done with database initialization");
-        initialized = true;
+    }
+
+    public void HanziDB_save()
+    {
+        if (filename == null)
+            return;
+        
+        try
+        {
+            Statement st = conn.createStatement();
+            st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+        }
+        catch (Exception e)
+        {
+        }
+    }
+    
+    public void HanziDB_set_filename(String new_filename)
+    {
+        filename = new_filename;
+    }
+    
+    public String HanziDB_get_filename()
+    {
+        return filename;
     }
 
     private Boolean check_for_empty_db() throws SQLException
@@ -79,55 +103,6 @@ public class HanziDB
             st.close();
             return true;
         }
-    }
-
-    private void create_database() throws SQLException
-    {
-        Statement st = conn.createStatement();
-
-        st.executeUpdate("CREATE TABLE database_info (" +
-                " field VARCHAR(50), value VARCHAR(50))");
-        st.executeUpdate("CREATE TABLE character (" +
-                " char_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                " hanzi VARCHAR(2))");
-        st.executeUpdate("CREATE TABLE character_pinyin (" +
-                " character_pinyin_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                " char_id INTEGER," +
-                " pinyin VARCHAR(10)," +
-                " tone INTEGER," +
-                " FOREIGN KEY (char_id) REFERENCES character(char_id))");
-        st.executeUpdate("CREATE TABLE cword (" +
-                " cword_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)");
-        st.executeUpdate("CREATE TABLE cword_pinyin_bridge (" +
-                " cword_id INTEGER," +
-                " character_pinyin_id INTEGER," +
-                " pos INTEGER," +
-                " notone BOOLEAN," +
-                " FOREIGN KEY (cword_id) REFERENCES cword(cword_id)," +
-                " FOREIGN KEY (character_pinyin_id) REFERENCES character_pinyin(character_pinyin_id))");
-        st.executeUpdate("CREATE TABLE english (" +
-                " eng_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                " cword_id INTEGER," +
-                " translation VARCHAR(50)," +
-                " FOREIGN KEY (cword_id) REFERENCES cword(cword_id))");
-        st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
-                " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
-                " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
-                " FROM (SELECT cpb.cword_id," +
-                " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
-                " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
-                " FROM cword AS cw" +
-                " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
-                " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                " JOIN character AS ch ON ch.char_id=cp.char_id" +
-                " GROUP BY cpb.cword_id) AS c_words" +
-                " JOIN english AS e ON e.cword_id=c_words.cword_id " +
-                " GROUP BY e.cword_id )");
-
-        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('version', '1.0')");
-        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
-
-        st.close();
     }
 
     private int find_chinese_word(String chinese)
@@ -405,6 +380,9 @@ public class HanziDB
         st.close();
     }
 
+    /*
+     * adds a new chinese word with its translation
+     */
     public synchronized void add_translation(String english, ArrayList<String> pinyins, ArrayList<String> hanzi)
     {
         if (!initialized)
@@ -486,6 +464,9 @@ public class HanziDB
 
     }
 
+    /**
+     *  Shuts down the database
+     */
     public void shutdown()
     {
         try
@@ -507,10 +488,91 @@ public class HanziDB
         {
             ex.printStackTrace();
         }
+        initialized = false;
+    }
+
+    /**
+     *  Initializes a new database
+     * 
+     * @return nothing
+     */
+    private void database_init()
+    {
+        try
+        {
+
+            Class.forName("org.h2.Driver");
+
+            conn = DriverManager.getConnection("jdbc:h2:mem:db_" + Math.random(), // filenames
+                    "sa", // username
+                    "");                      // password
+
+        }
+        catch (Exception e)
+        {
+        }
+        System.out.println("HanziDB : Done with database initialization");
+        initialized = true;
+    }
+
+    /*
+     * Create a new database with all the tables and views it needs
+     * 
+     * @return nothing
+     */
+    private void create_database() throws SQLException
+    {
+        Statement st = conn.createStatement();
+
+        st.executeUpdate("CREATE TABLE database_info (" +
+                " field VARCHAR(50), value VARCHAR(50))");
+        st.executeUpdate("CREATE TABLE character (" +
+                " char_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                " hanzi VARCHAR(2))");
+        st.executeUpdate("CREATE TABLE character_pinyin (" +
+                " character_pinyin_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                " char_id INTEGER," +
+                " pinyin VARCHAR(10)," +
+                " tone INTEGER," +
+                " FOREIGN KEY (char_id) REFERENCES character(char_id))");
+        st.executeUpdate("CREATE TABLE cword (" +
+                " cword_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)");
+        st.executeUpdate("CREATE TABLE cword_pinyin_bridge (" +
+                " cword_id INTEGER," +
+                " character_pinyin_id INTEGER," +
+                " pos INTEGER," +
+                " notone BOOLEAN," +
+                " FOREIGN KEY (cword_id) REFERENCES cword(cword_id)," +
+                " FOREIGN KEY (character_pinyin_id) REFERENCES character_pinyin(character_pinyin_id))");
+        st.executeUpdate("CREATE TABLE english (" +
+                " eng_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                " cword_id INTEGER," +
+                " translation VARCHAR(50)," +
+                " FOREIGN KEY (cword_id) REFERENCES cword(cword_id))");
+        st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
+                " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
+                " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
+                " FROM (SELECT cpb.cword_id," +
+                " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
+                " FROM cword AS cw" +
+                " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
+                " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                " GROUP BY cpb.cword_id) AS c_words" +
+                " JOIN english AS e ON e.cword_id=c_words.cword_id " +
+                " GROUP BY e.cword_id )");
+
+        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('version', '1.0')");
+        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
+
+        st.close();
     }
 
     /**
      *  Get the number of chinese words in the database
+     * 
+     * @return int number of chinese words
      */
     public int get_number_words()
     {

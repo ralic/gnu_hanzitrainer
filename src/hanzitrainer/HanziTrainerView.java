@@ -6,6 +6,7 @@ package hanzitrainer;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
 import java.util.ArrayList;
+import java.io.File;
 
 /**
  * The application's main frame.
@@ -22,9 +23,11 @@ public class HanziTrainerView extends FrameView
         main_database = new HanziDB();
 
         initComponents();
+        initMoreComponents();
+
 
     }
-    
+
     public void HanziTrainerViewKill()
     {
         main_database.shutdown();
@@ -61,6 +64,7 @@ public class HanziTrainerView extends FrameView
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         OpenDBMenuItem = new javax.swing.JMenuItem();
         SaveDBMenuItem = new javax.swing.JMenuItem();
+        SaveDBAsMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         jComboBox5 = new javax.swing.JComboBox();
@@ -241,14 +245,34 @@ public class HanziTrainerView extends FrameView
         OpenDBMenuItem.setMnemonic('O');
         OpenDBMenuItem.setText(resourceMap.getString("OpenDBMenuItem.text")); // NOI18N
         OpenDBMenuItem.setName("OpenDBMenuItem"); // NOI18N
+        OpenDBMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                open_database(evt);
+            }
+        });
         fileMenu.add(OpenDBMenuItem);
         OpenDBMenuItem.getAccessibleContext().setAccessibleDescription(resourceMap.getString("OpenDBItem1.AccessibleContext.accessibleDescription")); // NOI18N
 
         SaveDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         SaveDBMenuItem.setText(resourceMap.getString("SaveDBMenuItem.text")); // NOI18N
         SaveDBMenuItem.setName("SaveDBMenuItem"); // NOI18N
+        SaveDBMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                save_database(evt);
+            }
+        });
         fileMenu.add(SaveDBMenuItem);
         SaveDBMenuItem.getAccessibleContext().setAccessibleDescription(resourceMap.getString("SaveDBMenuItem.AccessibleContext.accessibleDescription")); // NOI18N
+
+        SaveDBAsMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F12, java.awt.event.InputEvent.CTRL_MASK));
+        SaveDBAsMenuItem.setText(resourceMap.getString("SaveDBAsMenuItem.text")); // NOI18N
+        SaveDBAsMenuItem.setName("SaveDBAsMenuItem"); // NOI18N
+        SaveDBAsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                save_database_as(evt);
+            }
+        });
+        fileMenu.add(SaveDBAsMenuItem);
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getActionMap(HanziTrainerView.class, this);
         exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
@@ -267,6 +291,14 @@ public class HanziTrainerView extends FrameView
         setComponent(mainPanel);
         setMenuBar(menuBar);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initMoreComponents()
+    {
+        DBFileChooser = new javax.swing.JFileChooser();
+        javax.swing.filechooser.FileNameExtensionFilter filter = new javax.swing.filechooser.FileNameExtensionFilter(
+                "Hanzi Trainer DB files", "ktdb");
+        DBFileChooser.setFileFilter(filter);
+    }
 
 private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveButtonActionPerformed
     // TODO add your handling code here:
@@ -291,9 +323,45 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         hanzi.add(hanzi_string.substring(from, to));
     }
     main_database.add_translation(english, pinyin, hanzi);
-    
+
     TableFiller.fireTableDataChanged();
 }//GEN-LAST:event_SaveButtonActionPerformed
+
+private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_open_database
+    int returnVal = DBFileChooser.showOpenDialog(mainPanel);
+
+    if (returnVal == DBFileChooser.APPROVE_OPTION)
+    {
+        File file = DBFileChooser.getSelectedFile();
+        //This is where a real application would open the file.
+        System.out.println("Opening: " + file.getPath());
+        main_database.HanziDB_open(file.getPath());
+        TableFiller.fireTableDataChanged();
+    }
+    else
+    {
+        System.out.println("Open command cancelled by user.");
+    }
+}//GEN-LAST:event_open_database
+
+private void save_database_as(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database_as
+    int returnVal = DBFileChooser.showSaveDialog(mainPanel);
+    if (returnVal == DBFileChooser.APPROVE_OPTION)
+    {
+        File file = DBFileChooser.getSelectedFile();
+        System.out.println("Saving as: " + file.getPath());
+        main_database.HanziDB_set_filename(file.getPath());
+        main_database.HanziDB_save();
+    }
+    else
+    {
+        System.out.println("Open command cancelled by user.");
+    }
+}//GEN-LAST:event_save_database_as
+
+private void save_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database
+    main_database.HanziDB_save();
+}//GEN-LAST:event_save_database
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ChineseLabel;
@@ -308,6 +376,7 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     private javax.swing.JScrollPane PinyinScroll;
     private javax.swing.JButton ResetButton;
     private javax.swing.JButton SaveButton;
+    private javax.swing.JMenuItem SaveDBAsMenuItem;
     private javax.swing.JMenuItem SaveDBMenuItem;
     private javax.swing.JPanel TestPanel;
     private javax.swing.JPanel VocabularyBuilderPanel;
@@ -320,4 +389,5 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     // End of variables declaration//GEN-END:variables
     private PinyinChooserFrame PinyinChooser;
     private DBTableFiller TableFiller;
+    private javax.swing.JFileChooser DBFileChooser;
 }
