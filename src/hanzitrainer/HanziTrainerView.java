@@ -116,6 +116,11 @@ public class HanziTrainerView extends FrameView
         ResetButton.setText(resourceMap.getString("ResetButton.text")); // NOI18N
         ResetButton.setDefaultCapable(false);
         ResetButton.setName("ResetButton"); // NOI18N
+        ResetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ResetButtonActionPerformed(evt);
+            }
+        });
 
         PinyinScroll.setName("PinyinScroll"); // NOI18N
 
@@ -418,6 +423,12 @@ private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-F
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
     ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
 }//GEN-LAST:event_ChineseTextFieldFocusLost
+
+private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
+    ChineseTextField.setText("");
+    EnglishTextField.setText("");
+}//GEN-LAST:event_ResetButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
