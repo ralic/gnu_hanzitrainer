@@ -382,6 +382,8 @@ public class HanziDB
 
     /*
      * adds a new chinese word with its translation
+     * 
+     * 
      */
     public synchronized void add_translation(String english, ArrayList<String> pinyins, ArrayList<String> hanzi)
     {
@@ -417,6 +419,8 @@ public class HanziDB
             }
             else
             {
+                // TODO check the validity of the pinyins
+                
                 st.executeUpdate("INSERT INTO cword() VALUES()");
                 rs = st.executeQuery("SELECT * FROM (" +
                         "SELECT cword.cword_id, SUM(pos) AS res FROM cword" +
@@ -451,6 +455,8 @@ public class HanziDB
                     }
                 }
             }
+            
+            // TODO handle if there is "'" in the english string
 
             st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + english + "')");
 
@@ -602,6 +608,39 @@ public class HanziDB
         return 0;
     }
 
+    /**
+     *  Get the number of chinese characters in the database
+     * 
+     * @return int number of chinese characters
+     */
+    public int get_number_characters()
+    {
+        if (!initialized)
+        {
+            return 0;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT COUNT(char_id) FROM character GROUP BY TRUE");
+            if (!rs.next())
+            {
+                return 0;
+            }
+            else
+            {
+                return rs.getInt(1);
+            }
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+    
     /**
      * Get details about a particular chinese word
      * 

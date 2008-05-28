@@ -7,6 +7,7 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
 import java.util.ArrayList;
 import java.io.File;
+import java.util.Locale;
 
 /**
  * The application's main frame.
@@ -43,7 +44,7 @@ public class HanziTrainerView extends FrameView
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        Tabs = new javax.swing.JTabbedPane();
         VocabularyBuilderPanel = new javax.swing.JPanel();
         ChineseLabel = new javax.swing.JLabel();
         PinyinLabel = new javax.swing.JLabel();
@@ -53,6 +54,9 @@ public class HanziTrainerView extends FrameView
         SaveButton = new javax.swing.JButton();
         ResetButton = new javax.swing.JButton();
         PinyinScroll = new javax.swing.JScrollPane();
+        jComboBox1 = new javax.swing.JComboBox();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jCheckBox2 = new javax.swing.JCheckBox();
         DatabasePanel = new javax.swing.JPanel();
         DBScroll = new javax.swing.JScrollPane();
         DBTable = new javax.swing.JTable();
@@ -71,7 +75,7 @@ public class HanziTrainerView extends FrameView
 
         mainPanel.setName("mainPanel"); // NOI18N
 
-        jTabbedPane1.setName("jTabbedPane1"); // NOI18N
+        Tabs.setName("Tabs"); // NOI18N
 
         VocabularyBuilderPanel.setName("VocabularyBuilderPanel"); // NOI18N
 
@@ -89,6 +93,14 @@ public class HanziTrainerView extends FrameView
         ChineseTextField.setName("ChineseTextField"); // NOI18N
         PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);
         this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);
+        ChineseTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                ChineseTextFieldFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                ChineseTextFieldFocusLost(evt);
+            }
+        });
 
         EnglishTextField.setText(resourceMap.getString("EnglishTextField.text")); // NOI18N
         EnglishTextField.setName("EnglishTextField"); // NOI18N
@@ -107,34 +119,50 @@ public class HanziTrainerView extends FrameView
 
         PinyinScroll.setName("PinyinScroll"); // NOI18N
 
+        jComboBox1.setEnabled(false);
+        jComboBox1.setName("jComboBox1"); // NOI18N
+
+        jCheckBox1.setText(resourceMap.getString("jCheckBox1.text")); // NOI18N
+        jCheckBox1.setEnabled(false);
+        jCheckBox1.setName("jCheckBox1"); // NOI18N
+
+        jCheckBox2.setText(resourceMap.getString("jCheckBox2.text")); // NOI18N
+        jCheckBox2.setEnabled(false);
+        jCheckBox2.setName("jCheckBox2"); // NOI18N
+
         javax.swing.GroupLayout VocabularyBuilderPanelLayout = new javax.swing.GroupLayout(VocabularyBuilderPanel);
         VocabularyBuilderPanel.setLayout(VocabularyBuilderPanelLayout);
         VocabularyBuilderPanelLayout.setHorizontalGroup(
             VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
+                .addContainerGap(390, Short.MAX_VALUE)
+                .addComponent(ResetButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(11, 11, 11))
             .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
-                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
+                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(ChineseLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
-                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
-                                .addGap(20, 20, 20)
-                                .addComponent(PinyinLabel))
-                            .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
-                                .addGap(15, 15, 15)
-                                .addComponent(EnglishLabel)))
+                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, VocabularyBuilderPanelLayout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addComponent(PinyinLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, VocabularyBuilderPanelLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(EnglishLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(EnglishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
-                            .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(ResetButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(EnglishTextField, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jCheckBox2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         VocabularyBuilderPanelLayout.setVerticalGroup(
@@ -142,17 +170,22 @@ public class HanziTrainerView extends FrameView
             .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ChineseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ChineseLabel))
+                    .addComponent(ChineseLabel)
+                    .addComponent(ChineseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(PinyinLabel)
-                    .addComponent(PinyinScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PinyinScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PinyinLabel))
                 .addGap(13, 13, 13)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EnglishLabel)
-                    .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBox1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBox2))
+                .addGap(11, 11, 11)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ResetButton)
                     .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -161,14 +194,18 @@ public class HanziTrainerView extends FrameView
 
         ChineseLabel.getAccessibleContext().setAccessibleName(resourceMap.getString("jLabel1.AccessibleContext.accessibleName")); // NOI18N
 
-        jTabbedPane1.addTab(resourceMap.getString("VocabularyBuilderPanel.TabConstraints.tabTitle"), VocabularyBuilderPanel); // NOI18N
+        Tabs.addTab(resourceMap.getString("VocabularyBuilderPanel.TabConstraints.tabTitle"), VocabularyBuilderPanel); // NOI18N
 
         DatabasePanel.setName("DatabasePanel"); // NOI18N
+        DatabasePanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                ShowWordDatabaseTab(evt);
+            }
+        });
 
         DBScroll.setName("DBScroll"); // NOI18N
 
         DBTable.setModel(TableFiller);
-        DBTable.setColumnSelectionAllowed(true);
         DBTable.setName("DBTable"); // NOI18N
         DBTable.getTableHeader().setReorderingAllowed(false);
         DBScroll.setViewportView(DBTable);
@@ -185,26 +222,26 @@ public class HanziTrainerView extends FrameView
         DatabasePanelLayout.setHorizontalGroup(
             DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(DatabasePanelLayout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(119, 119, 119))
-            .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+            .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
         );
         DatabasePanelLayout.setVerticalGroup(
             DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(DatabasePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(numCharLabel)
-                    .addComponent(numWordLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(numWordLabel)
+                    .addComponent(numCharLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addComponent(DBScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(56, 56, 56))
         );
 
-        jTabbedPane1.addTab(resourceMap.getString("DatabasePanel.TabConstraints.tabTitle"), DatabasePanel); // NOI18N
+        Tabs.addTab(resourceMap.getString("DatabasePanel.TabConstraints.tabTitle"), DatabasePanel); // NOI18N
 
         TestPanel.setName("TestPanel"); // NOI18N
 
@@ -212,29 +249,27 @@ public class HanziTrainerView extends FrameView
         TestPanel.setLayout(TestPanelLayout);
         TestPanelLayout.setHorizontalGroup(
             TestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 524, Short.MAX_VALUE)
+            .addGap(0, 527, Short.MAX_VALUE)
         );
         TestPanelLayout.setVerticalGroup(
             TestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 189, Short.MAX_VALUE)
+            .addGap(0, 231, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab(resourceMap.getString("TestPanel.TabConstraints.tabTitle"), TestPanel); // NOI18N
+        Tabs.addTab(resourceMap.getString("TestPanel.TabConstraints.tabTitle"), TestPanel); // NOI18N
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.getAccessibleContext().setAccessibleName(resourceMap.getString("jTabbedPane1.AccessibleContext.accessibleName")); // NOI18N
+        Tabs.getAccessibleContext().setAccessibleName(resourceMap.getString("jTabbedPane1.AccessibleContext.accessibleName")); // NOI18N
 
         menuBar.setName("menuBar"); // NOI18N
 
@@ -325,6 +360,9 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     main_database.add_translation(english, pinyin, hanzi);
 
     TableFiller.fireTableDataChanged();
+
+    ChineseTextField.setText("");
+    EnglishTextField.setText("");
 }//GEN-LAST:event_SaveButtonActionPerformed
 
 private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_open_database
@@ -363,6 +401,23 @@ private void save_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sa
     main_database.HanziDB_save();
 }//GEN-LAST:event_save_database
 
+private void ShowWordDatabaseTab(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ShowWordDatabaseTab
+    int res;
+
+    res = main_database.get_number_words();
+    numWordLabel.setText("Number of words : " + res);
+
+    res = main_database.get_number_characters();
+    numCharLabel.setText("Number of characters : " + res);
+}//GEN-LAST:event_ShowWordDatabaseTab
+
+private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
+    ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
+}//GEN-LAST:event_ChineseTextFieldFocusGained
+
+private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
+    ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
+}//GEN-LAST:event_ChineseTextFieldFocusLost
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
@@ -378,10 +433,13 @@ private void save_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sa
     private javax.swing.JButton SaveButton;
     private javax.swing.JMenuItem SaveDBAsMenuItem;
     private javax.swing.JMenuItem SaveDBMenuItem;
+    private javax.swing.JTabbedPane Tabs;
     private javax.swing.JPanel TestPanel;
     private javax.swing.JPanel VocabularyBuilderPanel;
+    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox2;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox5;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JLabel numCharLabel;
