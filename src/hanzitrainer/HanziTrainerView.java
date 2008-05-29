@@ -8,6 +8,7 @@ import org.jdesktop.application.FrameView;
 import java.util.ArrayList;
 import java.io.File;
 import java.util.Locale;
+import java.util.prefs.*;
 
 /**
  * The application's main frame.
@@ -16,13 +17,21 @@ public class HanziTrainerView extends FrameView
 {
 
     HanziDB main_database;
+    private Preferences my_preferences;
 
     public HanziTrainerView(SingleFrameApplication app)
     {
         super(app);
+        String database_file;
+        
+        my_preferences = Preferences.userRoot();
 
         main_database = new HanziDB();
-
+        database_file = my_preferences.get("database_filename", "");
+        if (!database_file.equals(""))
+        {
+            main_database.HanziDB_open(database_file);
+        }
         initComponents();
         initMoreComponents();
 
@@ -31,6 +40,13 @@ public class HanziTrainerView extends FrameView
 
     public void HanziTrainerViewKill()
     {
+        String database_file;
+        main_database.HanziDB_save();
+        database_file = main_database.HanziDB_get_filename();
+        if (!database_file.equals(""))
+        {
+            my_preferences.put("database_filename", database_file);
+        }
         main_database.shutdown();
     }
 
@@ -54,10 +70,10 @@ public class HanziTrainerView extends FrameView
         SaveButton = new javax.swing.JButton();
         ResetButton = new javax.swing.JButton();
         PinyinScroll = new javax.swing.JScrollPane();
-        jComboBox1 = new javax.swing.JComboBox();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        DatabasePanel = new javax.swing.JPanel();
+        EnglishTranslations = new javax.swing.JComboBox();
+        RemoveCheckBox = new javax.swing.JCheckBox();
+        EditCheckBox = new javax.swing.JCheckBox();
+        WordDatabasePanel = new javax.swing.JPanel();
         DBScroll = new javax.swing.JScrollPane();
         DBTable = new javax.swing.JTable();
         TableFiller = new DBTableFiller(main_database);
@@ -71,7 +87,6 @@ public class HanziTrainerView extends FrameView
         SaveDBAsMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
-        jComboBox5 = new javax.swing.JComboBox();
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -124,16 +139,16 @@ public class HanziTrainerView extends FrameView
 
         PinyinScroll.setName("PinyinScroll"); // NOI18N
 
-        jComboBox1.setEnabled(false);
-        jComboBox1.setName("jComboBox1"); // NOI18N
+        EnglishTranslations.setEnabled(false);
+        EnglishTranslations.setName("EnglishTranslations"); // NOI18N
 
-        jCheckBox1.setText(resourceMap.getString("jCheckBox1.text")); // NOI18N
-        jCheckBox1.setEnabled(false);
-        jCheckBox1.setName("jCheckBox1"); // NOI18N
+        RemoveCheckBox.setText(resourceMap.getString("RemoveCheckBox.text")); // NOI18N
+        RemoveCheckBox.setEnabled(false);
+        RemoveCheckBox.setName("RemoveCheckBox"); // NOI18N
 
-        jCheckBox2.setText(resourceMap.getString("jCheckBox2.text")); // NOI18N
-        jCheckBox2.setEnabled(false);
-        jCheckBox2.setName("jCheckBox2"); // NOI18N
+        EditCheckBox.setText(resourceMap.getString("EditCheckBox.text")); // NOI18N
+        EditCheckBox.setEnabled(false);
+        EditCheckBox.setName("EditCheckBox"); // NOI18N
 
         javax.swing.GroupLayout VocabularyBuilderPanelLayout = new javax.swing.GroupLayout(VocabularyBuilderPanel);
         VocabularyBuilderPanel.setLayout(VocabularyBuilderPanelLayout);
@@ -163,11 +178,11 @@ public class HanziTrainerView extends FrameView
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(EnglishTextField, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE))
+                            .addComponent(EnglishTranslations, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jCheckBox2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(EditCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(RemoveCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         VocabularyBuilderPanelLayout.setVerticalGroup(
@@ -184,12 +199,12 @@ public class HanziTrainerView extends FrameView
                 .addGap(13, 13, 13)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EnglishLabel)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jCheckBox1))
+                    .addComponent(EnglishTranslations, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(RemoveCheckBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jCheckBox2))
+                    .addComponent(EditCheckBox))
                 .addGap(11, 11, 11)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ResetButton)
@@ -201,8 +216,8 @@ public class HanziTrainerView extends FrameView
 
         Tabs.addTab(resourceMap.getString("VocabularyBuilderPanel.TabConstraints.tabTitle"), VocabularyBuilderPanel); // NOI18N
 
-        DatabasePanel.setName("DatabasePanel"); // NOI18N
-        DatabasePanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+        WordDatabasePanel.setName("WordDatabasePanel"); // NOI18N
+        WordDatabasePanel.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 ShowWordDatabaseTab(evt);
             }
@@ -212,6 +227,7 @@ public class HanziTrainerView extends FrameView
 
         DBTable.setModel(TableFiller);
         DBTable.setName("DBTable"); // NOI18N
+        DBTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         DBTable.getTableHeader().setReorderingAllowed(false);
         DBScroll.setViewportView(DBTable);
         DBTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -222,11 +238,11 @@ public class HanziTrainerView extends FrameView
         numWordLabel.setText(resourceMap.getString("numWordLabel.text")); // NOI18N
         numWordLabel.setName("numWordLabel"); // NOI18N
 
-        javax.swing.GroupLayout DatabasePanelLayout = new javax.swing.GroupLayout(DatabasePanel);
-        DatabasePanel.setLayout(DatabasePanelLayout);
-        DatabasePanelLayout.setHorizontalGroup(
-            DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(DatabasePanelLayout.createSequentialGroup()
+        javax.swing.GroupLayout WordDatabasePanelLayout = new javax.swing.GroupLayout(WordDatabasePanel);
+        WordDatabasePanel.setLayout(WordDatabasePanelLayout);
+        WordDatabasePanelLayout.setHorizontalGroup(
+            WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(WordDatabasePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -234,19 +250,19 @@ public class HanziTrainerView extends FrameView
                 .addContainerGap())
             .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
         );
-        DatabasePanelLayout.setVerticalGroup(
-            DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(DatabasePanelLayout.createSequentialGroup()
+        WordDatabasePanelLayout.setVerticalGroup(
+            WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(WordDatabasePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(DatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(numWordLabel)
                     .addComponent(numCharLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
-                .addComponent(DBScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(56, 56, 56))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(DBScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(90, 90, 90))
         );
 
-        Tabs.addTab(resourceMap.getString("DatabasePanel.TabConstraints.tabTitle"), DatabasePanel); // NOI18N
+        Tabs.addTab(resourceMap.getString("WordDatabasePanel.TabConstraints.tabTitle"), WordDatabasePanel); // NOI18N
 
         TestPanel.setName("TestPanel"); // NOI18N
 
@@ -258,7 +274,7 @@ public class HanziTrainerView extends FrameView
         );
         TestPanelLayout.setVerticalGroup(
             TestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 231, Short.MAX_VALUE)
+            .addGap(0, 235, Short.MAX_VALUE)
         );
 
         Tabs.addTab(resourceMap.getString("TestPanel.TabConstraints.tabTitle"), TestPanel); // NOI18N
@@ -271,7 +287,7 @@ public class HanziTrainerView extends FrameView
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
         );
 
         Tabs.getAccessibleContext().setAccessibleName(resourceMap.getString("jTabbedPane1.AccessibleContext.accessibleName")); // NOI18N
@@ -324,9 +340,6 @@ public class HanziTrainerView extends FrameView
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
         menuBar.add(helpMenu);
-
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jComboBox5.setName("jComboBox5"); // NOI18N
 
         setComponent(mainPanel);
         setMenuBar(menuBar);
@@ -418,10 +431,27 @@ private void ShowWordDatabaseTab(java.awt.event.ComponentEvent evt) {//GEN-FIRST
 
 private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
     ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
+    
+    EnglishTranslations.removeAllItems();
+    EnglishTranslations.setEnabled(false);
 }//GEN-LAST:event_ChineseTextFieldFocusGained
 
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
+    String hanzi_string = ChineseTextField.getText();
+    ArrayList<String> translations = new ArrayList<String>();
+    int i;
+    
     ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
+    
+    translations = main_database.get_chinese_word_translation(hanzi_string);
+    if (translations.size() == 0)
+        return;
+    EnglishTranslations.addItem("[new]");
+    for (i=0; i<translations.size(); i++)
+    {
+        EnglishTranslations.addItem(translations.get(i));
+    }
+    EnglishTranslations.setEnabled(true);
 }//GEN-LAST:event_ChineseTextFieldFocusLost
 
 private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
@@ -434,12 +464,14 @@ private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JTextField ChineseTextField;
     private javax.swing.JScrollPane DBScroll;
     private javax.swing.JTable DBTable;
-    private javax.swing.JPanel DatabasePanel;
+    private javax.swing.JCheckBox EditCheckBox;
     private javax.swing.JLabel EnglishLabel;
     private javax.swing.JTextField EnglishTextField;
+    private javax.swing.JComboBox EnglishTranslations;
     private javax.swing.JMenuItem OpenDBMenuItem;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JScrollPane PinyinScroll;
+    private javax.swing.JCheckBox RemoveCheckBox;
     private javax.swing.JButton ResetButton;
     private javax.swing.JButton SaveButton;
     private javax.swing.JMenuItem SaveDBAsMenuItem;
@@ -447,10 +479,7 @@ private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JTabbedPane Tabs;
     private javax.swing.JPanel TestPanel;
     private javax.swing.JPanel VocabularyBuilderPanel;
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JComboBox jComboBox5;
+    private javax.swing.JPanel WordDatabasePanel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JLabel numCharLabel;

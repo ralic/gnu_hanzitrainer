@@ -38,10 +38,10 @@ public class HanziDB
         try
         {
             Statement st;
-            
+
             shutdown();
             database_init();
-            
+
             st = conn.createStatement();
             st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
             if (check_for_empty_db())
@@ -63,8 +63,9 @@ public class HanziDB
     public void HanziDB_save()
     {
         if (filename == null)
+        {
             return;
-        
+        }
         try
         {
             Statement st = conn.createStatement();
@@ -74,12 +75,12 @@ public class HanziDB
         {
         }
     }
-    
+
     public void HanziDB_set_filename(String new_filename)
     {
         filename = new_filename;
     }
-    
+
     public String HanziDB_get_filename()
     {
         return filename;
@@ -140,43 +141,42 @@ public class HanziDB
         return res;
     }
 
-    public ArrayList<String> get_chinese_word(String chinese)
+    public ArrayList<String> get_chinese_word_translation(String chinese)
     {
         ArrayList<String> res = new ArrayList<String>();
+        int len = chinese.codePointCount(0, chinese.length());
+
+        if (len == 0)
+        {
+            return res;
+        }
+        
         if (!initialized)
         {
             return res;
         }
+        
         try
         {
-            int len = chinese.codePointCount(0, chinese.length());
-
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            if (len == 0)
+            rs = st.executeQuery("SELECT e.translation FROM english AS e " +
+                    "JOIN english_pinyin_chinese AS epc ON e.cword_id=epc.cword_id " +
+                    "WHERE epc.hanzi='" + chinese + "'");
+            for (; rs.next();)
             {
-                st.close();
-                return res;
-            }
-
-            rs = st.executeQuery("SELECT cword_id FROM english_pinyin_chinese WHERE hanzi='" + chinese + "'");
-            if (rs.next())
-            {
-                res.add(rs.getString(2));
-                res.add(rs.getString(3));
-                res.add(rs.getString(4));
+                res.add(rs.getString(1));
             }
 
             st.close();
+            return res;
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
         }
-
         return res;
-
     }
 
     public ArrayList<String> get_pinyin_from_character(String character)
@@ -420,7 +420,7 @@ public class HanziDB
             else
             {
                 // TODO check the validity of the pinyins
-                
+
                 st.executeUpdate("INSERT INTO cword() VALUES()");
                 rs = st.executeQuery("SELECT * FROM (" +
                         "SELECT cword.cword_id, SUM(pos) AS res FROM cword" +
@@ -455,7 +455,7 @@ public class HanziDB
                     }
                 }
             }
-            
+
             // TODO handle if there is "'" in the english string
 
             st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + english + "')");
@@ -640,7 +640,7 @@ public class HanziDB
         }
         return 0;
     }
-    
+
     /**
      * Get details about a particular chinese word
      * 
