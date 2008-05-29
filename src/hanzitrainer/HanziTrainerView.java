@@ -23,7 +23,7 @@ public class HanziTrainerView extends FrameView
     {
         super(app);
         String database_file;
-        
+
         my_preferences = Preferences.userRoot();
 
         main_database = new HanziDB();
@@ -33,9 +33,6 @@ public class HanziTrainerView extends FrameView
             main_database.HanziDB_open(database_file);
         }
         initComponents();
-        initMoreComponents();
-
-
     }
 
     public void HanziTrainerViewKill()
@@ -83,6 +80,7 @@ public class HanziTrainerView extends FrameView
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         OpenDBMenuItem = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
         SaveDBMenuItem = new javax.swing.JMenuItem();
         SaveDBAsMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
@@ -296,6 +294,15 @@ public class HanziTrainerView extends FrameView
 
         fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
+        fileMenu.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                FileMenuSelected(evt);
+            }
+        });
 
         OpenDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         OpenDBMenuItem.setMnemonic('O');
@@ -308,6 +315,16 @@ public class HanziTrainerView extends FrameView
         });
         fileMenu.add(OpenDBMenuItem);
         OpenDBMenuItem.getAccessibleContext().setAccessibleDescription(resourceMap.getString("OpenDBItem1.AccessibleContext.accessibleDescription")); // NOI18N
+
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
+        jMenuItem1.setName("jMenuItem1"); // NOI18N
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                close_database(evt);
+            }
+        });
+        fileMenu.add(jMenuItem1);
 
         SaveDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         SaveDBMenuItem.setText(resourceMap.getString("SaveDBMenuItem.text")); // NOI18N
@@ -345,16 +362,30 @@ public class HanziTrainerView extends FrameView
         setMenuBar(menuBar);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void initMoreComponents()
+    private void init_file_chooser()
     {
+        if (DBFileChooser == null)
+        {
         DBFileChooser = new javax.swing.JFileChooser();
         javax.swing.filechooser.FileNameExtensionFilter filter = new javax.swing.filechooser.FileNameExtensionFilter(
-                "Hanzi Trainer DB files", "ktdb");
+        "Hanzi Trainer DB files", "ktdb");
         DBFileChooser.setFileFilter(filter);
+        }
+    }
+
+    private int open_dialog()
+    {
+        init_file_chooser();
+        return DBFileChooser.showOpenDialog(mainPanel);
+    }
+
+    private int save_dialog()
+    {
+        init_file_chooser();
+        return DBFileChooser.showSaveDialog(mainPanel);
     }
 
 private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveButtonActionPerformed
-    // TODO add your handling code here:
     String english = EnglishTextField.getText();
     ArrayList<String> pinyin = PinyinChooser.get_pinyins();
     String hanzi_string = ChineseTextField.getText();
@@ -384,12 +415,11 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 }//GEN-LAST:event_SaveButtonActionPerformed
 
 private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_open_database
-    int returnVal = DBFileChooser.showOpenDialog(mainPanel);
+    int returnVal = open_dialog();
 
     if (returnVal == DBFileChooser.APPROVE_OPTION)
     {
         File file = DBFileChooser.getSelectedFile();
-        //This is where a real application would open the file.
         System.out.println("Opening: " + file.getPath());
         main_database.HanziDB_open(file.getPath());
         TableFiller.fireTableDataChanged();
@@ -401,7 +431,7 @@ private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_op
 }//GEN-LAST:event_open_database
 
 private void save_database_as(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database_as
-    int returnVal = DBFileChooser.showSaveDialog(mainPanel);
+    int returnVal = save_dialog();
     if (returnVal == DBFileChooser.APPROVE_OPTION)
     {
         File file = DBFileChooser.getSelectedFile();
@@ -431,7 +461,7 @@ private void ShowWordDatabaseTab(java.awt.event.ComponentEvent evt) {//GEN-FIRST
 
 private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
     ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
-    
+
     EnglishTranslations.removeAllItems();
     EnglishTranslations.setEnabled(false);
 }//GEN-LAST:event_ChineseTextFieldFocusGained
@@ -440,14 +470,16 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     String hanzi_string = ChineseTextField.getText();
     ArrayList<String> translations = new ArrayList<String>();
     int i;
-    
+
     ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
-    
+
     translations = main_database.get_chinese_word_translation(hanzi_string);
     if (translations.size() == 0)
+    {
         return;
+    }
     EnglishTranslations.addItem("[new]");
-    for (i=0; i<translations.size(); i++)
+    for (i = 0; i < translations.size(); i++)
     {
         EnglishTranslations.addItem(translations.get(i));
     }
@@ -458,6 +490,18 @@ private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     ChineseTextField.setText("");
     EnglishTextField.setText("");
 }//GEN-LAST:event_ResetButtonActionPerformed
+
+private void close_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_database
+    main_database.HanziDB_close();
+}//GEN-LAST:event_close_database
+
+private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_FileMenuSelected
+    System.out.println("whether to enable save db ? file name is ["+main_database.HanziDB_get_filename()+"]");
+    if (main_database.HanziDB_get_filename().equals(""))
+        SaveDBMenuItem.setEnabled(false);
+    else
+        SaveDBMenuItem.setEnabled(true);
+}//GEN-LAST:event_FileMenuSelected
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ChineseLabel;
@@ -480,6 +524,7 @@ private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JPanel TestPanel;
     private javax.swing.JPanel VocabularyBuilderPanel;
     private javax.swing.JPanel WordDatabasePanel;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JLabel numCharLabel;

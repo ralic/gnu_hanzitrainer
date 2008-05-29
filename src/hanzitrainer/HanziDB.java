@@ -17,7 +17,7 @@ public class HanziDB
 
     private Connection conn;
     private boolean initialized = false;
-    private String filename = null;
+    private String filename = new String("");
 
     public HanziDB()
     {
@@ -62,7 +62,7 @@ public class HanziDB
 
     public void HanziDB_save()
     {
-        if (filename == null)
+        if (filename.equals(""))
         {
             return;
         }
@@ -70,6 +70,20 @@ public class HanziDB
         {
             Statement st = conn.createStatement();
             st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+        }
+        catch (Exception e)
+        {
+        }
+    }
+
+    public void HanziDB_close()
+    {
+        shutdown();
+        HanziDB_set_filename(new String(""));
+        database_init();
+        try
+        {
+            create_database();
         }
         catch (Exception e)
         {
@@ -150,12 +164,12 @@ public class HanziDB
         {
             return res;
         }
-        
+
         if (!initialized)
         {
             return res;
         }
-        
+
         try
         {
             Statement st = conn.createStatement();
