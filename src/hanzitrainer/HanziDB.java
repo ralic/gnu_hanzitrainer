@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class HanziDB
 {
@@ -468,11 +469,23 @@ public class HanziDB
                         st.executeUpdate("INSERT INTO cword_pinyin_bridge(cword_id, character_pinyin_id, pos, notone) VALUES(" + found_chinese_id + "," + char_pinyin_id + "," + i + ",false)");
                     }
                 }
-            }
-
+            }            
             // TODO handle if there is "'" in the english string
+            {
+                StringTokenizer english_tokens = new StringTokenizer(english, ",");
 
-            st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + english + "')");
+                while (english_tokens.hasMoreTokens())
+                {
+                    String current_token = english_tokens.nextToken().trim();
+                    
+                    rs = st.executeQuery("SELECT eng_id FROM english " +
+                            "WHERE cword_id ="+found_chinese_id +
+                            "AND translation='"+current_token+"'");
+                    if (rs.next())
+                        continue;
+                    st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + current_token + "')");
+                }
+            }
 
             st.close();
 
