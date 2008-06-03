@@ -68,8 +68,9 @@ public class HanziTrainerView extends FrameView
         ResetButton = new javax.swing.JButton();
         PinyinScroll = new javax.swing.JScrollPane();
         EnglishTranslations = new javax.swing.JComboBox();
-        RemoveCheckBox = new javax.swing.JCheckBox();
-        EditCheckBox = new javax.swing.JCheckBox();
+        AddNewWordButton = new javax.swing.JRadioButton();
+        EditWordButton = new javax.swing.JRadioButton();
+        DeleteWordButton = new javax.swing.JRadioButton();
         WordDatabasePanel = new javax.swing.JPanel();
         DBScroll = new javax.swing.JScrollPane();
         DBTable = new javax.swing.JTable();
@@ -85,6 +86,7 @@ public class HanziTrainerView extends FrameView
         SaveDBAsMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
+        vocabularyEditorButtonGroup = new javax.swing.ButtonGroup();
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -140,47 +142,54 @@ public class HanziTrainerView extends FrameView
         EnglishTranslations.setEnabled(false);
         EnglishTranslations.setName("EnglishTranslations"); // NOI18N
 
-        RemoveCheckBox.setText(resourceMap.getString("RemoveCheckBox.text")); // NOI18N
-        RemoveCheckBox.setEnabled(false);
-        RemoveCheckBox.setName("RemoveCheckBox"); // NOI18N
+        vocabularyEditorButtonGroup.add(AddNewWordButton);
+        AddNewWordButton.setText(resourceMap.getString("AddNewWordButton.text")); // NOI18N
+        AddNewWordButton.setEnabled(false);
+        AddNewWordButton.setName("AddNewWordButton"); // NOI18N
 
-        EditCheckBox.setText(resourceMap.getString("EditCheckBox.text")); // NOI18N
-        EditCheckBox.setEnabled(false);
-        EditCheckBox.setName("EditCheckBox"); // NOI18N
+        vocabularyEditorButtonGroup.add(EditWordButton);
+        EditWordButton.setText(resourceMap.getString("EditWordButton.text")); // NOI18N
+        EditWordButton.setEnabled(false);
+        EditWordButton.setName("EditWordButton"); // NOI18N
+
+        vocabularyEditorButtonGroup.add(DeleteWordButton);
+        DeleteWordButton.setText(resourceMap.getString("DeleteWordButton.text")); // NOI18N
+        DeleteWordButton.setEnabled(false);
+        DeleteWordButton.setName("DeleteWordButton"); // NOI18N
 
         javax.swing.GroupLayout VocabularyBuilderPanelLayout = new javax.swing.GroupLayout(VocabularyBuilderPanel);
         VocabularyBuilderPanel.setLayout(VocabularyBuilderPanelLayout);
         VocabularyBuilderPanelLayout.setHorizontalGroup(
             VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
-                .addContainerGap(390, Short.MAX_VALUE)
-                .addComponent(ResetButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(11, 11, 11))
             .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
-                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, VocabularyBuilderPanelLayout.createSequentialGroup()
+                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(ChineseLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, VocabularyBuilderPanelLayout.createSequentialGroup()
+                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE))
+                    .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addGap(14, 14, 14)
                         .addComponent(PinyinLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, VocabularyBuilderPanelLayout.createSequentialGroup()
+                        .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE))
+                    .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addGap(15, 15, 15)
                         .addComponent(EnglishLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(EnglishTextField, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(EnglishTranslations, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(EditCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(RemoveCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(6, 6, 6)
+                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(EditWordButton)
+                            .addComponent(AddNewWordButton)
+                            .addComponent(DeleteWordButton)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
+                        .addContainerGap(400, Short.MAX_VALUE)
+                        .addComponent(ResetButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         VocabularyBuilderPanelLayout.setVerticalGroup(
@@ -198,16 +207,18 @@ public class HanziTrainerView extends FrameView
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EnglishLabel)
                     .addComponent(EnglishTranslations, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(RemoveCheckBox))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(AddNewWordButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(EditCheckBox))
-                .addGap(11, 11, 11)
+                    .addComponent(EditWordButton))
+                .addGap(3, 3, 3)
+                .addComponent(DeleteWordButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ResetButton)
                     .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addGap(40, 40, 40))
         );
 
         ChineseLabel.getAccessibleContext().setAccessibleName(resourceMap.getString("jLabel1.AccessibleContext.accessibleName")); // NOI18N
@@ -246,7 +257,7 @@ public class HanziTrainerView extends FrameView
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
-            .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+            .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
         );
         WordDatabasePanelLayout.setVerticalGroup(
             WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -268,11 +279,11 @@ public class HanziTrainerView extends FrameView
         TestPanel.setLayout(TestPanelLayout);
         TestPanelLayout.setHorizontalGroup(
             TestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 527, Short.MAX_VALUE)
+            .addGap(0, 536, Short.MAX_VALUE)
         );
         TestPanelLayout.setVerticalGroup(
             TestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 235, Short.MAX_VALUE)
+            .addGap(0, 245, Short.MAX_VALUE)
         );
 
         Tabs.addTab(resourceMap.getString("TestPanel.TabConstraints.tabTitle"), TestPanel); // NOI18N
@@ -281,11 +292,13 @@ public class HanziTrainerView extends FrameView
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addComponent(Tabs, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         Tabs.getAccessibleContext().setAccessibleName(resourceMap.getString("jTabbedPane1.AccessibleContext.accessibleName")); // NOI18N
@@ -366,10 +379,10 @@ public class HanziTrainerView extends FrameView
     {
         if (DBFileChooser == null)
         {
-        DBFileChooser = new javax.swing.JFileChooser();
-        javax.swing.filechooser.FileNameExtensionFilter filter = new javax.swing.filechooser.FileNameExtensionFilter(
-        "Hanzi Trainer DB files", "ktdb");
-        DBFileChooser.setFileFilter(filter);
+            DBFileChooser = new javax.swing.JFileChooser();
+            javax.swing.filechooser.FileNameExtensionFilter filter = new javax.swing.filechooser.FileNameExtensionFilter(
+                    "Hanzi Trainer DB files", "ktdb");
+            DBFileChooser.setFileFilter(filter);
         }
     }
 
@@ -391,6 +404,13 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     String hanzi_string = ChineseTextField.getText();
     ArrayList<String> hanzi = new ArrayList<String>();
     int i;
+    for (i = 0; i < pinyin.size(); i++)
+    {
+        if (!PinyinParser.verify_pinyin(pinyin.get(i)))
+        {
+            return;
+        }
+    }
     for (i = 0; i < hanzi_string.codePointCount(0, hanzi_string.length()); i++)
     {
         int from;
@@ -464,6 +484,9 @@ private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-F
 
     EnglishTranslations.removeAllItems();
     EnglishTranslations.setEnabled(false);
+    AddNewWordButton.setEnabled(false);
+    EditWordButton.setEnabled(false);
+    DeleteWordButton.setEnabled(false);
 }//GEN-LAST:event_ChineseTextFieldFocusGained
 
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
@@ -478,12 +501,14 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     {
         return;
     }
-    EnglishTranslations.addItem("[new]");
     for (i = 0; i < translations.size(); i++)
     {
         EnglishTranslations.addItem(translations.get(i));
     }
     EnglishTranslations.setEnabled(true);
+    AddNewWordButton.setEnabled(true);
+    EditWordButton.setEnabled(true);
+    DeleteWordButton.setEnabled(true);
 }//GEN-LAST:event_ChineseTextFieldFocusLost
 
 private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
@@ -496,26 +521,30 @@ private void close_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_c
 }//GEN-LAST:event_close_database
 
 private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_FileMenuSelected
-    System.out.println("whether to enable save db ? file name is ["+main_database.HanziDB_get_filename()+"]");
+    System.out.println("whether to enable save db ? file name is [" + main_database.HanziDB_get_filename() + "]");
     if (main_database.HanziDB_get_filename().equals(""))
+    {
         SaveDBMenuItem.setEnabled(false);
+    }
     else
+    {
         SaveDBMenuItem.setEnabled(true);
+    }
 }//GEN-LAST:event_FileMenuSelected
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton AddNewWordButton;
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
     private javax.swing.JScrollPane DBScroll;
     private javax.swing.JTable DBTable;
-    private javax.swing.JCheckBox EditCheckBox;
+    private javax.swing.JRadioButton DeleteWordButton;
+    private javax.swing.JRadioButton EditWordButton;
     private javax.swing.JLabel EnglishLabel;
     private javax.swing.JTextField EnglishTextField;
     private javax.swing.JComboBox EnglishTranslations;
     private javax.swing.JMenuItem OpenDBMenuItem;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JScrollPane PinyinScroll;
-    private javax.swing.JCheckBox RemoveCheckBox;
     private javax.swing.JButton ResetButton;
     private javax.swing.JButton SaveButton;
     private javax.swing.JMenuItem SaveDBAsMenuItem;
@@ -529,6 +558,7 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JLabel numCharLabel;
     private javax.swing.JLabel numWordLabel;
+    private javax.swing.ButtonGroup vocabularyEditorButtonGroup;
     // End of variables declaration//GEN-END:variables
     private PinyinChooserFrame PinyinChooser;
     private DBTableFiller TableFiller;

@@ -74,6 +74,24 @@ public class PinyinParser {
         return true;
     }
     
+    public static boolean verify_pinyin(String entry)
+    {
+        int i;
+        String temp;
+        for (String try_pinyin : allowed_pinyin)
+        {
+            if (entry.equals(try_pinyin))
+                return true;
+            for (i=1;i<5; i++)
+            {
+                temp = try_pinyin+i;
+                if (entry.equals(temp))
+                    return true;
+            }
+        }
+        return false;
+    }
+    
     public int get_number_of_elements()
     {
         return parsed.toArray().length;
@@ -84,7 +102,7 @@ public class PinyinParser {
         return (String) parsed.toArray()[number];
     }
     
-    String[] allowed_pinyin={
+    private static final String[] allowed_pinyin={
         "a", "ba", "pa", "ma", "fa", "da", "ta", "na", "la", "za", "ca", "sa",
         "zha", "cha", "sha", "ga", "ka", "ha", "o", "bo", "po", "mo", "fo",
         "me", "de", "te", "ne", "le", "ze", "ce", "se", "zhe", "che", "she",
