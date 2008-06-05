@@ -401,6 +401,7 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     String hanzi_string = ChineseTextField.getText();
     ArrayList<String> hanzi = new ArrayList<String>();
     int i;
+    
     for (i = 0; i < pinyin.size(); i++)
     {
         if (!PinyinParser.verify_pinyin(pinyin.get(i)))
@@ -425,6 +426,8 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     }
     if ((!AddNewWordButton.isEnabled()) || (AddNewWordButton.isSelected()))
     {
+        if (english.length() == 0)
+            return;
         main_database.add_translation(english, pinyin, hanzi);
     }
     else
@@ -437,9 +440,21 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
             }
             main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
         }
+        else if (EditWordButton.isSelected())
+        {
+            if (EnglishTranslations.getSelectedIndex() == 0)
+            {
+                return;
+            }
+            if (english.length()==0)
+                return;
+            main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
+            main_database.add_translation(english, pinyin, hanzi);
+        }
     }
     TableFiller.fireTableDataChanged();
 
+    EnglishTranslations.removeAllItems();
     ChineseTextField.setText("");
     EnglishTextField.setText("");
 }//GEN-LAST:event_SaveButtonActionPerformed
@@ -497,6 +512,10 @@ private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-F
     AddNewWordButton.setEnabled(false);
     EditWordButton.setEnabled(false);
     DeleteWordButton.setEnabled(false);
+    AddNewWordButton.setSelected(false);
+    EditWordButton.setSelected(false);
+    DeleteWordButton.setSelected(false);
+    
 }//GEN-LAST:event_ChineseTextFieldFocusGained
 
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
@@ -520,6 +539,7 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     AddNewWordButton.setEnabled(true);
     EditWordButton.setEnabled(true);
     DeleteWordButton.setEnabled(true);
+    AddNewWordButton.setSelected(true);
 }//GEN-LAST:event_ChineseTextFieldFocusLost
 
 private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
