@@ -40,10 +40,7 @@ public class HanziTrainerView extends FrameView
         String database_file;
         main_database.HanziDB_save();
         database_file = main_database.HanziDB_get_filename();
-        if (!database_file.equals(""))
-        {
-            my_preferences.put("database_filename", database_file);
-        }
+        my_preferences.put("database_filename", database_file);
         main_database.shutdown();
     }
 
@@ -426,8 +423,21 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         }
         hanzi.add(hanzi_string.substring(from, to));
     }
-    main_database.add_translation(english, pinyin, hanzi);
-
+    if ((!AddNewWordButton.isEnabled()) || (AddNewWordButton.isSelected()))
+    {
+        main_database.add_translation(english, pinyin, hanzi);
+    }
+    else
+    {
+        if (DeleteWordButton.isSelected())
+        {
+            if (EnglishTranslations.getSelectedIndex() == 0)
+            {
+                return;
+            }
+            main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
+        }
+    }
     TableFiller.fireTableDataChanged();
 
     ChineseTextField.setText("");
@@ -501,6 +511,7 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     {
         return;
     }
+    EnglishTranslations.addItem("[new]");
     for (i = 0; i < translations.size(); i++)
     {
         EnglishTranslations.addItem(translations.get(i));
@@ -518,6 +529,7 @@ private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
 private void close_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_database
     main_database.HanziDB_close();
+    TableFiller.fireTableDataChanged();
 }//GEN-LAST:event_close_database
 
 private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_FileMenuSelected

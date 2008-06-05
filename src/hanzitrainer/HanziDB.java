@@ -47,12 +47,12 @@ public class HanziDB
             st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
             if (check_for_empty_db())
             {
-                System.out.println("reading file " + db_file_name + " failed, creating a new empty one");
+                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
                 create_database();
             }
             else
             {
-                System.out.println("I think I got it right from file " + db_file_name);
+                System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
                 filename = db_file_name;
             }
         }
@@ -469,26 +469,121 @@ public class HanziDB
                         st.executeUpdate("INSERT INTO cword_pinyin_bridge(cword_id, character_pinyin_id, pos, notone) VALUES(" + found_chinese_id + "," + char_pinyin_id + "," + i + ",false)");
                     }
                 }
-            }            
-            // TODO handle if there is "'" in the english string
+            }            // TODO handle if there is "'" in the english string
             {
                 StringTokenizer english_tokens = new StringTokenizer(english, ",");
 
                 while (english_tokens.hasMoreTokens())
                 {
                     String current_token = english_tokens.nextToken().trim();
-                    
+
                     rs = st.executeQuery("SELECT eng_id FROM english " +
-                            "WHERE cword_id ="+found_chinese_id +
-                            "AND translation='"+current_token+"'");
+                            "WHERE cword_id =" + found_chinese_id +
+                            "AND translation='" + current_token + "'");
                     if (rs.next())
+                    {
                         continue;
+                    }
                     st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + current_token + "')");
                 }
             }
 
             st.close();
 
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    public synchronized void delete_translation(String english, ArrayList<String> hanzi)
+    {
+        if (!initialized)
+        {
+            return;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null, rs2 = null;
+            int char_pinyin_id = 0, char_id = 0;
+            int i;
+            String chinese = new String("");
+            int found_chinese_id;
+
+            System.out.println("delete_translation: removing [" + english + "]");
+            for (i = 0; i < hanzi.size(); i++)
+            {
+                chinese += hanzi.get(i);
+            }
+            found_chinese_id = find_chinese_word(chinese);
+            st.executeUpdate("DELETE FROM english" +
+                    " WHERE cword_id=" + found_chinese_id +
+                    " AND translation='" + english + "'");
+
+            // now look if this chinese word is still in use
+            rs = st.executeQuery("SELECT eng_id FROM english" +
+                    " WHERE cword_id=" + found_chinese_id);
+            if (rs.next())
+            {
+                System.out.println("delete_translation: the word has other translations");
+                st.close();
+                st.close();
+                return;
+            }
+            rs = st.executeQuery("SELECT character_pinyin_id FROM cword_pinyin_bridge" +
+                    " WHERE cword_id=" + found_chinese_id);
+            while (rs.next())
+            {
+                char_pinyin_id = rs.getInt(1);
+
+                // remove that pair from this word
+                st.executeUpdate("DELETE FROM cword_pinyin_bridge" +
+                        " WHERE cword_id=" + found_chinese_id +
+                        " AND character_pinyin_id=" + char_pinyin_id);
+
+                // check if that pair of pinyin/character is used somewhere else
+                rs2 = st.executeQuery("SELECT cword_id FROM cword_pinyin_bridge" +
+                        " WHERE cword_id<>" + found_chinese_id +
+                        " AND character_pinyin_id=" + char_pinyin_id);
+
+                if (!rs2.next())
+                {
+                    // check if that caracter is used
+                    rs2 = st.executeQuery("SELECT char_id FROM character_pinyin" +
+                            " WHERE character_pinyin_id=" + char_pinyin_id);
+                    rs2.next();
+                    char_id = rs2.getInt(1);
+
+                    System.out.println("delete_translation : remove that character_pinyin");
+                    st.executeUpdate("DELETE FROM character_pinyin" +
+                            " WHERE character_pinyin_id=" + char_pinyin_id);
+
+                    rs2 = st.executeQuery("SELECT character_pinyin_id FROM character_pinyin" +
+                            " WHERE char_id=" + char_id);
+                    if (!rs2.next())
+                    {
+                        System.out.println("delete_translation : removing that character");
+                        st.executeUpdate("DELETE FROM character " +
+                                " WHERE char_id=" + char_id);
+                    }
+
+                }
+                else
+                {
+                    System.out.println("delete_translation : That character pinyin is still in use");
+                }
+                rs = st.executeQuery("SELECT character_pinyin_id FROM cword_pinyin_bridge" +
+                        " WHERE cword_id=" + found_chinese_id);
+            }
+
+            System.out.println("delete_translation : removing the chinese word from DB");
+            // finally delete the word
+            st.executeUpdate("DELETE FROM cword" +
+                    " WHERE cword_id=" + found_chinese_id);
+
+            st.close();
         }
         catch (SQLException ex)
         {
