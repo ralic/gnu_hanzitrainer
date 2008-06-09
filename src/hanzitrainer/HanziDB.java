@@ -763,6 +763,42 @@ public class HanziDB
         return 0;
     }
 
+    public ArrayList<ArrayList<String>> get_words_with_character(String hanzi)
+    {
+        ArrayList<String> temp;
+        ArrayList<ArrayList<String>> res = (ArrayList<ArrayList<String>>)new ArrayList();
+
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT epc.cword_id, epc.hanzi, epc.pinyin, epc.translations FROM " +
+                    " (SELECT cword_id FROM" +
+                    " character AS ch" +
+                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
+                    " JOIN cword_pinyin_bridge AS cpb ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                    " WHERE ch.hanzi='" + hanzi + "'" +
+                    " GROUP BY cpb.cword_id) AS selected_words" +
+                    " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id");
+            for (; rs.next();)
+            {
+                temp = (ArrayList<String>) new ArrayList();
+                temp.clear();
+                temp.add(rs.getString(2));
+                temp.add(rs.getString(3));
+                temp.add(rs.getString(4));
+                res.add(temp);
+            }
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+
+    }
+
     /**
      * Get details about a particular chinese word
      * 
@@ -787,6 +823,29 @@ public class HanziDB
             res.add(rs.getString(2));
             res.add(rs.getString(3));
             res.add(rs.getString(4));
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+
+    public String get_character_details(int index)
+    {
+        String res = new String();
+        if (!initialized)
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT hanzi FROM character");
+            rs.relative(index + 1);
+            res = rs.getString(1);
         }
         catch (SQLException ex)
         {
