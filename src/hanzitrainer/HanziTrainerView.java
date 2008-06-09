@@ -664,6 +664,8 @@ private void random_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRS
     String hanzi = main_database.get_character_details(index);
     
     CharacterLabel.setText(hanzi);
+    CharTableFiller.set_character(hanzi);
+    CharTableFiller.fireTableDataChanged();
 
 }//GEN-LAST:event_random_character_action
 
