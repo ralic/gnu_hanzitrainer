@@ -18,7 +18,7 @@ public class HanziDB
 
     private Connection conn;
     private boolean initialized = false;
-    private String filename = new String("");
+    private String filename = "";
 
     public HanziDB()
     {
@@ -80,7 +80,7 @@ public class HanziDB
     public void HanziDB_close()
     {
         shutdown();
-        HanziDB_set_filename(new String(""));
+        HanziDB_set_filename("");
         database_init();
         try
         {
@@ -412,7 +412,7 @@ public class HanziDB
             ResultSet rs = null, rs2 = null;
             int char_pinyin_id = 0;
             int i;
-            String chinese = new String("");
+            String chinese = "";
             int found_chinese_id;
             int tone;
 
@@ -509,7 +509,7 @@ public class HanziDB
             ResultSet rs = null, rs2 = null;
             int char_pinyin_id = 0, char_id = 0;
             int i;
-            String chinese = new String("");
+            String chinese = "";
             int found_chinese_id;
 
             System.out.println("delete_translation: removing [" + english + "]");
@@ -766,7 +766,7 @@ public class HanziDB
     public ArrayList<ArrayList<String>> get_words_with_character(String hanzi)
     {
         ArrayList<String> temp;
-        ArrayList<ArrayList<String>> res = (ArrayList<ArrayList<String>>)new ArrayList();
+        ArrayList<ArrayList<String>> res = new ArrayList<ArrayList<String>>();
 
         try
         {
@@ -783,7 +783,7 @@ public class HanziDB
                     " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id");
             for (; rs.next();)
             {
-                temp = (ArrayList<String>) new ArrayList();
+                temp = new ArrayList<String>();
                 temp.clear();
                 temp.add(rs.getString(2));
                 temp.add(rs.getString(3));
@@ -833,7 +833,7 @@ public class HanziDB
 
     public String get_character_details(int index)
     {
-        String res = new String();
+        String res="";
         if (!initialized)
         {
             return res;
@@ -852,5 +852,33 @@ public class HanziDB
             ex.printStackTrace();
         }
         return res;
+    }
+
+    public ArrayList<String> get_pinyin_for_character(String hanzi)
+    {
+        ArrayList<String> res = new ArrayList<String>();
+        if (!initialized)
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT pinyin FROM character_pinyin AS cp" +
+                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                    " WHERE ch.hanzi='" + hanzi + "'");
+            for (; rs.next();)
+            {
+                res.add(rs.getString(1));
+            }
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+
     }
 }    // class Testdb

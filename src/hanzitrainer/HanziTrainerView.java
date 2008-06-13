@@ -302,6 +302,8 @@ public class HanziTrainerView extends FrameView
             }
         });
 
+        CharacterLabel.setFont(new java.awt.Font("MingLiU", 0, 80)); // NOI18N
+        CharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CharacterLabel.setText(resourceMap.getString("CharacterLabel.text")); // NOI18N
         CharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         CharacterLabel.setName("CharacterLabel"); // NOI18N
@@ -324,9 +326,22 @@ public class HanziTrainerView extends FrameView
 
         CharsearchentryTextField.setText(resourceMap.getString("CharsearchentryTextField.text")); // NOI18N
         CharsearchentryTextField.setName("CharsearchentryTextField"); // NOI18N
+        CharsearchentryTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                CharsearchentryTextFieldFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                CharsearchentryTextFieldFocusLost(evt);
+            }
+        });
 
         CharSearchButton.setText(resourceMap.getString("CharSearchButton.text")); // NOI18N
         CharSearchButton.setName("CharSearchButton"); // NOI18N
+        CharSearchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CharSearchButtonAction(evt);
+            }
+        });
 
         javax.swing.GroupLayout CharacterReviewPanelLayout = new javax.swing.GroupLayout(CharacterReviewPanel);
         CharacterReviewPanel.setLayout(CharacterReviewPanelLayout);
@@ -495,7 +510,7 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     String hanzi_string = ChineseTextField.getText();
     ArrayList<String> hanzi = new ArrayList<String>();
     int i;
-    
+
     for (i = 0; i < pinyin.size(); i++)
     {
         if (!PinyinParser.verify_pinyin(pinyin.get(i)))
@@ -521,7 +536,9 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     if ((!AddNewWordButton.isEnabled()) || (AddNewWordButton.isSelected()))
     {
         if (english.length() == 0)
+        {
             return;
+        }
         main_database.add_translation(english, pinyin, hanzi);
     }
     else
@@ -534,16 +551,21 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
             }
             main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
         }
-        else if (EditWordButton.isSelected())
+        else
         {
-            if (EnglishTranslations.getSelectedIndex() == 0)
+            if (EditWordButton.isSelected())
             {
-                return;
+                if (EnglishTranslations.getSelectedIndex() == 0)
+                {
+                    return;
+                }
+                if (english.length() == 0)
+                {
+                    return;
+                }
+                main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
+                main_database.add_translation(english, pinyin, hanzi);
             }
-            if (english.length()==0)
-                return;
-            main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
-            main_database.add_translation(english, pinyin, hanzi);
         }
     }
     TableFiller.fireTableDataChanged();
@@ -609,7 +631,7 @@ private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-F
     AddNewWordButton.setSelected(false);
     EditWordButton.setSelected(false);
     DeleteWordButton.setSelected(false);
-    
+
 }//GEN-LAST:event_ChineseTextFieldFocusGained
 
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
@@ -658,17 +680,77 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
     }
 }//GEN-LAST:event_FileMenuSelected
 
+    private void set_character_review(String hanzi)
+    {
+        ArrayList<String> pinyins = main_database.get_pinyin_from_character(hanzi);
+        String pinyin_list="";
+        int i,j;
+
+        for (i = pinyins.size()-1; i >= 0; i--)
+        {
+            String pinyin_to_check = pinyins.get(i);
+            int tone = pinyin_to_check.charAt(pinyin_to_check.length() - 1);
+            boolean found = false;
+            if ((tone < '1') || (tone > '4'))
+            {
+                for (j = 0; j < pinyins.size(); j++)
+                {
+                    if (i == j)
+                    {
+                        continue;
+                    }
+                    if (pinyins.get(j).startsWith(pinyin_to_check))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                {
+                    pinyins.remove(i);
+                }
+            }
+
+        }
+        
+        pinyin_list = pinyins.get(0);
+        for (i=1; i<pinyins.size(); i++)
+        {
+            pinyin_list += ", "+pinyins.get(i);
+        }
+        PinyinsTextfield.setText(pinyin_list);
+        CharacterLabel.setText(hanzi);
+        CharTableFiller.set_character(hanzi);
+        CharTableFiller.fireTableDataChanged();
+    }
+
 private void random_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_random_character_action
     int num_char = main_database.get_number_characters();
     int index = (int) (Math.random() * num_char);
     String hanzi = main_database.get_character_details(index);
-    
-    CharacterLabel.setText(hanzi);
-    CharTableFiller.set_character(hanzi);
-    CharTableFiller.fireTableDataChanged();
+
+    set_character_review(hanzi);
 
 }//GEN-LAST:event_random_character_action
 
+private void CharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharSearchButtonAction
+    String char_to_search = CharsearchentryTextField.getText();
+
+    if (char_to_search.codePointCount(0, char_to_search.length()) != 1)
+    {
+        return;
+    }
+    set_character_review(char_to_search);
+
+}//GEN-LAST:event_CharSearchButtonAction
+
+private void CharsearchentryTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusGained
+    CharsearchentryTextField.getInputContext().selectInputMethod(Locale.CHINA);
+}//GEN-LAST:event_CharsearchentryTextFieldFocusGained
+
+private void CharsearchentryTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusLost
+    ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
+}//GEN-LAST:event_CharsearchentryTextFieldFocusLost
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton AddNewWordButton;
     private javax.swing.JScrollPane CharDBScroll;
