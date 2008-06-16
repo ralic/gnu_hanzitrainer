@@ -33,6 +33,7 @@ public class HanziTrainerView extends FrameView
             main_database.HanziDB_open(database_file);
         }
         initComponents();
+        CharTableFiller.set_character("");
     }
 
     public void HanziTrainerViewKill()
@@ -302,7 +303,7 @@ public class HanziTrainerView extends FrameView
             }
         });
 
-        CharacterLabel.setFont(new java.awt.Font("MingLiU", 0, 80)); // NOI18N
+        CharacterLabel.setFont(new java.awt.Font("MingLiU", 0, 80));
         CharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CharacterLabel.setText(resourceMap.getString("CharacterLabel.text")); // NOI18N
         CharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -326,6 +327,11 @@ public class HanziTrainerView extends FrameView
 
         CharsearchentryTextField.setText(resourceMap.getString("CharsearchentryTextField.text")); // NOI18N
         CharsearchentryTextField.setName("CharsearchentryTextField"); // NOI18N
+        CharsearchentryTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CharSearchButtonAction(evt);
+            }
+        });
         CharsearchentryTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 CharsearchentryTextFieldFocusGained(evt);
@@ -513,7 +519,7 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 
     for (i = 0; i < pinyin.size(); i++)
     {
-        if (!PinyinParser.verify_pinyin(pinyin.get(i)))
+        if (!Pinyin.verify_pinyin(pinyin.get(i)))
         {
             return;
         }
@@ -685,38 +691,41 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
         ArrayList<String> pinyins = main_database.get_pinyin_from_character(hanzi);
         String pinyin_list="";
         int i,j;
-
-        for (i = pinyins.size()-1; i >= 0; i--)
+        
+        if (pinyins.size() != 0)
         {
-            String pinyin_to_check = pinyins.get(i);
-            int tone = pinyin_to_check.charAt(pinyin_to_check.length() - 1);
-            boolean found = false;
-            if ((tone < '1') || (tone > '4'))
+            for (i = pinyins.size() - 1; i >= 0; i--)
             {
-                for (j = 0; j < pinyins.size(); j++)
+                String pinyin_to_check = pinyins.get(i);
+                int tone = pinyin_to_check.charAt(pinyin_to_check.length() - 1);
+                boolean found = false;
+                if ((tone < '1') || (tone > '4'))
                 {
-                    if (i == j)
+                    for (j = 0; j < pinyins.size(); j++)
                     {
-                        continue;
+                        if (i == j)
+                        {
+                            continue;
+                        }
+                        if (pinyins.get(j).startsWith(pinyin_to_check))
+                        {
+                            found = true;
+                            break;
+                        }
                     }
-                    if (pinyins.get(j).startsWith(pinyin_to_check))
+                    if (found)
                     {
-                        found = true;
-                        break;
+                        pinyins.remove(i);
                     }
                 }
-                if (found)
-                {
-                    pinyins.remove(i);
-                }
+
             }
 
-        }
-        
-        pinyin_list = pinyins.get(0);
-        for (i=1; i<pinyins.size(); i++)
-        {
-            pinyin_list += ", "+pinyins.get(i);
+            pinyin_list = pinyins.get(0);
+            for (i = 1; i < pinyins.size(); i++)
+            {
+                pinyin_list += ", " + pinyins.get(i);
+            }
         }
         PinyinsTextfield.setText(pinyin_list);
         CharacterLabel.setText(hanzi);

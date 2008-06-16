@@ -7,16 +7,19 @@ package hanzitrainer;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 
+
 /**
  *
  * @author Administrator
  */
 public class DBTableFiller extends AbstractTableModel
 {
-
+    private enum table_mode_t { TMODE_ALL, TMODE_CHARACTER, TMODE_WORD }
+    
     HanziDB db;
     String hanzi;
     ArrayList<ArrayList<String>> table_for_character;
+    table_mode_t table_mode = table_mode_t.TMODE_ALL;
 
     public DBTableFiller(HanziDB database)
     {
@@ -28,6 +31,9 @@ public class DBTableFiller extends AbstractTableModel
     {
         this.hanzi = hanzi;
         table_for_character = db.get_words_with_character(hanzi);
+        if (table_for_character.size()==0)
+            System.out.println("No DBTableFiller.set_character : no word for this char");
+        table_mode = table_mode_t.TMODE_CHARACTER;
     }
 
     public String getColumnName(int column)
@@ -48,7 +54,7 @@ public class DBTableFiller extends AbstractTableModel
     public int getRowCount()
     {
         int res;
-        if (hanzi.equals(""))
+        if (table_mode == table_mode_t.TMODE_ALL)
         {
             res = db.get_number_words();
         }
@@ -66,7 +72,7 @@ public class DBTableFiller extends AbstractTableModel
 
     public Object getValueAt(int row, int column)
     {
-        if (hanzi.equals(""))
+        if (table_mode == table_mode_t.TMODE_ALL)
         {
             ArrayList<String> word_details;
             if (getRowCount() == 0)
@@ -79,7 +85,7 @@ public class DBTableFiller extends AbstractTableModel
             case 0:
                 return word_details.get(0);
             case 1:
-                return word_details.get(1);
+                return PinyinParser.convert_to_printed_version(word_details.get(1));
             case 2:
                 return word_details.get(2);
             default:
@@ -88,7 +94,10 @@ public class DBTableFiller extends AbstractTableModel
         }
         else
         {
-            return table_for_character.get(row).get(column);
+            String result = table_for_character.get(row).get(column);
+            if (column==1)
+                result = PinyinParser.convert_to_printed_version(result);
+            return result;
         }
     }
 }
