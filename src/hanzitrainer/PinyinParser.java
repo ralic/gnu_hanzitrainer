@@ -1,13 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package hanzitrainer;
 
 import java.util.*;
 
 /**
- *
+ * Class that can handle full word or sentence of pinyins for parsing
+ * 
  * @author Matthieu
  */
 public class PinyinParser
@@ -16,15 +14,27 @@ public class PinyinParser
     private String to_parse = "";
     private ArrayList<Pinyin> parsed;
 
+    /**
+     * Class creator without any initialization 
+     */
     public PinyinParser()
     {
     }
 
+    /**
+     * Class creator that initialize it with the String give as input
+     * 
+     * @param input String of pinyin to be parsed
+     */
     public PinyinParser(String input)
     {
         set_string_to_parse(input);
     }
 
+    /**
+     * Change the String of pinyin to be parsed
+     * @param input the String of pinyin
+     */
     public void set_string_to_parse(String input)
     {
         to_parse = input;
@@ -36,14 +46,13 @@ public class PinyinParser
         return;
     }
 
+    /**
+     * Return the String of pinyin that was used
+     * @return The pinyin String that has been parsed
+     */
     public String get_string_parsed()
     {
         return to_parse;
-    }
-
-    public void parse()
-    {
-        parsed = parse_string(to_parse);
     }
 
     static private ArrayList<Pinyin> parse_string(String pinyin_string)
@@ -86,7 +95,8 @@ public class PinyinParser
         }
         else
         {
-            for (i = 0; i < Math.min(7, pinyin_string.length()+1); i++) // the maximum size with tone is 6 characters...
+            for (i = Math.min(6, pinyin_string.length()); i >= 0; i--) // the maximum size with tone is 6 characters...
+                // start with the maximum size to avoid breaking down unnecessary (that would have a "'")
             {
                 String try_pinyin = pinyin_string.substring(0, i);
                 if (Pinyin.verify_pinyin(try_pinyin))
@@ -113,6 +123,10 @@ public class PinyinParser
         return result;
     }
 
+    /**
+     * 
+     * @return the number of pinyin elements in the String that was parsed
+     */
     public int get_number_of_elements()
     {
         if (to_parse.equals(""))
@@ -125,15 +139,24 @@ public class PinyinParser
         }
     }
 
-    public Pinyin get_element(int number)
+    /**
+     * 
+     * @param index the Pinyin element index in the String
+     * @return the Pinyin queried
+     */
+    public Pinyin get_element(int index)
     {
-        if (number >= get_number_of_elements())
+        if (index >= get_number_of_elements())
         {
             return new Pinyin();
         }
-        return parsed.get(number);
+        return parsed.get(index);
     }
 
+    /**
+     * 
+     * @return the printed version of the whole pinyin String
+     */
     public String get_print_version()
     {
         int i;
@@ -147,6 +170,11 @@ public class PinyinParser
 
     }
 
+    /**
+     * 
+     * @param input String of pinyins with tones as numbers
+     * @return String with accents correctly marked
+     */
     public static String convert_to_printed_version(String input)
     {
         int i;
