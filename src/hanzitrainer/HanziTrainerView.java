@@ -731,10 +731,10 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
 
             }
 
-            pinyin_list = pinyins.get(0);
+            pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
             for (i = 1; i < pinyins.size(); i++)
             {
-                pinyin_list += ", " + pinyins.get(i);
+                pinyin_list += ", " + PinyinParser.convert_to_printed_version(pinyins.get(i));
             }
         }
         PinyinsTextfield.setText(pinyin_list);
@@ -760,7 +760,6 @@ private void CharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST
         return;
     }
     set_character_review(char_to_search);
-
 }//GEN-LAST:event_CharSearchButtonAction
 
 private void CharsearchentryTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusGained
