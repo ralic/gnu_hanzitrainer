@@ -257,6 +257,11 @@ public class HanziTrainerView extends FrameView
         DBTable.setName("DBTable"); // NOI18N
         DBTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         DBTable.getTableHeader().setReorderingAllowed(false);
+        DBTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                DBTableMouseClicked(evt);
+            }
+        });
         DBScroll.setViewportView(DBTable);
         DBTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
@@ -320,6 +325,11 @@ public class HanziTrainerView extends FrameView
 
         CharDBTable.setModel(CharTableFiller);
         CharDBTable.setName("CharDBTable"); // NOI18N
+        CharDBTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CharDBTableMouseClicked(evt);
+            }
+        });
         CharDBScroll.setViewportView(CharDBTable);
 
         PinyinsLabel1.setText(resourceMap.getString("PinyinsLabel1.text")); // NOI18N
@@ -689,9 +699,9 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
     private void set_character_review(String hanzi)
     {
         ArrayList<String> pinyins = main_database.get_pinyin_from_character(hanzi);
-        String pinyin_list="";
-        int i,j;
-        
+        String pinyin_list = "";
+        int i, j;
+
         if (pinyins.size() != 0)
         {
             for (i = pinyins.size() - 1; i >= 0; i--)
@@ -760,6 +770,29 @@ private void CharsearchentryTextFieldFocusGained(java.awt.event.FocusEvent evt) 
 private void CharsearchentryTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusLost
     ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
 }//GEN-LAST:event_CharsearchentryTextFieldFocusLost
+
+private void DBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_DBTableMouseClicked
+    if (evt.getClickCount() == 2)
+    {
+        int row = DBTable.getSelectedRow();
+        String chinese_word;
+        chinese_word = (String) TableFiller.getValueAt(row, 0);
+        ChineseTextField.setText(chinese_word);
+        Tabs.setSelectedIndex(0);
+    }
+}//GEN-LAST:event_DBTableMouseClicked
+
+private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CharDBTableMouseClicked
+    if (evt.getClickCount() == 2)
+    {
+        int row = CharDBTable.getSelectedRow();
+        String chinese_word;
+        chinese_word = (String) CharTableFiller.getValueAt(row, 0);
+        ChineseTextField.setText(chinese_word);
+        Tabs.setSelectedIndex(0);
+    }
+}//GEN-LAST:event_CharDBTableMouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton AddNewWordButton;
     private javax.swing.JScrollPane CharDBScroll;
