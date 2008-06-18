@@ -18,6 +18,7 @@ public class HanziTrainerView extends FrameView
 
     HanziDB main_database;
     private Preferences my_preferences;
+    ArrayList<String> character_history;
 
     public HanziTrainerView(SingleFrameApplication app)
     {
@@ -34,13 +35,39 @@ public class HanziTrainerView extends FrameView
         }
         initComponents();
         CharTableFiller.set_character("");
+        character_history = new ArrayList<String>();
     }
 
+    @SuppressWarnings(
+                      {
+                          "static-access"
+                      })
     public void HanziTrainerViewKill()
     {
-        String database_file;
-        main_database.HanziDB_save();
-        database_file = main_database.HanziDB_get_filename();
+        String database_file = main_database.HanziDB_get_filename();
+        if (main_database.get_database_changed())
+        {
+            Object[] options =
+            {
+                "Save",
+                "Do no save"
+            };
+            if (ChoicePane.showOptionDialog(this.getFrame(),
+                    "You did not save the database, do you want to save now ?", "Save?",
+                    ChoicePane.YES_NO_OPTION, ChoicePane.WARNING_MESSAGE,
+                    null, options, options[1]) == ChoicePane.YES_OPTION)
+            {
+                if (database_file.equals(""))
+                {
+                    save_database_as(new java.awt.event.ActionEvent(this, java.awt.event.ActionEvent.ACTION_PERFORMED, "Save on quit"));
+                }
+                else
+                {
+                    main_database.HanziDB_save();
+                }
+            }
+        }
+
         my_preferences.put("database_filename", database_file);
         main_database.shutdown();
     }
@@ -86,6 +113,7 @@ public class HanziTrainerView extends FrameView
         PinyinsLabel1 = new javax.swing.JLabel();
         CharsearchentryTextField = new javax.swing.JTextField();
         CharSearchButton = new javax.swing.JButton();
+        CharPreviousButton = new javax.swing.JButton();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         OpenDBMenuItem = new javax.swing.JMenuItem();
@@ -95,6 +123,7 @@ public class HanziTrainerView extends FrameView
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         vocabularyEditorButtonGroup = new javax.swing.ButtonGroup();
+        ChoicePane = new javax.swing.JOptionPane();
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -359,6 +388,14 @@ public class HanziTrainerView extends FrameView
             }
         });
 
+        CharPreviousButton.setText(resourceMap.getString("CharPreviousButton.text")); // NOI18N
+        CharPreviousButton.setName("CharPreviousButton"); // NOI18N
+        CharPreviousButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CharPreviousButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout CharacterReviewPanelLayout = new javax.swing.GroupLayout(CharacterReviewPanel);
         CharacterReviewPanel.setLayout(CharacterReviewPanelLayout);
         CharacterReviewPanelLayout.setHorizontalGroup(
@@ -367,21 +404,24 @@ public class HanziTrainerView extends FrameView
                 .addGap(21, 21, 21)
                 .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                            .addComponent(NextCharacterButton)
-                            .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(29, 29, 29)
+                        .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(PinyinsLabel)
-                            .addComponent(PinyinsLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(PinyinsTextfield)
-                            .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)))
-                    .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                        .addComponent(CharsearchentryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(CharSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(PinyinsLabel1)))
+                    .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
+                            .addComponent(CharsearchentryTextField)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(CharSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, CharacterReviewPanelLayout.createSequentialGroup()
+                            .addComponent(NextCharacterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(CharPreviousButton))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(PinyinsTextfield)
+                    .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         CharacterReviewPanelLayout.setVerticalGroup(
@@ -389,6 +429,17 @@ public class HanziTrainerView extends FrameView
             .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CharacterReviewPanelLayout.createSequentialGroup()
+                        .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(CharPreviousButton)
+                            .addComponent(NextCharacterButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(CharSearchButton)
+                            .addComponent(CharsearchentryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())
                     .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
                         .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(PinyinsLabel)
@@ -396,16 +447,8 @@ public class HanziTrainerView extends FrameView
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-                            .addComponent(PinyinsLabel1)))
-                    .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                        .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(NextCharacterButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(CharsearchentryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(CharSearchButton))))
-                .addContainerGap(18, Short.MAX_VALUE))
+                            .addComponent(PinyinsLabel1))
+                        .addContainerGap(22, Short.MAX_VALUE))))
         );
 
         Tabs.addTab(resourceMap.getString("CharacterReviewPanel.TabConstraints.tabTitle"), CharacterReviewPanel); // NOI18N
@@ -492,6 +535,8 @@ public class HanziTrainerView extends FrameView
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
         menuBar.add(helpMenu);
+
+        ChoicePane.setName("ChoicePane"); // NOI18N
 
         setComponent(mainPanel);
         setMenuBar(menuBar);
@@ -591,35 +636,37 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     EnglishTextField.setText("");
 }//GEN-LAST:event_SaveButtonActionPerformed
 
+    @SuppressWarnings("static-access")
 private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_open_database
-    int returnVal = open_dialog();
+        int returnVal = open_dialog();
 
-    if (returnVal == DBFileChooser.APPROVE_OPTION)
-    {
-        File file = DBFileChooser.getSelectedFile();
-        System.out.println("Opening: " + file.getPath());
-        main_database.HanziDB_open(file.getPath());
-        TableFiller.fireTableDataChanged();
-    }
-    else
-    {
-        System.out.println("Open command cancelled by user.");
-    }
+        if (returnVal == DBFileChooser.APPROVE_OPTION)
+        {
+            File file = DBFileChooser.getSelectedFile();
+            System.out.println("Opening: " + file.getPath());
+            main_database.HanziDB_open(file.getPath());
+            TableFiller.fireTableDataChanged();
+        }
+        else
+        {
+            System.out.println("Open command cancelled by user.");
+        }
 }//GEN-LAST:event_open_database
 
+    @SuppressWarnings("static-access")
 private void save_database_as(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database_as
-    int returnVal = save_dialog();
-    if (returnVal == DBFileChooser.APPROVE_OPTION)
-    {
-        File file = DBFileChooser.getSelectedFile();
-        System.out.println("Saving as: " + file.getPath());
-        main_database.HanziDB_set_filename(file.getPath());
-        main_database.HanziDB_save();
-    }
-    else
-    {
-        System.out.println("Open command cancelled by user.");
-    }
+        int returnVal = save_dialog();
+        if (returnVal == DBFileChooser.APPROVE_OPTION)
+        {
+            File file = DBFileChooser.getSelectedFile();
+            System.out.println("Saving as: " + file.getPath());
+            main_database.HanziDB_set_filename(file.getPath());
+            main_database.HanziDB_save();
+        }
+        else
+        {
+            System.out.println("Open command cancelled by user.");
+        }
 }//GEN-LAST:event_save_database_as
 
 private void save_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database
@@ -745,20 +792,36 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
 
 private void random_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_random_character_action
     int num_char = main_database.get_number_characters();
-    int index = (int) (Math.random() * num_char);
-    String hanzi = main_database.get_character_details(index);
+    int index;
+    String hanzi;
 
+    if (num_char == 0)
+        return;
+    do
+    {
+        index = (int) (Math.random() * num_char);
+        hanzi = main_database.get_character_details(index);
+    }
+    while (character_history.contains(hanzi));
+    character_history.add(hanzi);
+    if (character_history.size() > (num_char - 1)/2)
+        character_history.remove(0);
+    
     set_character_review(hanzi);
 
 }//GEN-LAST:event_random_character_action
 
 private void CharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharSearchButtonAction
     String char_to_search = CharsearchentryTextField.getText();
+    int num_char = main_database.get_number_characters();
 
     if (char_to_search.codePointCount(0, char_to_search.length()) != 1)
     {
         return;
     }
+    character_history.add(char_to_search);
+    if (character_history.size() > (num_char - 1)/2)
+        character_history.remove(0);
     set_character_review(char_to_search);
 }//GEN-LAST:event_CharSearchButtonAction
 
@@ -792,16 +855,31 @@ private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST
     }
 }//GEN-LAST:event_CharDBTableMouseClicked
 
+private void CharPreviousButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharPreviousButtonActionPerformed
+
+    String hanzi;
+    
+    if (character_history.size() <= 1)
+        return;
+    hanzi = character_history.get(character_history.size()-2);
+    character_history.remove(character_history.size()-1);
+
+    set_character_review(hanzi);
+    
+}//GEN-LAST:event_CharPreviousButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton AddNewWordButton;
     private javax.swing.JScrollPane CharDBScroll;
     private javax.swing.JTable CharDBTable;
+    private javax.swing.JButton CharPreviousButton;
     private javax.swing.JButton CharSearchButton;
     private javax.swing.JLabel CharacterLabel;
     private javax.swing.JPanel CharacterReviewPanel;
     private javax.swing.JTextField CharsearchentryTextField;
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
+    private javax.swing.JOptionPane ChoicePane;
     private javax.swing.JScrollPane DBScroll;
     private javax.swing.JTable DBTable;
     private javax.swing.JRadioButton DeleteWordButton;
