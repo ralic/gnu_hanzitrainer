@@ -19,6 +19,7 @@ public class HanziDB
     private Connection conn;
     private boolean initialized = false;
     private String filename = "";
+    private boolean changed = false;
 
     public HanziDB()
     {
@@ -26,6 +27,7 @@ public class HanziDB
         try
         {
             create_database();
+            changed = false;
         }
         catch (Exception e)
         {
@@ -55,6 +57,7 @@ public class HanziDB
                 System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
                 filename = db_file_name;
             }
+            changed = false;
         }
         catch (Exception e)
         {
@@ -63,6 +66,7 @@ public class HanziDB
 
     public void HanziDB_save()
     {
+        changed = false;
         if (filename.equals(""))
         {
             return;
@@ -338,6 +342,7 @@ public class HanziDB
         st.executeUpdate("INSERT INTO character(hanzi) VALUES('" + character + "')");
 
         st.close();
+        changed = true;
     }
 
     private synchronized void add_pinyin(String character, String pinyin) throws SQLException
@@ -393,6 +398,7 @@ public class HanziDB
         }
 
         st.close();
+        changed = true;
     }
 
     /*
@@ -489,6 +495,7 @@ public class HanziDB
             }
 
             st.close();
+            changed = true;
 
         }
         catch (SQLException ex)
@@ -584,6 +591,7 @@ public class HanziDB
                     " WHERE cword_id=" + found_chinese_id);
 
             st.close();
+            changed = true;
         }
         catch (SQLException ex)
         {
@@ -879,6 +887,11 @@ public class HanziDB
             ex.printStackTrace();
         }
         return res;
-
+    }
+    
+    public boolean get_database_changed()
+    {
+        return changed;
+    
     }
 }    // class Testdb
