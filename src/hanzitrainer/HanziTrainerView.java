@@ -13,12 +13,13 @@ import java.util.prefs.*;
 /**
  * The application's main frame.
  */
-public class HanziTrainerView extends FrameView
+public class HanziTrainerView extends FrameView implements HanziApplicationUpdater
 {
 
     HanziDB main_database;
     private Preferences my_preferences;
-    ArrayList<String> character_history;
+    CharacterReviewPanel char_review;
+    WordDatabasePanel word_database;
 
     public HanziTrainerView(SingleFrameApplication app)
     {
@@ -34,8 +35,10 @@ public class HanziTrainerView extends FrameView
             main_database.HanziDB_open(database_file);
         }
         initComponents();
-        CharTableFiller.set_character("");
-        character_history = new ArrayList<String>();
+        word_database = new WordDatabasePanel(main_database, this);
+        Tabs.addTab("Word Database", word_database);
+        char_review = new CharacterReviewPanel(main_database, this);
+        Tabs.addTab("Character Review", char_review);
     }
 
     @SuppressWarnings(
@@ -96,24 +99,6 @@ public class HanziTrainerView extends FrameView
         AddNewWordButton = new javax.swing.JRadioButton();
         EditWordButton = new javax.swing.JRadioButton();
         DeleteWordButton = new javax.swing.JRadioButton();
-        WordDatabasePanel = new javax.swing.JPanel();
-        numCharLabel = new javax.swing.JLabel();
-        numWordLabel = new javax.swing.JLabel();
-        DBScroll = new javax.swing.JScrollPane();
-        DBTable = new javax.swing.JTable();
-        TableFiller = new DBTableFiller(main_database);
-        CharacterReviewPanel = new javax.swing.JPanel();
-        NextCharacterButton = new javax.swing.JButton();
-        CharacterLabel = new javax.swing.JLabel();
-        PinyinsLabel = new javax.swing.JLabel();
-        PinyinsTextfield = new javax.swing.JTextField();
-        CharDBScroll = new javax.swing.JScrollPane();
-        CharDBTable = new javax.swing.JTable();
-        CharTableFiller = new DBTableFiller(main_database);
-        PinyinsLabel1 = new javax.swing.JLabel();
-        CharsearchentryTextField = new javax.swing.JTextField();
-        CharSearchButton = new javax.swing.JButton();
-        CharPreviousButton = new javax.swing.JButton();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         OpenDBMenuItem = new javax.swing.JMenuItem();
@@ -209,12 +194,12 @@ public class HanziTrainerView extends FrameView
                         .addContainerGap()
                         .addComponent(ChineseLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
+                        .addComponent(ChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
                     .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addGap(14, 14, 14)
                         .addComponent(PinyinLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
+                        .addComponent(PinyinScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
                     .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
                         .addGap(15, 15, 15)
                         .addComponent(EnglishLabel)
@@ -228,7 +213,7 @@ public class HanziTrainerView extends FrameView
                             .addComponent(AddNewWordButton)
                             .addComponent(DeleteWordButton)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, VocabularyBuilderPanelLayout.createSequentialGroup()
-                        .addContainerGap(412, Short.MAX_VALUE)
+                        .addContainerGap(417, Short.MAX_VALUE)
                         .addComponent(ResetButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -267,197 +252,11 @@ public class HanziTrainerView extends FrameView
 
         Tabs.addTab(resourceMap.getString("VocabularyBuilderPanel.TabConstraints.tabTitle"), VocabularyBuilderPanel); // NOI18N
 
-        WordDatabasePanel.setName("WordDatabasePanel"); // NOI18N
-        WordDatabasePanel.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                ShowWordDatabaseTab(evt);
-            }
-        });
-
-        numCharLabel.setText(resourceMap.getString("numCharLabel.text")); // NOI18N
-        numCharLabel.setName("numCharLabel"); // NOI18N
-
-        numWordLabel.setText(resourceMap.getString("numWordLabel.text")); // NOI18N
-        numWordLabel.setName("numWordLabel"); // NOI18N
-
-        DBScroll.setName("DBScroll"); // NOI18N
-
-        DBTable.setModel(TableFiller);
-        DBTable.setName("DBTable"); // NOI18N
-        DBTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        DBTable.getTableHeader().setReorderingAllowed(false);
-        DBTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                DBTableMouseClicked(evt);
-            }
-        });
-        DBScroll.setViewportView(DBTable);
-        DBTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-
-        javax.swing.GroupLayout WordDatabasePanelLayout = new javax.swing.GroupLayout(WordDatabasePanel);
-        WordDatabasePanel.setLayout(WordDatabasePanelLayout);
-        WordDatabasePanelLayout.setHorizontalGroup(
-            WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(WordDatabasePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(WordDatabasePanelLayout.createSequentialGroup()
-                    .addGap(48, 48, 48)
-                    .addComponent(DBScroll, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(48, Short.MAX_VALUE)))
-        );
-        WordDatabasePanelLayout.setVerticalGroup(
-            WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(WordDatabasePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(numWordLabel)
-                    .addComponent(numCharLabel))
-                .addContainerGap(229, Short.MAX_VALUE))
-            .addGroup(WordDatabasePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(WordDatabasePanelLayout.createSequentialGroup()
-                    .addGap(30, 30, 30)
-                    .addComponent(DBScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(16, Short.MAX_VALUE)))
-        );
-
-        Tabs.addTab(resourceMap.getString("WordDatabasePanel.TabConstraints.tabTitle"), WordDatabasePanel); // NOI18N
-
-        CharacterReviewPanel.setName("CharacterReviewPanel"); // NOI18N
-
-        NextCharacterButton.setText(resourceMap.getString("NextCharacterButton.text")); // NOI18N
-        NextCharacterButton.setName("NextCharacterButton"); // NOI18N
-        NextCharacterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                random_character_action(evt);
-            }
-        });
-
-        CharacterLabel.setFont(new java.awt.Font("MingLiU", 0, 80));
-        CharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        CharacterLabel.setText(resourceMap.getString("CharacterLabel.text")); // NOI18N
-        CharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        CharacterLabel.setName("CharacterLabel"); // NOI18N
-
-        PinyinsLabel.setText(resourceMap.getString("PinyinsLabel.text")); // NOI18N
-        PinyinsLabel.setName("PinyinsLabel"); // NOI18N
-
-        PinyinsTextfield.setEditable(false);
-        PinyinsTextfield.setText(resourceMap.getString("PinyinsTextfield.text")); // NOI18N
-        PinyinsTextfield.setName("PinyinsTextfield"); // NOI18N
-
-        CharDBScroll.setName("CharDBScroll"); // NOI18N
-
-        CharDBTable.setModel(CharTableFiller);
-        CharDBTable.setName("CharDBTable"); // NOI18N
-        CharDBTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                CharDBTableMouseClicked(evt);
-            }
-        });
-        CharDBScroll.setViewportView(CharDBTable);
-
-        PinyinsLabel1.setText(resourceMap.getString("PinyinsLabel1.text")); // NOI18N
-        PinyinsLabel1.setName("PinyinsLabel1"); // NOI18N
-
-        CharsearchentryTextField.setText(resourceMap.getString("CharsearchentryTextField.text")); // NOI18N
-        CharsearchentryTextField.setName("CharsearchentryTextField"); // NOI18N
-        CharsearchentryTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CharSearchButtonAction(evt);
-            }
-        });
-        CharsearchentryTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                CharsearchentryTextFieldFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                CharsearchentryTextFieldFocusLost(evt);
-            }
-        });
-
-        CharSearchButton.setText(resourceMap.getString("CharSearchButton.text")); // NOI18N
-        CharSearchButton.setName("CharSearchButton"); // NOI18N
-        CharSearchButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CharSearchButtonAction(evt);
-            }
-        });
-
-        CharPreviousButton.setText(resourceMap.getString("CharPreviousButton.text")); // NOI18N
-        CharPreviousButton.setName("CharPreviousButton"); // NOI18N
-        CharPreviousButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CharPreviousButtonActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout CharacterReviewPanelLayout = new javax.swing.GroupLayout(CharacterReviewPanel);
-        CharacterReviewPanel.setLayout(CharacterReviewPanelLayout);
-        CharacterReviewPanelLayout.setHorizontalGroup(
-            CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                        .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(PinyinsLabel)
-                            .addComponent(PinyinsLabel1)))
-                    .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                            .addComponent(CharsearchentryTextField)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(CharSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, CharacterReviewPanelLayout.createSequentialGroup()
-                            .addComponent(NextCharacterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(CharPreviousButton))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(PinyinsTextfield)
-                    .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        CharacterReviewPanelLayout.setVerticalGroup(
-            CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CharacterReviewPanelLayout.createSequentialGroup()
-                        .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(CharPreviousButton)
-                            .addComponent(NextCharacterButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(CharSearchButton)
-                            .addComponent(CharsearchentryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())
-                    .addGroup(CharacterReviewPanelLayout.createSequentialGroup()
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(PinyinsLabel)
-                            .addComponent(PinyinsTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(CharacterReviewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-                            .addComponent(PinyinsLabel1))
-                        .addContainerGap(22, Short.MAX_VALUE))))
-        );
-
-        Tabs.addTab(resourceMap.getString("CharacterReviewPanel.TabConstraints.tabTitle"), CharacterReviewPanel); // NOI18N
-
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
+            .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 558, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -565,8 +364,69 @@ public class HanziTrainerView extends FrameView
         return DBFileChooser.showSaveDialog(mainPanel);
     }
 
+    @SuppressWarnings("static-access")
+private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_open_database
+        int returnVal = open_dialog();
+
+        if (returnVal == DBFileChooser.APPROVE_OPTION)
+        {
+            File file = DBFileChooser.getSelectedFile();
+            System.out.println("Opening: " + file.getPath());
+            main_database.HanziDB_open(file.getPath());
+            char_review.CharacterReviewUpdateDB();
+            word_database.WordDatabaseUpdateDB();
+        }
+        else
+        {
+            System.out.println("Open command cancelled by user.");
+        }
+}//GEN-LAST:event_open_database
+
+    @SuppressWarnings("static-access")
+private void save_database_as(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database_as
+        int returnVal = save_dialog();
+        if (returnVal == DBFileChooser.APPROVE_OPTION)
+        {
+            File file = DBFileChooser.getSelectedFile();
+            System.out.println("Saving as: " + file.getPath());
+            main_database.HanziDB_set_filename(file.getPath());
+            main_database.HanziDB_save();
+        }
+        else
+        {
+            System.out.println("Open command cancelled by user.");
+        }
+}//GEN-LAST:event_save_database_as
+
+private void save_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database
+    main_database.HanziDB_save();
+}//GEN-LAST:event_save_database
+
+private void close_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_database
+    main_database.HanziDB_close();
+    char_review.CharacterReviewUpdateDB();
+    word_database.WordDatabaseUpdateDB();
+}//GEN-LAST:event_close_database
+
+private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_FileMenuSelected
+    System.out.println("whether to enable save db ? file name is [" + main_database.HanziDB_get_filename() + "]");
+    if (main_database.HanziDB_get_filename().equals(""))
+    {
+        SaveDBMenuItem.setEnabled(false);
+    }
+    else
+    {
+        SaveDBMenuItem.setEnabled(true);
+    }
+}//GEN-LAST:event_FileMenuSelected
+
+private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
+ChineseTextField.setText("");
+    EnglishTextField.setText("");
+}//GEN-LAST:event_ResetButtonActionPerformed
+
 private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveButtonActionPerformed
-    String english = EnglishTextField.getText();
+String english = EnglishTextField.getText();
     ArrayList<String> pinyin = PinyinChooser.get_pinyins();
     String hanzi_string = ChineseTextField.getText();
     ArrayList<String> hanzi = new ArrayList<String>();
@@ -629,76 +489,17 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
             }
         }
     }
-    TableFiller.fireTableDataChanged();
+
+    char_review.CharacterReviewUpdateDB();
+    word_database.WordDatabaseUpdateDB();
 
     EnglishTranslations.removeAllItems();
     ChineseTextField.setText("");
     EnglishTextField.setText("");
 }//GEN-LAST:event_SaveButtonActionPerformed
 
-    @SuppressWarnings("static-access")
-private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_open_database
-        int returnVal = open_dialog();
-
-        if (returnVal == DBFileChooser.APPROVE_OPTION)
-        {
-            File file = DBFileChooser.getSelectedFile();
-            System.out.println("Opening: " + file.getPath());
-            main_database.HanziDB_open(file.getPath());
-            TableFiller.fireTableDataChanged();
-        }
-        else
-        {
-            System.out.println("Open command cancelled by user.");
-        }
-}//GEN-LAST:event_open_database
-
-    @SuppressWarnings("static-access")
-private void save_database_as(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database_as
-        int returnVal = save_dialog();
-        if (returnVal == DBFileChooser.APPROVE_OPTION)
-        {
-            File file = DBFileChooser.getSelectedFile();
-            System.out.println("Saving as: " + file.getPath());
-            main_database.HanziDB_set_filename(file.getPath());
-            main_database.HanziDB_save();
-        }
-        else
-        {
-            System.out.println("Open command cancelled by user.");
-        }
-}//GEN-LAST:event_save_database_as
-
-private void save_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_database
-    main_database.HanziDB_save();
-}//GEN-LAST:event_save_database
-
-private void ShowWordDatabaseTab(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ShowWordDatabaseTab
-    int res;
-
-    res = main_database.get_number_words();
-    numWordLabel.setText("Number of words : " + res);
-
-    res = main_database.get_number_characters();
-    numCharLabel.setText("Number of characters : " + res);
-}//GEN-LAST:event_ShowWordDatabaseTab
-
-private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
-    ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
-
-    EnglishTranslations.removeAllItems();
-    EnglishTranslations.setEnabled(false);
-    AddNewWordButton.setEnabled(false);
-    EditWordButton.setEnabled(false);
-    DeleteWordButton.setEnabled(false);
-    AddNewWordButton.setSelected(false);
-    EditWordButton.setSelected(false);
-    DeleteWordButton.setSelected(false);
-
-}//GEN-LAST:event_ChineseTextFieldFocusGained
-
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
-    String hanzi_string = ChineseTextField.getText();
+String hanzi_string = ChineseTextField.getText();
     ArrayList<String> translations = new ArrayList<String>();
     int i;
 
@@ -721,195 +522,49 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     AddNewWordButton.setSelected(true);
 }//GEN-LAST:event_ChineseTextFieldFocusLost
 
-private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
-    ChineseTextField.setText("");
-    EnglishTextField.setText("");
-}//GEN-LAST:event_ResetButtonActionPerformed
+private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
+ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
 
-private void close_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_database
-    main_database.HanziDB_close();
-    TableFiller.fireTableDataChanged();
-}//GEN-LAST:event_close_database
-
-private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_FileMenuSelected
-    System.out.println("whether to enable save db ? file name is [" + main_database.HanziDB_get_filename() + "]");
-    if (main_database.HanziDB_get_filename().equals(""))
-    {
-        SaveDBMenuItem.setEnabled(false);
-    }
-    else
-    {
-        SaveDBMenuItem.setEnabled(true);
-    }
-}//GEN-LAST:event_FileMenuSelected
-
-    private void set_character_review(String hanzi)
-    {
-        ArrayList<String> pinyins = main_database.get_pinyin_from_character(hanzi);
-        String pinyin_list = "";
-        int i, j;
-
-        if (pinyins.size() != 0)
-        {
-            for (i = pinyins.size() - 1; i >= 0; i--)
-            {
-                String pinyin_to_check = pinyins.get(i);
-                int tone = pinyin_to_check.charAt(pinyin_to_check.length() - 1);
-                boolean found = false;
-                if ((tone < '1') || (tone > '4'))
-                {
-                    for (j = 0; j < pinyins.size(); j++)
-                    {
-                        if (i == j)
-                        {
-                            continue;
-                        }
-                        if (pinyins.get(j).startsWith(pinyin_to_check))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found)
-                    {
-                        pinyins.remove(i);
-                    }
-                }
-
-            }
-
-            pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
-            for (i = 1; i < pinyins.size(); i++)
-            {
-                pinyin_list += ", " + PinyinParser.convert_to_printed_version(pinyins.get(i));
-            }
-        }
-        PinyinsTextfield.setText(pinyin_list);
-        CharacterLabel.setText(hanzi);
-        CharTableFiller.set_character(hanzi);
-        CharTableFiller.fireTableDataChanged();
-    }
-
-private void random_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_random_character_action
-    int num_char = main_database.get_number_characters();
-    int index;
-    String hanzi;
-
-    if (num_char == 0)
-        return;
-    do
-    {
-        index = (int) (Math.random() * num_char);
-        hanzi = main_database.get_character_details(index);
-    }
-    while (character_history.contains(hanzi));
-    character_history.add(hanzi);
-    if (character_history.size() > (num_char - 1)/2)
-        character_history.remove(0);
-    
-    set_character_review(hanzi);
-
-}//GEN-LAST:event_random_character_action
-
-private void CharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharSearchButtonAction
-    String char_to_search = CharsearchentryTextField.getText();
-    int num_char = main_database.get_number_characters();
-
-    if (char_to_search.codePointCount(0, char_to_search.length()) != 1)
-    {
-        return;
-    }
-    character_history.add(char_to_search);
-    if (character_history.size() > (num_char - 1)/2)
-        character_history.remove(0);
-    set_character_review(char_to_search);
-}//GEN-LAST:event_CharSearchButtonAction
-
-private void CharsearchentryTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusGained
-    CharsearchentryTextField.getInputContext().selectInputMethod(Locale.CHINA);
-}//GEN-LAST:event_CharsearchentryTextFieldFocusGained
-
-private void CharsearchentryTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusLost
-    ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
-}//GEN-LAST:event_CharsearchentryTextFieldFocusLost
-
-private void DBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_DBTableMouseClicked
-    if (evt.getClickCount() == 2)
-    {
-        int row = DBTable.getSelectedRow();
-        String chinese_word;
-        chinese_word = (String) TableFiller.getValueAt(row, 0);
-        ChineseTextField.setText(chinese_word);
-        Tabs.setSelectedIndex(0);
-    }
-}//GEN-LAST:event_DBTableMouseClicked
-
-private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CharDBTableMouseClicked
-    if (evt.getClickCount() == 2)
-    {
-        int row = CharDBTable.getSelectedRow();
-        String chinese_word;
-        chinese_word = (String) CharTableFiller.getValueAt(row, 0);
-        ChineseTextField.setText(chinese_word);
-        Tabs.setSelectedIndex(0);
-    }
-}//GEN-LAST:event_CharDBTableMouseClicked
-
-private void CharPreviousButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharPreviousButtonActionPerformed
-
-    String hanzi;
-    
-    if (character_history.size() <= 1)
-        return;
-    hanzi = character_history.get(character_history.size()-2);
-    character_history.remove(character_history.size()-1);
-
-    set_character_review(hanzi);
-    
-}//GEN-LAST:event_CharPreviousButtonActionPerformed
+    EnglishTranslations.removeAllItems();
+    EnglishTranslations.setEnabled(false);
+    AddNewWordButton.setEnabled(false);
+    EditWordButton.setEnabled(false);
+    DeleteWordButton.setEnabled(false);
+    AddNewWordButton.setSelected(false);
+    EditWordButton.setSelected(false);
+    DeleteWordButton.setSelected(false);
+}//GEN-LAST:event_ChineseTextFieldFocusGained
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton AddNewWordButton;
-    private javax.swing.JScrollPane CharDBScroll;
-    private javax.swing.JTable CharDBTable;
-    private javax.swing.JButton CharPreviousButton;
-    private javax.swing.JButton CharSearchButton;
-    private javax.swing.JLabel CharacterLabel;
-    private javax.swing.JPanel CharacterReviewPanel;
-    private javax.swing.JTextField CharsearchentryTextField;
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
     private javax.swing.JOptionPane ChoicePane;
-    private javax.swing.JScrollPane DBScroll;
-    private javax.swing.JTable DBTable;
     private javax.swing.JRadioButton DeleteWordButton;
     private javax.swing.JRadioButton EditWordButton;
     private javax.swing.JLabel EnglishLabel;
     private javax.swing.JTextField EnglishTextField;
     private javax.swing.JComboBox EnglishTranslations;
-    private javax.swing.JButton NextCharacterButton;
     private javax.swing.JMenuItem OpenDBMenuItem;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JScrollPane PinyinScroll;
-    private javax.swing.JLabel PinyinsLabel;
-    private javax.swing.JLabel PinyinsLabel1;
-    private javax.swing.JTextField PinyinsTextfield;
     private javax.swing.JButton ResetButton;
     private javax.swing.JButton SaveButton;
     private javax.swing.JMenuItem SaveDBAsMenuItem;
     private javax.swing.JMenuItem SaveDBMenuItem;
     private javax.swing.JTabbedPane Tabs;
     private javax.swing.JPanel VocabularyBuilderPanel;
-    private javax.swing.JPanel WordDatabasePanel;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
-    private javax.swing.JLabel numCharLabel;
-    private javax.swing.JLabel numWordLabel;
     private javax.swing.ButtonGroup vocabularyEditorButtonGroup;
     // End of variables declaration//GEN-END:variables
     private PinyinChooserFrame PinyinChooser;
-    private DBTableFiller TableFiller;
     private javax.swing.JFileChooser DBFileChooser;
-    private DBTableFiller CharTableFiller;
+
+    public void edit_word(String to_edit)
+    {
+        ChineseTextField.setText(to_edit);
+        Tabs.setSelectedIndex(0);
+    }
 }
