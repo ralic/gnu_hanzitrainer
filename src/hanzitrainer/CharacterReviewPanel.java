@@ -14,11 +14,6 @@ import java.util.Locale;
  */
 public class CharacterReviewPanel extends javax.swing.JPanel
 {
-
-    ArrayList<String> character_history;
-    HanziDB main_database;
-    HanziApplicationUpdater parent_app;
-
     /** Creates new form CharacterReviewPanel */
     public CharacterReviewPanel(HanziDB database, HanziApplicationUpdater updater)
     {
@@ -324,4 +319,8 @@ private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST
     private javax.swing.JTextField PinyinsTextfield;
     // End of variables declaration//GEN-END:variables
     private DBTableFiller CharTableFiller;
+    private ArrayList<String> character_history;
+    private HanziDB main_database;
+    private HanziApplicationUpdater parent_app;
+
 }

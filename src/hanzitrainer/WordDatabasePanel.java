@@ -12,9 +12,6 @@ package hanzitrainer;
 public class WordDatabasePanel extends javax.swing.JPanel
 {
 
-    HanziDB main_database;
-    HanziApplicationUpdater parent_app;
-
     /** Creates new form WordDatabasePanel */
     public WordDatabasePanel(HanziDB database, HanziApplicationUpdater updater)
     {
@@ -125,4 +122,7 @@ private void DBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:eve
     private javax.swing.JLabel numWordLabel;
     // End of variables declaration//GEN-END:variables
     private DBTableFiller TableFiller;
+    private HanziDB main_database;
+    private HanziApplicationUpdater parent_app;
+
 }
