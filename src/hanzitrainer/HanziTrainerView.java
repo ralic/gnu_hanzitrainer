@@ -20,6 +20,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
     private Preferences my_preferences;
     CharacterReviewPanel char_review;
     WordDatabasePanel word_database;
+    CharacterTestPanel char_test;
 
     public HanziTrainerView(SingleFrameApplication app)
     {
@@ -39,6 +40,8 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         Tabs.addTab("Word Database", word_database);
         char_review = new CharacterReviewPanel(main_database, this);
         Tabs.addTab("Character Review", char_review);
+        char_test = new CharacterTestPanel(main_database, this);
+        Tabs.addTab("Character Test", char_test);
     }
 
     @SuppressWarnings(
@@ -421,12 +424,12 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
 }//GEN-LAST:event_FileMenuSelected
 
 private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
-ChineseTextField.setText("");
+    ChineseTextField.setText("");
     EnglishTextField.setText("");
 }//GEN-LAST:event_ResetButtonActionPerformed
 
 private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveButtonActionPerformed
-String english = EnglishTextField.getText();
+    String english = EnglishTextField.getText();
     ArrayList<String> pinyin = PinyinChooser.get_pinyins();
     String hanzi_string = ChineseTextField.getText();
     ArrayList<String> hanzi = new ArrayList<String>();
@@ -499,7 +502,7 @@ String english = EnglishTextField.getText();
 }//GEN-LAST:event_SaveButtonActionPerformed
 
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
-String hanzi_string = ChineseTextField.getText();
+    String hanzi_string = ChineseTextField.getText();
     ArrayList<String> translations = new ArrayList<String>();
     int i;
 
@@ -523,7 +526,7 @@ String hanzi_string = ChineseTextField.getText();
 }//GEN-LAST:event_ChineseTextFieldFocusLost
 
 private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
-ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
+    ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
 
     EnglishTranslations.removeAllItems();
     EnglishTranslations.setEnabled(false);
@@ -534,7 +537,6 @@ ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
     EditWordButton.setSelected(false);
     DeleteWordButton.setSelected(false);
 }//GEN-LAST:event_ChineseTextFieldFocusGained
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton AddNewWordButton;
     private javax.swing.JLabel ChineseLabel;
