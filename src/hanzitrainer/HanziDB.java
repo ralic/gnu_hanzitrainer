@@ -214,11 +214,8 @@ public class HanziDB
                     " JOIN character_pinyin AS cp ON c.char_id=cp.char_id" +
                     " WHERE c.hanzi='" + character + "'");
 
-            System.out.printf("for character %s\n", character);
-
             for (; rs.next();)
             {
-                System.out.printf("pinyin %s\n", rs.getString(1));
                 res.add(rs.getString(1));
             }
             st.close();
@@ -788,7 +785,8 @@ public class HanziDB
                     " JOIN cword_pinyin_bridge AS cpb ON cp.character_pinyin_id=cpb.character_pinyin_id" +
                     " WHERE ch.hanzi='" + hanzi + "'" +
                     " GROUP BY cpb.cword_id) AS selected_words" +
-                    " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id");
+                    " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id" +
+                    " ORDER BY epc.pinyin");
             for (; rs.next();)
             {
                 temp = new ArrayList<String>();
@@ -826,7 +824,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese");
+            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin");
             rs.relative(index + 1);
             res.add(rs.getString(2));
             res.add(rs.getString(3));

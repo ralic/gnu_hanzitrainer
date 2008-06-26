@@ -218,7 +218,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         DoneGuessCharacterButton.setName("DoneGuessCharacterButton"); // NOI18N
         DoneGuessCharacterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DoneGuessCharacterButtonrandom_character_action(evt);
+                DoneGuessCharacterButton_action(evt);
             }
         });
 
@@ -230,9 +230,19 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
 
         GuessPinyinTextField.setText(resourceMap.getString("GuessPinyinTextField.text")); // NOI18N
         GuessPinyinTextField.setName("GuessPinyinTextField"); // NOI18N
+        GuessPinyinTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GuessPinyinTextFieldActionPerformed(evt);
+            }
+        });
 
         GuessChineseTextField.setText(resourceMap.getString("GuessChineseTextField.text")); // NOI18N
         GuessChineseTextField.setName("GuessChineseTextField"); // NOI18N
+        GuessChineseTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GuessChineseTextFieldActionPerformed(evt);
+            }
+        });
         GuessChineseTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 GuessChineseTextFieldFocusGained(evt);
@@ -336,11 +346,11 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void DoneGuessCharacterButtonrandom_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DoneGuessCharacterButtonrandom_character_action
+private void DoneGuessCharacterButton_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DoneGuessCharacterButton_action
 
     check_old_data();
     set_new_character_to_guess();
-}//GEN-LAST:event_DoneGuessCharacterButtonrandom_character_action
+}//GEN-LAST:event_DoneGuessCharacterButton_action
 
 private void PreviousCharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PreviousCharDBTableMouseClicked
     if (evt.getClickCount() == 2)
@@ -360,6 +370,14 @@ private void GuessChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GE
 private void GuessChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_GuessChineseTextFieldFocusGained
     GuessChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
 }//GEN-LAST:event_GuessChineseTextFieldFocusGained
+
+private void GuessPinyinTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuessPinyinTextFieldActionPerformed
+    DoneGuessCharacterButton_action(evt);
+}//GEN-LAST:event_GuessPinyinTextFieldActionPerformed
+
+private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuessChineseTextFieldActionPerformed
+    DoneGuessCharacterButton_action(evt);
+}//GEN-LAST:event_GuessChineseTextFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel CharacterLabel;
     private javax.swing.JButton DoneGuessCharacterButton;
@@ -389,7 +407,6 @@ private void GuessChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//
     private ArrayList<String> ChineseWordList;
     private ArrayList<Integer> ChineseWordListState; // 0=good, 1=bad, 2=other
 
-    
     public int getRowCount()
     {
         return ChineseWordList.size();
@@ -445,13 +462,9 @@ private void GuessChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//
 
     public void addTableModelListener(TableModelListener l)
     {
-        
     }
 
     public void removeTableModelListener(TableModelListener l)
     {
-        
     }
-    
- 
 }

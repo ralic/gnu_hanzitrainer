@@ -18,17 +18,13 @@ public class WordDatabasePanel extends javax.swing.JPanel
         main_database = database;
         parent_app = updater;
         initComponents();
-
+        WordDatabaseUpdateDB();
     }
-    
+
     public void WordDatabaseUpdateDB()
     {
-        TableFiller.fireTableDataChanged();
-    }
-
-    public void ShowWordPanel()
-    {
         int res;
+        TableFiller.fireTableDataChanged();
 
         res = main_database.get_number_words();
         numWordLabel.setText("Number of words : " + res);
@@ -124,5 +120,4 @@ private void DBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:eve
     private DBTableFiller TableFiller;
     private HanziDB main_database;
     private HanziApplicationUpdater parent_app;
-
 }
