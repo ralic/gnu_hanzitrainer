@@ -57,7 +57,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         PreviousPinyins = CurrentPinyins;
         PreviousChineseWords = CurrentChineseWords;
 
-        guessed_pinyins = GuessPinyinTextField.getText().split(",");
+        guessed_pinyins = GuessPinyinTextField.getText().split("[,，]");
         GuessPinyins.clear();
         for (String item : guessed_pinyins)
         {
@@ -100,7 +100,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
 
         if (!GuessChineseTextField.getText().equals(""))
         {
-            guessed_chinese = GuessChineseTextField.getText().split(",");
+            guessed_chinese = GuessChineseTextField.getText().split("[,，]");
             GuessChineseWords.clear();
             for (String item : guessed_chinese)
             {
@@ -350,6 +350,7 @@ private void DoneGuessCharacterButton_action(java.awt.event.ActionEvent evt) {//
 
     check_old_data();
     set_new_character_to_guess();
+    GuessPinyinTextField.requestFocus();
 }//GEN-LAST:event_DoneGuessCharacterButton_action
 
 private void PreviousCharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PreviousCharDBTableMouseClicked
