@@ -499,6 +499,7 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     EnglishTranslations.removeAllItems();
     ChineseTextField.setText("");
     EnglishTextField.setText("");
+    ChineseTextField.requestFocus();
 }//GEN-LAST:event_SaveButtonActionPerformed
 
 private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
