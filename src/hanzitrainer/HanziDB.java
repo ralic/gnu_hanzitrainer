@@ -1,6 +1,22 @@
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
+ * 
+ * HanziTrainer to help you learn Mandarin
+ * Copyright (C) 2008  Matthieu Jeanson
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package hanzitrainer;
 
@@ -479,10 +495,12 @@ public class HanziDB
                 while (english_tokens.hasMoreTokens())
                 {
                     String current_token = english_tokens.nextToken().trim();
+                    
+                    current_token = current_token.replace("'", "''");
 
                     rs = st.executeQuery("SELECT eng_id FROM english " +
-                            "WHERE cword_id =" + found_chinese_id +
-                            "AND translation='" + current_token + "'");
+                            " WHERE cword_id =" + found_chinese_id +
+                            " AND translation='" + current_token + "'");
                     if (rs.next())
                     {
                         continue;
@@ -824,7 +842,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin");
+            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin, hanzi");
             rs.relative(index + 1);
             res.add(rs.getString(2));
             res.add(rs.getString(3));
