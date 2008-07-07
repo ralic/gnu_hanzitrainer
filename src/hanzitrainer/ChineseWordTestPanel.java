@@ -71,7 +71,7 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
 
         PreviousTranslationLabel.setText(previous_translation);
         PreviousChineseLabel.setText(previous_correct_chinese);
-        PreviouspinyinLabel.setText(previous_pinyin);
+        PreviouspinyinLabel.setText(PinyinParser.convert_to_printed_version(previous_pinyin));
         GuessLabel.setText(previous_chinese_guess);
         if (previous_chinese_guess.equals(previous_correct_chinese))
         {

@@ -41,27 +41,23 @@ public class HanziDB
     public HanziDB()
     {
         database_init();
-        try
-        {
-            create_database();
-            changed = false;
-        }
-        catch (Exception e)
-        {
-        }
+
+        create_database();
+        changed = false;
+
         System.out.println("HanziDB : Created a new empty database");
     }
 
     // we dont want this garbage collected until we are done
     public void HanziDB_open(String db_file_name)
     {
+        shutdown();
+        database_init();
+        changed = false;
+
         try
         {
             Statement st;
-
-            shutdown();
-            database_init();
-            changed = false;
 
             st = conn.createStatement();
             st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
@@ -81,20 +77,19 @@ public class HanziDB
 
                 return;
             }
-            if (get_database_version() < database_ver)
-            {
-                System.out.println("HanziDB_open : reading file " + db_file_name + " upgrading");
-                upgrade_database();
-
-            }
-            System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
-            filename = db_file_name;
-
-            changed = false;
         }
-        catch (Exception e)
+        catch (SQLException e)
         {
+            System.out.println("got exception " + e.getMessage());
+            e.printStackTrace();
         }
+        if (get_database_version() < database_ver)
+        {
+            System.out.println("HanziDB_open : reading file " + db_file_name + " upgrading");
+            upgrade_database();
+        }
+        System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
+        filename = db_file_name;
     }
 
     public void HanziDB_save()
@@ -119,13 +114,9 @@ public class HanziDB
         shutdown();
         HanziDB_set_filename("");
         database_init();
-        try
-        {
-            create_database();
-        }
-        catch (Exception e)
-        {
-        }
+
+        create_database();
+
     }
 
     public void HanziDB_set_filename(String new_filename)
@@ -279,7 +270,7 @@ public class HanziDB
             return res;
         }
 
-        // find the character
+// find the character
         rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
         if (!rs.next())
         {
@@ -688,53 +679,61 @@ public class HanziDB
      * 
      * @return nothing
      */
-    private void create_database() throws SQLException
+    private void create_database()
     {
-        Statement st = conn.createStatement();
+        try
+        {
+            Statement st = conn.createStatement();
 
-        st.executeUpdate("CREATE TABLE database_info (" +
-                " field VARCHAR(50), value VARCHAR(50))");
-        st.executeUpdate("CREATE TABLE character (" +
-                " char_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                " hanzi VARCHAR(2))");
-        st.executeUpdate("CREATE TABLE character_pinyin (" +
-                " character_pinyin_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                " char_id INTEGER," +
-                " pinyin VARCHAR(10)," +
-                " tone INTEGER," +
-                " FOREIGN KEY (char_id) REFERENCES character(char_id))");
-        st.executeUpdate("CREATE TABLE cword (" +
-                " cword_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)");
-        st.executeUpdate("CREATE TABLE cword_pinyin_bridge (" +
-                " cword_id INTEGER," +
-                " character_pinyin_id INTEGER," +
-                " pos INTEGER," +
-                " notone BOOLEAN," +
-                " FOREIGN KEY (cword_id) REFERENCES cword(cword_id)," +
-                " FOREIGN KEY (character_pinyin_id) REFERENCES character_pinyin(character_pinyin_id))");
-        st.executeUpdate("CREATE TABLE english (" +
-                " eng_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                " cword_id INTEGER," +
-                " translation VARCHAR(50)," +
-                " FOREIGN KEY (cword_id) REFERENCES cword(cword_id))");
-        st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
-                " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
-                " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
-                " FROM (SELECT cpb.cword_id," +
-                " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
-                " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
-                " FROM cword AS cw" +
-                " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
-                " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                " JOIN character AS ch ON ch.char_id=cp.char_id" +
-                " GROUP BY cpb.cword_id) AS c_words" +
-                " JOIN english AS e ON e.cword_id=c_words.cword_id " +
-                " GROUP BY e.cword_id )");
+            st.executeUpdate("CREATE TABLE database_info (" +
+                    " field VARCHAR(50), value VARCHAR(50))");
+            st.executeUpdate("CREATE TABLE character (" +
+                    " char_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                    " hanzi VARCHAR(2))");
+            st.executeUpdate("CREATE TABLE character_pinyin (" +
+                    " character_pinyin_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                    " char_id INTEGER," +
+                    " pinyin VARCHAR(10)," +
+                    " tone INTEGER," +
+                    " FOREIGN KEY (char_id) REFERENCES character(char_id))");
+            st.executeUpdate("CREATE TABLE cword (" +
+                    " cword_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)");
+            st.executeUpdate("CREATE TABLE cword_pinyin_bridge (" +
+                    " cword_id INTEGER," +
+                    " character_pinyin_id INTEGER," +
+                    " pos INTEGER," +
+                    " notone BOOLEAN," +
+                    " FOREIGN KEY (cword_id) REFERENCES cword(cword_id)," +
+                    " FOREIGN KEY (character_pinyin_id) REFERENCES character_pinyin(character_pinyin_id))");
+            st.executeUpdate("CREATE TABLE english (" +
+                    " eng_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                    " cword_id INTEGER," +
+                    " translation VARCHAR(50)," +
+                    " FOREIGN KEY (cword_id) REFERENCES cword(cword_id))");
+            st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
+                    " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
+                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
+                    " FROM (SELECT cpb.cword_id," +
+                    " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
+                    " FROM cword AS cw" +
+                    " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
+                    " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                    " GROUP BY cpb.cword_id) AS c_words" +
+                    " JOIN english AS e ON e.cword_id=c_words.cword_id " +
+                    " GROUP BY e.cword_id )");
 
-        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('version', '" + database_ver + "')");
-        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
+            st.executeUpdate("INSERT INTO database_info(field, value) VALUES('version', '" + database_ver + "')");
+            st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
 
-        st.close();
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+
     }
 
     private void upgrade_database()
