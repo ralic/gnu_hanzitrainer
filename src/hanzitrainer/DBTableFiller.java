@@ -40,7 +40,7 @@ public class DBTableFiller extends AbstractTableModel
         hanzi = new String("");
     }
 
-    public void set_character(String hanzi)
+    public void set_filter(String hanzi)
     {
         this.hanzi = hanzi;
         table_for_character = db.get_words_with_character(hanzi);
@@ -85,6 +85,7 @@ public class DBTableFiller extends AbstractTableModel
 
     public Object getValueAt(int row, int column)
     {
+        int id;
         if (table_mode == table_mode_t.TMODE_ALL)
         {
             ArrayList<String> word_details;
@@ -92,7 +93,8 @@ public class DBTableFiller extends AbstractTableModel
             {
                 return "";
             }
-            word_details = db.get_word_details(row);
+            id = db.get_word_id(row);
+            word_details = db.get_word_details(id);
             switch (column)
             {
             case 0:

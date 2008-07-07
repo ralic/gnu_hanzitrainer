@@ -37,6 +37,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
     CharacterReviewPanel char_review;
     WordDatabasePanel word_database;
     CharacterTestPanel char_test;
+    ChineseWordTestPanel chinese_test;
 
     public HanziTrainerView(SingleFrameApplication app)
     {
@@ -58,6 +59,9 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         Tabs.addTab("Character Review", char_review);
         char_test = new CharacterTestPanel(main_database, this);
         Tabs.addTab("Character Test", char_test);
+        chinese_test = new ChineseWordTestPanel(main_database, this);
+        Tabs.addTab("Chinese Test", chinese_test);
+        
     }
 
     @SuppressWarnings(
@@ -92,6 +96,14 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
 
         my_preferences.put("database_filename", database_file);
         main_database.shutdown();
+    }
+
+    private void update_panel_databases()
+    {
+        char_review.CharacterReviewUpdateDB();
+        word_database.WordDatabaseUpdateDB();
+        char_test.CharacterTestUpdateDB();
+        chinese_test.ChineseWordTestUpdateDB();
     }
 
     /** This method is called from within the constructor to
@@ -223,10 +235,10 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
                         .addGap(15, 15, 15)
                         .addComponent(EnglishLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(EnglishTextField, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(EnglishTranslations, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE))
-                        .addGap(6, 6, 6)
+                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(EnglishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
+                            .addComponent(EnglishTranslations, 0, 386, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(EditWordButton)
                             .addComponent(AddNewWordButton)
@@ -250,17 +262,21 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
                     .addComponent(PinyinScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(PinyinLabel))
                 .addGap(13, 13, 13)
-                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(EnglishLabel)
-                    .addComponent(EnglishTranslations, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(AddNewWordButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(EditWordButton))
-                .addGap(3, 3, 3)
-                .addComponent(DeleteWordButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
+                        .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(EnglishLabel)
+                            .addComponent(EnglishTranslations, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(35, 35, 35))
+                    .addGroup(VocabularyBuilderPanelLayout.createSequentialGroup()
+                        .addComponent(AddNewWordButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(EditWordButton)
+                        .addGap(3, 3, 3)
+                        .addComponent(DeleteWordButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addGroup(VocabularyBuilderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ResetButton)
                     .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -392,8 +408,7 @@ private void open_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_op
             File file = DBFileChooser.getSelectedFile();
             System.out.println("Opening: " + file.getPath());
             main_database.HanziDB_open(file.getPath());
-            char_review.CharacterReviewUpdateDB();
-            word_database.WordDatabaseUpdateDB();
+            update_panel_databases();
         }
         else
         {
@@ -423,8 +438,7 @@ private void save_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sa
 
 private void close_database(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_database
     main_database.HanziDB_close();
-    char_review.CharacterReviewUpdateDB();
-    word_database.WordDatabaseUpdateDB();
+    update_panel_databases();
 }//GEN-LAST:event_close_database
 
 private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_FileMenuSelected
@@ -509,8 +523,7 @@ private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         }
     }
 
-    char_review.CharacterReviewUpdateDB();
-    word_database.WordDatabaseUpdateDB();
+    update_panel_databases();
 
     EnglishTranslations.removeAllItems();
     ChineseTextField.setText("");

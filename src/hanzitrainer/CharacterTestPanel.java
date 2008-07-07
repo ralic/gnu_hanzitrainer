@@ -23,7 +23,6 @@ package hanzitrainer;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -42,16 +41,16 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         parent_app = updater;
         initComponents();
         character_history = new ArrayList<String>();
-        ChineseWordList = new ArrayList<String>();
-        ChineseWordListState = new ArrayList<Integer>();
-        CurrentChineseWords = new ArrayList<String>();
-        GuessPinyins = new ArrayList<String>();
-        GuessChineseWords = new ArrayList<String>();
+        chinese_word_list = new ArrayList<String>();
+        chinese_word_list_state = new ArrayList<Integer>();
+        current_chinese_words = new ArrayList<String>();
+        guess_pinyins = new ArrayList<String>();
+        guess_chinese_words = new ArrayList<String>();
 
         set_new_character_to_guess();
     }
 
-    public void CharacterReviewUpdateDB()
+    public void CharacterTestUpdateDB()
     {
         set_new_character_to_guess();
     }
@@ -69,19 +68,19 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         TableModelEvent t_event = new TableModelEvent(this);
 
 
-        PreviousCharacter = CurrentCharacter;
-        PreviousPinyins = CurrentPinyins;
-        PreviousChineseWords = CurrentChineseWords;
+        previous_character = current_character;
+        previous_pinyins = current_pinyins;
+        previous_chinese_words = current_chinese_words;
 
         guessed_pinyins = GuessPinyinTextField.getText().split("[,，]");
-        GuessPinyins.clear();
+        guess_pinyins.clear();
         for (String item : guessed_pinyins)
         {
-            GuessPinyins.add(item.trim());
+            guess_pinyins.add(item.trim());
         }
-        for (String item : GuessPinyins)
+        for (String item : guess_pinyins)
         {
-            if (!PreviousPinyins.contains(item))
+            if (!previous_pinyins.contains(item))
             {
                 bad_pinyins.add(item);
             }
@@ -90,7 +89,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 good_pinyins.add(item);
             }
         }
-        for (String item : PreviousPinyins)
+        for (String item : previous_pinyins)
         {
             if ((!good_pinyins.contains(item)) && (!bad_pinyins.contains(item)))
             {
@@ -117,14 +116,14 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         if (!GuessChineseTextField.getText().equals(""))
         {
             guessed_chinese = GuessChineseTextField.getText().split("[,，]");
-            GuessChineseWords.clear();
+            guess_chinese_words.clear();
             for (String item : guessed_chinese)
             {
-                GuessChineseWords.add(item.trim());
+                guess_chinese_words.add(item.trim());
             }
-            for (String item : GuessChineseWords)
+            for (String item : guess_chinese_words)
             {
-                if (!PreviousChineseWords.contains(item))
+                if (!previous_chinese_words.contains(item))
                 {
                     bad_chinese.add(item);
                 }
@@ -134,34 +133,34 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 }
             }
         }
-        for (String item : PreviousChineseWords)
+        for (String item : previous_chinese_words)
         {
             if ((!good_chinese.contains(item)) && (!bad_chinese.contains(item)))
             {
                 other_chinese.add(item);
             }
         }
-        ChineseWordList.clear();
-        ChineseWordListState.clear();
+        chinese_word_list.clear();
+        chinese_word_list_state.clear();
         for (String item : bad_chinese)
         {
-            ChineseWordList.add(item);
-            ChineseWordListState.add(0);
+            chinese_word_list.add(item);
+            chinese_word_list_state.add(0);
         }
         for (String item : good_chinese)
         {
-            ChineseWordList.add(item);
-            ChineseWordListState.add(1);
+            chinese_word_list.add(item);
+            chinese_word_list_state.add(1);
         }
         for (String item : other_chinese)
         {
-            ChineseWordList.add(item);
-            ChineseWordListState.add(2);
+            chinese_word_list.add(item);
+            chinese_word_list_state.add(2);
         }
         PreviousCharDBTable.tableChanged(t_event);
 
         PreviousPinyinsLabel.setText(pinyins_result);
-        PreviousCharacterLabel.setText(PreviousCharacter);
+        PreviousCharacterLabel.setText(previous_character);
     }
 
     private void set_new_character_to_guess()
@@ -186,14 +185,14 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         {
             character_history.remove(0);
         }
-        CurrentChineseWords.clear();
+        current_chinese_words.clear();
         words = main_database.get_words_with_character(hanzi);
         for (ArrayList<String> word : words)
         {
-            CurrentChineseWords.add(word.get(0));
+            current_chinese_words.add(word.get(0));
         }
-        CurrentPinyins = main_database.get_pinyin_from_character(hanzi);
-        CurrentCharacter = hanzi;
+        current_pinyins = main_database.get_pinyin_from_character(hanzi);
+        current_character = hanzi;
         CharacterLabel.setText(hanzi);
         GuessPinyinTextField.setText("");
         GuessChineseTextField.setText("");
@@ -219,7 +218,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         GoodOrBadLabel = new javax.swing.JLabel();
         PreviousCharDBScroll = new javax.swing.JScrollPane();
         PreviousCharDBTable = new javax.swing.JTable();
-        CharTableFiller = new DBTableFiller(main_database);
+        char_table_filler = new DBTableFiller(main_database);
         PreviousPinyinsLabel = new javax.swing.JLabel();
 
         setName("Form"); // NOI18N
@@ -280,6 +279,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         GoodOrBadLabel.setName("GoodOrBadLabel"); // NOI18N
 
         PreviousCharDBScroll.setName("PreviousCharDBScroll"); // NOI18N
+        PreviousCharDBScroll.setPreferredSize(new java.awt.Dimension(447, 402));
 
         PreviousCharDBTable.setModel(this);
         PreviousCharDBTable.setName("PreviousCharDBTable"); // NOI18N
@@ -299,34 +299,34 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PreviouslyLabel)
+                        .addGap(4, 4, 4)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(2, 2, 2)
+                                        .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(8, 8, 8)
+                                .addComponent(PreviousPinyinsLabel))
+                            .addComponent(DoneGuessCharacterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(PinyinsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(PinyinsLabel1, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PreviouslyLabel)))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(4, 4, 4)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(GuessChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
-                            .addComponent(GuessPinyinTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
-                            .addComponent(DoneGuessCharacterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addComponent(PinyinsLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(PreviousPinyinsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)))
+                            .addComponent(GuessPinyinTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
+                            .addComponent(GuessChineseTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -334,7 +334,9 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(PinyinsLabel)
@@ -344,21 +346,27 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                             .addComponent(PinyinsLabel1)
                             .addComponent(GuessChineseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(DoneGuessCharacterButton)))
-                .addContainerGap(88, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(111, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(PreviouslyLabel)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(PreviousPinyinsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(11, 11, 11)
-                        .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(DoneGuessCharacterButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(PreviouslyLabel)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(35, 35, 35)
+                                        .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)))
+                                .addContainerGap())
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(52, 52, 52)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(77, 77, 77)
+                                        .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(PreviousPinyinsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -374,7 +382,7 @@ private void PreviousCharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//G
     {
         int row = PreviousCharDBTable.getSelectedRow();
         String chinese_word;
-        chinese_word = (String) ChineseWordList.get(row);
+        chinese_word = (String) chinese_word_list.get(row);
 
         parent_app.edit_word(chinese_word);
     }
@@ -409,24 +417,24 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JLabel PreviousPinyinsLabel;
     private javax.swing.JLabel PreviouslyLabel;
     // End of variables declaration//GEN-END:variables
-    private DBTableFiller CharTableFiller;
+    private DBTableFiller char_table_filler;
     private ArrayList<String> character_history;
     private HanziDB main_database;
     private HanziApplicationUpdater parent_app;
-    private String CurrentCharacter;
-    private ArrayList<String> CurrentPinyins;
-    private ArrayList<String> CurrentChineseWords;
-    private String PreviousCharacter;
-    private ArrayList<String> PreviousPinyins;
-    private ArrayList<String> PreviousChineseWords;
-    private ArrayList<String> GuessPinyins;
-    private ArrayList<String> GuessChineseWords;
-    private ArrayList<String> ChineseWordList;
-    private ArrayList<Integer> ChineseWordListState; // 0=good, 1=bad, 2=other
+    private String current_character;
+    private ArrayList<String> current_pinyins;
+    private ArrayList<String> current_chinese_words;
+    private String previous_character;
+    private ArrayList<String> previous_pinyins;
+    private ArrayList<String> previous_chinese_words;
+    private ArrayList<String> guess_pinyins;
+    private ArrayList<String> guess_chinese_words;
+    private ArrayList<String> chinese_word_list;
+    private ArrayList<Integer> chinese_word_list_state; // 0=good, 1=bad, 2=other
 
     public int getRowCount()
     {
-        return ChineseWordList.size();
+        return chinese_word_list.size();
     }
 
     public int getColumnCount()
@@ -459,15 +467,15 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         int state;
-        state = ChineseWordListState.get(rowIndex);
+        state = chinese_word_list_state.get(rowIndex);
         switch (state)
         {
         case 0:
-            return "<HTML><FONT COLOR=\"RED\">" + ChineseWordList.get(rowIndex) + "</FONT></HTML>";
+            return "<HTML><FONT COLOR=\"RED\">" + chinese_word_list.get(rowIndex) + "</FONT></HTML>";
         case 1:
-            return "<HTML><FONT COLOR=\"GREEN\">" + ChineseWordList.get(rowIndex) + "</FONT></HTML>";
+            return "<HTML><FONT COLOR=\"GREEN\">" + chinese_word_list.get(rowIndex) + "</FONT></HTML>";
         case 2:
-            return ChineseWordList.get(rowIndex);
+            return chinese_word_list.get(rowIndex);
         }
         return "??";
     }

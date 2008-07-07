@@ -36,6 +36,7 @@ public class HanziDB
     private boolean initialized = false;
     private String filename = "";
     private boolean changed = false;
+    private static final int database_ver = 1;
 
     public HanziDB()
     {
@@ -60,6 +61,7 @@ public class HanziDB
 
             shutdown();
             database_init();
+            changed = false;
 
             st = conn.createStatement();
             st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
@@ -67,12 +69,27 @@ public class HanziDB
             {
                 System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
                 create_database();
+
+                return;
             }
-            else
+            if (get_database_version() > database_ver)
             {
-                System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
-                filename = db_file_name;
+                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
+                shutdown();
+                database_init();
+                create_database();
+
+                return;
             }
+            if (get_database_version() < database_ver)
+            {
+                System.out.println("HanziDB_open : reading file " + db_file_name + " upgrading");
+                upgrade_database();
+
+            }
+            System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
+            filename = db_file_name;
+
             changed = false;
         }
         catch (Exception e)
@@ -495,7 +512,7 @@ public class HanziDB
                 while (english_tokens.hasMoreTokens())
                 {
                     String current_token = english_tokens.nextToken().trim();
-                    
+
                     current_token = current_token.replace("'", "''");
 
                     rs = st.executeQuery("SELECT eng_id FROM english " +
@@ -714,10 +731,24 @@ public class HanziDB
                 " JOIN english AS e ON e.cword_id=c_words.cword_id " +
                 " GROUP BY e.cword_id )");
 
-        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('version', '1.0')");
+        st.executeUpdate("INSERT INTO database_info(field, value) VALUES('version', '" + database_ver + "')");
         st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
 
         st.close();
+    }
+
+    private void upgrade_database()
+    {
+        int version;
+
+        version = get_database_version();
+        switch (version)
+        {
+        case 1:
+        default:
+            break;
+        }
+        return;
     }
 
     /**
@@ -823,12 +854,62 @@ public class HanziDB
 
     }
 
+    public int get_word_id(int index)
+    {
+        int res = -1;
+        if (!initialized)
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin, hanzi");
+            rs.relative(index + 1);
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+
+    public int get_word_id(String chinese)
+    {
+        int res = -1;
+        if (!initialized)
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese WHERE hanzi='" + chinese + "'");
+            if (!rs.next())
+            {
+                return res;
+            }
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+
     /**
+     * 
      * Get details about a particular chinese word
      * 
      * @param index from 0 to the number of words - 1 
      * @see get_number_words
-     * @return ArrayList with : Chinese words, pinyin and translations
+     * @return ArrayList with : Chinese word, pinyin and translations
      */
     public ArrayList<String> get_word_details(int index)
     {
@@ -842,8 +923,11 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin, hanzi");
-            rs.relative(index + 1);
+            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese WHERE cword_id=" + index);
+            if (!rs.next())
+            {
+                return res;
+            }
             res.add(rs.getString(2));
             res.add(rs.getString(3));
             res.add(rs.getString(4));
@@ -855,9 +939,9 @@ public class HanziDB
         return res;
     }
 
-    public String get_character_details(int index)
+    public int get_character_id(String character)
     {
-        String res="";
+        int res = -1;
         if (!initialized)
         {
             return res;
@@ -867,8 +951,61 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT hanzi FROM character");
+            rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
+            if (!rs.next())
+            {
+                return res;
+            }
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+
+    public int get_character_id(int index)
+    {
+        int res = -1;
+        if (!initialized)
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT char_id FROM character ORDER BY hanzi");
             rs.relative(index + 1);
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+
+    }
+
+    public String get_character_details(int index)
+    {
+        String res = "";
+        if (!initialized)
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT hanzi FROM character WHERE char_id=" + index);
+            if (!rs.next())
+            {
+                return res;
+            }
             res = rs.getString(1);
         }
         catch (SQLException ex)
@@ -904,10 +1041,30 @@ public class HanziDB
         }
         return res;
     }
-    
+
     public boolean get_database_changed()
     {
         return changed;
-    
+    }
+
+    public int get_database_version()
+    {
+        int res = 0;
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT value FROM database_info AS di" +
+                    " WHERE field='version'");
+            rs.next();
+
+            res = Integer.parseInt(rs.getString(1));
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
     }
 }    // class Testdb

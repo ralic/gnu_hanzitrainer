@@ -76,7 +76,7 @@
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="CharDBScroll" pref="193" max="32767" attributes="0"/>
+                          <Component id="CharDBScroll" pref="209" max="32767" attributes="0"/>
                           <Component id="PinyinsLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="4" pref="4" max="4" attributes="0"/>

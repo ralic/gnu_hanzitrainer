@@ -36,7 +36,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         main_database = database;
         parent_app = updater;
         initComponents();
-        CharTableFiller.set_character("");
+        CharTableFiller.set_filter("");
         character_history = new ArrayList<String>();
     }
 
@@ -182,7 +182,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
                             .addComponent(PinyinsTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
+                            .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
                             .addComponent(PinyinsLabel1))
                         .addGap(4, 4, 4)))
                 .addContainerGap())
@@ -232,7 +232,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         }
         PinyinsTextfield.setText(pinyin_list);
         CharacterLabel.setText(hanzi);
-        CharTableFiller.set_character(hanzi);
+        CharTableFiller.set_filter(hanzi);
         CharTableFiller.fireTableDataChanged();
     }
 
