@@ -49,6 +49,7 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         parent_app = updater;
         initComponents();
         chinese_word_history = new ArrayList<String>();
+        set_new_word_guess();
     }
 
     public void ChineseWordTestUpdateDB()
@@ -102,16 +103,10 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         if (previous_chinese_guess.equals(previous_correct_chinese))
         {
             GuessLabel.setForeground(Color.green);
-            PreviousMeaningLabel.setText("");
         }
         else
         {
             GuessLabel.setForeground(Color.red);
-            id = main_database.get_word_id(previous_chinese_guess);
-            if (id != -1)
-            {
-                PreviousMeaningLabel.setText(main_database.get_word_details(id).get(2));
-            }
         }
     }
 
@@ -135,8 +130,6 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         PreviousChineseLabel = new javax.swing.JLabel();
         YourguessLabel = new javax.swing.JLabel();
         GuessLabel = new javax.swing.JLabel();
-        MeaningLabel = new javax.swing.JLabel();
-        PreviousMeaningLabel = new javax.swing.JLabel();
         PinyinLabel = new javax.swing.JLabel();
         PreviouspinyinLabel = new javax.swing.JLabel();
         EditPreviousWordButton = new javax.swing.JButton();
@@ -196,12 +189,6 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         GuessLabel.setText(resourceMap.getString("GuessLabel.text")); // NOI18N
         GuessLabel.setName("GuessLabel"); // NOI18N
 
-        MeaningLabel.setText(resourceMap.getString("MeaningLabel.text")); // NOI18N
-        MeaningLabel.setName("MeaningLabel"); // NOI18N
-
-        PreviousMeaningLabel.setText(resourceMap.getString("PreviousMeaningLabel.text")); // NOI18N
-        PreviousMeaningLabel.setName("PreviousMeaningLabel"); // NOI18N
-
         PinyinLabel.setText(resourceMap.getString("PinyinLabel.text")); // NOI18N
         PinyinLabel.setName("PinyinLabel"); // NOI18N
 
@@ -234,12 +221,11 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
                     .addComponent(ChineseGuessLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(EnglishLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(TranslationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                .addComponent(TranslationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
                 .addGap(10, 10, 10))
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(MeaningLabel)
                     .addComponent(YourguessLabel)
                     .addComponent(PinyinLabel)
                     .addComponent(CorrectChineseLabel)
@@ -254,13 +240,12 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
                     .addComponent(ChineseGuessTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
                     .addComponent(PreviousChineseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
                     .addComponent(PreviouspinyinLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
-                    .addComponent(GuessLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
-                    .addComponent(PreviousMeaningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE))
+                    .addComponent(GuessLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addGap(210, 210, 210)
                 .addComponent(DoneButton)
-                .addContainerGap(242, Short.MAX_VALUE))
+                .addContainerGap(293, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -291,11 +276,7 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(GuessLabel)
                     .addComponent(YourguessLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(PreviousMeaningLabel)
-                    .addComponent(MeaningLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(35, 35, 35)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EditPreviousWordButton)
                     .addComponent(EditGuess))
@@ -333,11 +314,9 @@ private void EditPreviousWordButtonActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JButton EditPreviousWordButton;
     private javax.swing.JLabel EnglishLabel;
     private javax.swing.JLabel GuessLabel;
-    private javax.swing.JLabel MeaningLabel;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JLabel PreviousChineseLabel;
     private javax.swing.JLabel PreviousLabel;
-    private javax.swing.JLabel PreviousMeaningLabel;
     private javax.swing.JLabel PreviousTranslationLabel;
     private javax.swing.JLabel PreviouspinyinLabel;
     private javax.swing.JLabel TranslationLabel;
