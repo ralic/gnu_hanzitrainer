@@ -4,20 +4,30 @@
  * Created on June 20, 2008, 4:19 PM
  * 
  * HanziTrainer to help you learn Mandarin
- * Copyright (C) 2008  Matthieu Jeanson
+ * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
+ * All rights reserved.
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * The name its contributors may not be used to endorse or promote
+ *       products derived from this software without specific prior written
+ *       permission.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THIS SOFTWARE IS PROVIDED BY MATTHIEU JEANSON ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL MATTHIEU JEANSON BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package hanzitrainer;
 
@@ -66,7 +76,6 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         ArrayList<String> other_chinese = new ArrayList<String>();
         String pinyins_result;
         TableModelEvent t_event = new TableModelEvent(this);
-
 
         previous_character = current_character;
         previous_pinyins = current_pinyins;
@@ -137,7 +146,14 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         {
             if ((!good_chinese.contains(item)) && (!bad_chinese.contains(item)))
             {
-                other_chinese.add(item);
+                if (item.codePointCount(0, item.length())==1)
+                {
+                    good_chinese.add(item);
+                }
+                else
+                {
+                    other_chinese.add(item);
+                }
             }
         }
         chinese_word_list.clear();
@@ -176,7 +192,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         }
         do
         {
-            index = (int) (Math.random() * num_char);
+            index = (int) (Math.random() * num_char) + 1;
             hanzi = main_database.get_character_details(index);
         }
         while (character_history.contains(hanzi));
@@ -191,7 +207,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         {
             current_chinese_words.add(word.get(0));
         }
-        current_pinyins = main_database.get_pinyin_from_character(hanzi);
+        current_pinyins = main_database.get_pinyin_for_character(hanzi);
         current_character = hanzi;
         CharacterLabel.setText(hanzi);
         GuessPinyinTextField.setText("");
@@ -210,7 +226,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         CharacterLabel = new javax.swing.JLabel();
         DoneGuessCharacterButton = new javax.swing.JButton();
         PinyinsLabel = new javax.swing.JLabel();
-        PinyinsLabel1 = new javax.swing.JLabel();
+        AsInLabel = new javax.swing.JLabel();
         GuessPinyinTextField = new javax.swing.JTextField();
         GuessChineseTextField = new javax.swing.JTextField();
         PreviousCharacterLabel = new javax.swing.JLabel();
@@ -240,8 +256,8 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         PinyinsLabel.setText(resourceMap.getString("PinyinsLabel.text")); // NOI18N
         PinyinsLabel.setName("PinyinsLabel"); // NOI18N
 
-        PinyinsLabel1.setText(resourceMap.getString("PinyinsLabel1.text")); // NOI18N
-        PinyinsLabel1.setName("PinyinsLabel1"); // NOI18N
+        AsInLabel.setText(resourceMap.getString("AsInLabel.text")); // NOI18N
+        AsInLabel.setName("AsInLabel"); // NOI18N
 
         GuessPinyinTextField.setText(resourceMap.getString("GuessPinyinTextField.text")); // NOI18N
         GuessPinyinTextField.setName("GuessPinyinTextField"); // NOI18N
@@ -312,17 +328,18 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                                     .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(layout.createSequentialGroup()
                                         .addGap(2, 2, 2)
-                                        .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(8, 8, 8)
-                                .addComponent(PreviousPinyinsLabel))
+                                        .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(8, 8, 8)
+                                        .addComponent(PreviousPinyinsLabel)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                             .addComponent(DoneGuessCharacterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE))
+                        .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(PinyinsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(PinyinsLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(AsInLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(GuessPinyinTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
@@ -343,7 +360,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                             .addComponent(GuessPinyinTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(PinyinsLabel1)
+                            .addComponent(AsInLabel)
                             .addComponent(GuessChineseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -362,11 +379,9 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                                 .addContainerGap())
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(52, 52, 52)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(77, 77, 77)
-                                        .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(PreviousPinyinsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                                .addComponent(PreviousPinyinsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(40, 40, 40)
+                                .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -404,13 +419,13 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     DoneGuessCharacterButton_action(evt);
 }//GEN-LAST:event_GuessChineseTextFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel AsInLabel;
     private javax.swing.JLabel CharacterLabel;
     private javax.swing.JButton DoneGuessCharacterButton;
     private javax.swing.JLabel GoodOrBadLabel;
     private javax.swing.JTextField GuessChineseTextField;
     private javax.swing.JTextField GuessPinyinTextField;
     private javax.swing.JLabel PinyinsLabel;
-    private javax.swing.JLabel PinyinsLabel1;
     private javax.swing.JScrollPane PreviousCharDBScroll;
     private javax.swing.JTable PreviousCharDBTable;
     private javax.swing.JLabel PreviousCharacterLabel;

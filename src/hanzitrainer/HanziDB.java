@@ -3,20 +3,30 @@
  * and open the template in the editor.
  * 
  * HanziTrainer to help you learn Mandarin
- * Copyright (C) 2008  Matthieu Jeanson
+ * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
+ * All rights reserved.
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * The name its contributors may not be used to endorse or promote
+ *       products derived from this software without specific prior written
+ *       permission.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THIS SOFTWARE IS PROVIDED BY MATTHIEU JEANSON ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL MATTHIEU JEANSON BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package hanzitrainer;
 
@@ -48,7 +58,11 @@ public class HanziDB
         System.out.println("HanziDB : Created a new empty database");
     }
 
-    // we dont want this garbage collected until we are done
+    /**
+     *  Open a database file
+     * 
+     * @param db_file_name filename
+     */
     public void HanziDB_open(String db_file_name)
     {
         shutdown();
@@ -91,7 +105,11 @@ public class HanziDB
         System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
         filename = db_file_name;
     }
-
+    
+    /**
+     *  Save a database file with the same name of the file opened or previously saved
+     * 
+     */
     public void HanziDB_save()
     {
         changed = false;
@@ -108,7 +126,11 @@ public class HanziDB
         {
         }
     }
-
+    
+    /**
+     *  Close a database file
+     * 
+     */
     public void HanziDB_close()
     {
         shutdown();
@@ -118,17 +140,33 @@ public class HanziDB
         create_database();
 
     }
-
+    
+    /**
+     *  Set the database file
+     * 
+     * @param new_filename new file name
+     * @see HanziDB_get_filename
+     */
     public void HanziDB_set_filename(String new_filename)
     {
         filename = new_filename;
     }
-
+    /**
+     *  Open a database file
+     * 
+     * @see HanziDB_set_filename
+     * @return the file name currently used for the database
+     */
     public String HanziDB_get_filename()
     {
         return filename;
     }
-
+    
+    /**
+     *  Check if the currently opened database is empty
+     * 
+     * @returns True if the database is empty
+     */
     private Boolean check_for_empty_db() throws SQLException
     {
         Statement st = conn.createStatement();
@@ -148,7 +186,13 @@ public class HanziDB
             return true;
         }
     }
-
+    
+    /**
+     *  Look for a Chinese word in the database
+     * 
+     * @param chinese Chinese word
+     * @returns the id of the word
+     */
     private int find_chinese_word(String chinese)
     {
         int res = -1;
@@ -184,6 +228,12 @@ public class HanziDB
         return res;
     }
 
+    /**
+     *  Get the translation(s) for a Chinese word
+     * 
+     * @param chinese Chinese word
+     * @return list of translations
+     */
     public ArrayList<String> get_chinese_word_translation(String chinese)
     {
         ArrayList<String> res = new ArrayList<String>();
@@ -222,7 +272,13 @@ public class HanziDB
         return res;
     }
 
-    public ArrayList<String> get_pinyin_from_character(String character)
+    /**
+     *  Get a list of the pinyins knowns for a Chinese character
+     * 
+     * @param character Chinese character
+     * @return list of pinyin strings
+     */
+    public ArrayList<String> get_pinyin_for_character(String character)
     {
         ArrayList<String> res = new ArrayList<String>();
         if (!initialized)
@@ -270,7 +326,7 @@ public class HanziDB
             return res;
         }
 
-// find the character
+        // find the character
         rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
         if (!rs.next())
         {
@@ -320,7 +376,13 @@ public class HanziDB
         st.close();
         return res;
     }
-
+    
+    /**
+     *  Check if a character is Chinese (within a range of UTF codes)
+     * 
+     * @param input character
+     * @return True if the character seems Chinese
+     */
     private Boolean is_chinese_char(String input)
     {
         int entry;
@@ -526,7 +588,15 @@ public class HanziDB
             ex.printStackTrace();
         }
     }
-
+    
+    /**
+     * Deletes an English translation from the database.
+     * Cleans up any pinyin or character that would not be used anymore
+     * 
+     * @param english English version of the word
+     * @param hanzi Chinese version of the word
+     * @return nothing
+     */
     public synchronized void delete_translation(String english, ArrayList<String> hanzi)
     {
         if (!initialized)
@@ -558,7 +628,6 @@ public class HanziDB
             if (rs.next())
             {
                 System.out.println("delete_translation: the word has other translations");
-                st.close();
                 st.close();
                 return;
             }
@@ -620,11 +689,12 @@ public class HanziDB
         {
             ex.printStackTrace();
         }
-
     }
 
     /**
      *  Shuts down the database
+     * 
+     * @return nothing
      */
     public void shutdown()
     {
@@ -669,12 +739,14 @@ public class HanziDB
         }
         catch (Exception e)
         {
+            e.printStackTrace();
         }
         System.out.println("HanziDB : Done with database initialization");
         initialized = true;
     }
 
-    /*
+    /**
+     * 
      * Create a new database with all the tables and views it needs
      * 
      * @return nothing
@@ -735,7 +807,13 @@ public class HanziDB
         }
 
     }
-
+    
+    /**
+     * 
+     * Placeholder for upgrading the database when needed
+     * 
+     * @return nothing
+     */
     private void upgrade_database()
     {
         int version;
@@ -815,7 +893,14 @@ public class HanziDB
         }
         return 0;
     }
-
+    
+    /**
+     * 
+     * Returns detail information about the words that contain a particular Chinese character
+     * 
+     * @param hanzi Chinese character
+     * @return ArrayList<ArrayList<String>> List of Chinese, pinyin and English versions of the words. Translations are grouped together.
+     */
     public ArrayList<ArrayList<String>> get_words_with_character(String hanzi)
     {
         ArrayList<String> temp;
@@ -852,11 +937,18 @@ public class HanziDB
         return res;
 
     }
-
+    
+    /**
+     * 
+     * Return the ID of the nth word
+     * 
+     * @param index position in the word list
+     * @return int id of a Chinese word
+     */
     public int get_word_id(int index)
     {
         int res = -1;
-        if (!initialized)
+        if (!initialized) 
         {
             return res;
         }
@@ -876,6 +968,13 @@ public class HanziDB
         return res;
     }
 
+    /**
+     * 
+     * Returns the ID of a Chinese word
+     * 
+     * @param chinese Chinese String of the word in the lsit
+     * @return int ID of the word
+     */
     public int get_word_id(String chinese)
     {
         int res = -1;
@@ -937,7 +1036,14 @@ public class HanziDB
         }
         return res;
     }
-
+    
+    /**
+     * 
+     * Get the id of a character
+     * 
+     * @param character Chinese character
+     * @return id of the character
+     */
     public int get_character_id(String character)
     {
         int res = -1;
@@ -963,7 +1069,14 @@ public class HanziDB
         }
         return res;
     }
-
+    
+    /**
+     * 
+     * Get the id of an indexed character
+     * 
+     * @param index from 0 to the number of words - 1 
+     * @return id of the character
+     */
     public int get_character_id(int index)
     {
         int res = -1;
@@ -988,7 +1101,14 @@ public class HanziDB
 
     }
 
-    public String get_character_details(int index)
+    /**
+     * 
+     * Get the character from its id
+     * 
+     * @param id id of the character
+     * @return a string that only contains that character
+     */
+    public String get_character_details(int id)
     {
         String res = "";
         if (!initialized)
@@ -1000,7 +1120,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT hanzi FROM character WHERE char_id=" + index);
+            rs = st.executeQuery("SELECT hanzi FROM character WHERE char_id=" + id);
             if (!rs.next())
             {
                 return res;
@@ -1013,34 +1133,7 @@ public class HanziDB
         }
         return res;
     }
-
-    public ArrayList<String> get_pinyin_for_character(String hanzi)
-    {
-        ArrayList<String> res = new ArrayList<String>();
-        if (!initialized)
-        {
-            return res;
-        }
-        try
-        {
-            Statement st = conn.createStatement();
-            ResultSet rs = null;
-
-            rs = st.executeQuery("SELECT pinyin FROM character_pinyin AS cp" +
-                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
-                    " WHERE ch.hanzi='" + hanzi + "'");
-            for (; rs.next();)
-            {
-                res.add(rs.getString(1));
-            }
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
+    
     public boolean get_database_changed()
     {
         return changed;

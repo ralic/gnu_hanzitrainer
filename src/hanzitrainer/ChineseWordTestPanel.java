@@ -2,6 +2,32 @@
  * ChineseWordTestPanel.java
  *
  * Created on July 1, 2008, 11:33 AM
+ * 
+ * HanziTrainer to help you learn Mandarin
+ * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * The name its contributors may not be used to endorse or promote
+ *       products derived from this software without specific prior written
+ *       permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY MATTHIEU JEANSON ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL MATTHIEU JEANSON BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package hanzitrainer;
 
@@ -204,18 +230,12 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(10, 10, 10)
-                .addComponent(EnglishLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ChineseGuessLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(EnglishLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(TranslationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
                 .addGap(10, 10, 10))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(DoneButton)
-                .addContainerGap(442, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(ChineseGuessLabel)
-                .addContainerGap(423, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -230,13 +250,17 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
                         .addComponent(EditPreviousWordButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(EditGuess))
-                    .addComponent(PreviousTranslationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
-                    .addComponent(ChineseGuessTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
-                    .addComponent(PreviousChineseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
-                    .addComponent(PreviouspinyinLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
-                    .addComponent(GuessLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
-                    .addComponent(PreviousMeaningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE))
+                    .addComponent(PreviousTranslationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(ChineseGuessTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(PreviousChineseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(PreviouspinyinLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(GuessLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                    .addComponent(PreviousMeaningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(210, 210, 210)
+                .addComponent(DoneButton)
+                .addContainerGap(242, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

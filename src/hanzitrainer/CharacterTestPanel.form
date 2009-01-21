@@ -34,21 +34,22 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
                                       <Component id="PreviousCharacterLabel" min="-2" pref="72" max="-2" attributes="1"/>
+                                      <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                                      <Component id="PreviousPinyinsLabel" min="-2" max="-2" attributes="1"/>
                                   </Group>
                               </Group>
-                              <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                              <Component id="PreviousPinyinsLabel" min="-2" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
                           </Group>
                           <Component id="DoneGuessCharacterButton" alignment="0" min="-2" pref="81" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="PreviousCharDBScroll" pref="207" max="32767" attributes="2"/>
+                      <Component id="PreviousCharDBScroll" pref="208" max="32767" attributes="2"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="PinyinsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="PinyinsLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="AsInLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -77,7 +78,7 @@
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="PinyinsLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="AsInLabel" min="-2" max="-2" attributes="0"/>
                           <Component id="GuessChineseTextField" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -102,13 +103,9 @@
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="-2" pref="77" max="-2" attributes="0"/>
-                                      <Component id="GoodOrBadLabel" min="-2" pref="34" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Component id="PreviousPinyinsLabel" alignment="0" min="-2" pref="14" max="-2" attributes="0"/>
-                              </Group>
+                              <Component id="PreviousPinyinsLabel" min="-2" pref="37" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
+                              <Component id="GoodOrBadLabel" min="-2" pref="34" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -145,10 +142,10 @@
         <Property name="name" type="java.lang.String" value="PinyinsLabel" noResource="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="PinyinsLabel1">
+    <Component class="javax.swing.JLabel" name="AsInLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="PinyinsLabel1.text"/>
-        <Property name="name" type="java.lang.String" value="PinyinsLabel1" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="AsInLabel.text"/>
+        <Property name="name" type="java.lang.String" value="AsInLabel" noResource="true"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="GuessPinyinTextField">
