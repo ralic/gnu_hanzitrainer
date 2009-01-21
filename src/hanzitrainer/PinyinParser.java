@@ -81,8 +81,6 @@ public class PinyinParser
         strophe_index = pinyin_string.indexOf("'");
         if (strophe_index != -1)
         {
-
-
             if (strophe_index == 0)
             {
                 return parse_string(pinyin_string.substring(1, pinyin_string.length()));
