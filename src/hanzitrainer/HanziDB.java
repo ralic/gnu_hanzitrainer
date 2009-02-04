@@ -46,7 +46,7 @@ public class HanziDB
     private boolean initialized = false;
     private String filename = "";
     private boolean changed = false;
-    private static final int database_ver = 1;
+    private static final int database_ver = 2;
 
     public HanziDB()
     {
@@ -75,6 +75,7 @@ public class HanziDB
 
             st = conn.createStatement();
             st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            //st.execute("RUNSCRIPT FROM '" + db_file_name + "'");
             if (check_for_empty_db())
             {
                 System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
@@ -101,6 +102,8 @@ public class HanziDB
         {
             System.out.println("HanziDB_open : reading file " + db_file_name + " upgrading");
             upgrade_database();
+            filename = db_file_name;
+            HanziDB_save();
         }
         System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
         filename = db_file_name;
@@ -121,6 +124,7 @@ public class HanziDB
         {
             Statement st = conn.createStatement();
             st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            //st.execute("SCRIPT TO '" + filename + "'");
         }
         catch (Exception e)
         {
@@ -819,11 +823,36 @@ public class HanziDB
         int version;
 
         version = get_database_version();
-        switch (version)
+
+        try {
+            Statement st = conn.createStatement();
+
+            switch (version) {
+                case 1:
+                    st.executeUpdate("ALTER TABLE CHARACTER ADD score INTEGER DEFAULT 0");
+                    st.executeUpdate("ALTER TABLE CWORD ADD COLUMN zcore INTEGER DEFAULT 0");
+                default:
+                    break;
+            }
+            st.executeUpdate("UPDATE DATABASE_INFO SET VALUE="+database_ver+" WHERE FIELD='version'");
+            st.executeUpdate("DROP VIEW english_pinyin_chinese");
+            st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
+                    " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
+                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
+                    " FROM (SELECT cpb.cword_id," +
+                    " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
+                    " FROM cword AS cw" +
+                    " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
+                    " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                    " GROUP BY cpb.cword_id) AS c_words" +
+                    " JOIN english AS e ON e.cword_id=c_words.cword_id " +
+                    " GROUP BY e.cword_id )");
+        }
+        catch (SQLException ex)
         {
-        case 1:
-        default:
-            break;
+            ex.printStackTrace();
         }
         return;
     }
@@ -1152,6 +1181,8 @@ public class HanziDB
             rs.next();
 
             res = Integer.parseInt(rs.getString(1));
+            
+            System.out.println("Database version " + res);
         }
         catch (SQLException ex)
         {
