@@ -1,7 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- * 
  * HanziTrainer to help you learn Mandarin
  * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
  * All rights reserved.

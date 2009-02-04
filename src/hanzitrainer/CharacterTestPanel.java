@@ -208,6 +208,13 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             }
         }
         
+        // for any well guessed Chinese word, increase its score
+        for (String item : good_chinese)
+        {
+            main_database.change_word_score(main_database.get_word_id(item),
+                    true, 1);
+        }
+        
         // Store the chinese words in a table with the state for the colors
         chinese_word_list.clear();
         chinese_word_list_state.clear();
@@ -243,6 +250,8 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         {
             return;
         }
+        
+        // pick a character randomly that cannot be found in the history
         do
         {
             index = (int) (Math.random() * num_char);

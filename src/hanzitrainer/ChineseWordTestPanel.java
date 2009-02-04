@@ -103,14 +103,25 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         {
             GuessLabel.setForeground(Color.green);
             PreviousMeaningLabel.setText("");
+            
+            // increase score for the correctly guessed word
+            main_database.change_word_score(main_database.get_word_id(previous_correct_chinese),
+                    true, 1);
         }
         else
         {
             GuessLabel.setForeground(Color.red);
+            
+            // decrease score for the missed guess
+            main_database.change_word_score(main_database.get_word_id(previous_correct_chinese),
+                    false, 2);
             id = main_database.get_word_id(previous_chinese_guess);
             if (id != -1)
             {
                 PreviousMeaningLabel.setText(main_database.get_word_details(id).get(2));
+                
+                // if you thought it was something else, decrease also that one
+                main_database.change_word_score(id, false, 2);
             }
         }
     }
