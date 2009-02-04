@@ -47,6 +47,8 @@ public class HanziDB
     private String filename = "";
     private boolean changed = false;
     private static final int database_ver = 2;
+    private static final int minimum_score=0;
+    private static final int maximum_score=100;
 
     public HanziDB()
     {
@@ -74,14 +76,19 @@ public class HanziDB
             Statement st;
 
             st = conn.createStatement();
-            st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
-            //st.execute("RUNSCRIPT FROM '" + db_file_name + "'");
+            //st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            st.execute("RUNSCRIPT FROM '" + db_file_name + "'");        
             if (check_for_empty_db())
             {
-                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
-                create_database();
-
-                return;
+                // try the old DB with password...
+                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+                if (check_for_empty_db())
+                {
+                    System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
+                    create_database();
+                    
+                    return;
+                }
             }
             if (get_database_version() > database_ver)
             {
@@ -123,8 +130,8 @@ public class HanziDB
         try
         {
             Statement st = conn.createStatement();
-            st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
-            //st.execute("SCRIPT TO '" + filename + "'");
+            //st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            st.execute("SCRIPT TO '" + filename + "'");
         }
         catch (Exception e)
         {
@@ -527,8 +534,18 @@ public class HanziDB
             }
             else
             {
-                // TODO check the validity of the pinyins
+                // check the validity of the pinyins
+                for (i = 0; i<pinyins.size(); i++)
+                {
+                    if (!Pinyin.verify_pinyin(pinyins.get(i)))
+                    {
+                        System.out.println("add_translation : pinyin "+pinyins.get(i)+" does not seem to be correct");
+                        st.close();
+                        return;
+                    }
+                }
 
+                // First create a new Cword
                 st.executeUpdate("INSERT INTO cword() VALUES()");
                 rs = st.executeQuery("SELECT * FROM (" +
                         "SELECT cword.cword_id, SUM(pos) AS res FROM cword" +
@@ -543,8 +560,7 @@ public class HanziDB
                 }
                 found_chinese_id = rs.getInt(1);
 
-
-
+                // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
                 {
                     add_character(hanzi.get(i));
@@ -564,6 +580,8 @@ public class HanziDB
                 }
             }            // TODO handle if there is "'" in the english string
             {
+                // TODO handle ',' within ()
+                
                 StringTokenizer english_tokens = new StringTokenizer(english, ",");
 
                 while (english_tokens.hasMoreTokens())
@@ -830,7 +848,7 @@ public class HanziDB
             switch (version) {
                 case 1:
                     st.executeUpdate("ALTER TABLE CHARACTER ADD score INTEGER DEFAULT 0");
-                    st.executeUpdate("ALTER TABLE CWORD ADD COLUMN zcore INTEGER DEFAULT 0");
+                    st.executeUpdate("ALTER TABLE CWORD ADD COLUMN score INTEGER DEFAULT 0");
                 default:
                     break;
             }
@@ -1127,7 +1145,6 @@ public class HanziDB
             ex.printStackTrace();
         }
         return res;
-
     }
 
     /**
@@ -1189,5 +1206,135 @@ public class HanziDB
             ex.printStackTrace();
         }
         return res;
+    }
+    
+    /**
+     * 
+     * Get the score for a character from its id
+     * 
+     * @param id id of the character
+     * @return the score value for that character
+     */
+    public int get_character_score(int id)
+    {
+        int res=0;
+        
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT score FROM character AS ch" +
+                    " WHERE ch.char_id="+id);
+            rs.next();
+
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+
+    }
+    
+    /**
+     * 
+     * Get the score for a chinese word from its id
+     * 
+     * @param id id of the word
+     * @return the score value for that word
+     */
+    public int get_word_score(int id)
+    {
+        int res=0;
+        
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT score FROM cword AS cw" +
+                    " WHERE cw.cword_id="+id);
+            rs.next();
+
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+    
+    
+    /**
+     * 
+     * Change the score for a character
+     * 
+     * @param id id of the character
+     * @param mode whether to increase (true) or decrease (false)
+     * @param weight how much weight the current score would have
+     */
+    public void change_character_score(int id, boolean mode, int weight)
+    {
+        int score = get_character_score(id);
+        if (mode)
+        { // increase
+            score = ((weight * score) + maximum_score) / (1 + weight);
+        }
+        else
+        { // decrease
+            score = ((weight * score) + minimum_score) / (1 + weight);
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+
+            st.executeUpdate("UPDATE character AS ch" +
+                    " SET score=" + score +
+                    " WHERE ch.char_id=" + id);
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        changed = true;
+    }
+
+    /**
+     * 
+     * Change the score for a word
+     * 
+     * @param id id of the word
+     * @param mode whether to increase (true) or decrease (false)
+     * @param weight how much weight the current score would have
+     */
+    public void change_word_score(int id, boolean mode, int weight) {
+        int score = get_word_score(id);
+        if (mode)
+        { // increase
+            score = ((weight * score) + maximum_score) / (1 + weight);
+        }
+        else
+        { // decrease
+            score = ((weight * score) + minimum_score) / (1 + weight);
+        }
+
+        try
+        {
+            Statement st = conn.createStatement();
+
+            st.executeUpdate("UPDATE cword AS cw" +
+                    " SET score=" + score +
+                    " WHERE cw.cword_id=" + id);
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        changed = true;
     }
 }    // class Testdb

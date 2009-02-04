@@ -257,7 +257,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
             return;
         }
         do {
-            index = (int) (Math.random() * num_char) + 1;
+            index = (int) (Math.random() * num_char);
             hanzi = main_database.get_character_details(main_database.get_character_id(index));
             System.out.println("getting index " + index);
         } while (character_history.contains(hanzi));

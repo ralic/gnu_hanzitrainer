@@ -77,16 +77,20 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         String pinyins_result;
         TableModelEvent t_event = new TableModelEvent(this);
 
+        // Move all current stuff to previous
         previous_character = current_character;
         previous_pinyins = current_pinyins;
         previous_chinese_words = current_chinese_words;
 
+        // Store the guessed pinyins in a table
         guessed_pinyins = GuessPinyinTextField.getText().split("[,，]");
         guess_pinyins.clear();
         for (String item : guessed_pinyins)
         {
             guess_pinyins.add(item.trim());
         }
+        
+        // Sort out the pinyins between good, bad and others (not guessed)
         for (String item : guess_pinyins)
         {
             if (!previous_pinyins.contains(item))
@@ -105,6 +109,49 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 other_pinyins.add(item);
             }
         }
+        
+        // Update the score for the character depending on the pinyins
+        // for each good pinyin, increase big
+        for (String item : good_pinyins)
+        {
+            main_database.change_character_score(
+                    main_database.get_character_id(current_character), 
+                    true, 1);
+        }
+        // for each bad pinyin, if it is just a bad tone, do not change
+        // if it is just bad, decrease big
+        for (String item : bad_pinyins)
+        {
+            boolean found_similar_radical=false;
+            for (String item_other : other_pinyins)
+            {
+                if (Pinyin.pinyins_are_same_radical(item, item_other))
+                    found_similar_radical=true;
+            }
+            if (!found_similar_radical)
+                main_database.change_character_score(
+                        main_database.get_character_id(current_character), 
+                        false, 1);
+            found_similar_radical=false;
+        }
+        // for each other pinyin, if it does not have any similar bad pinyin
+        // decrease a little
+        for (String item : other_pinyins)
+        {
+            boolean found_similar_radical=false;
+            for (String item_bad : bad_pinyins)
+            {
+                if (Pinyin.pinyins_are_same_radical(item, item_bad))
+                    found_similar_radical=true;
+            }
+            if (!found_similar_radical)
+                main_database.change_character_score(
+                        main_database.get_character_id(current_character), 
+                        false, 2);
+            found_similar_radical=false;
+        }
+        
+        // Create some HTML text with the pinyin to put some colors...
         pinyins_result = "<HTML><FONT COLOR=\"RED\">";
         for (String item : bad_pinyins)
         {
@@ -122,14 +169,17 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         }
         pinyins_result += "</HTML>";
 
+        // Check for any suggested chinese words
         if (!GuessChineseTextField.getText().equals(""))
         {
+            // Store the different words into a table
             guessed_chinese = GuessChineseTextField.getText().split("[,，]");
             guess_chinese_words.clear();
             for (String item : guessed_chinese)
             {
                 guess_chinese_words.add(item.trim());
             }
+            // Sort between good and bad chinese words
             for (String item : guess_chinese_words)
             {
                 if (!previous_chinese_words.contains(item))
@@ -142,6 +192,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 }
             }
         }
+        // Find any unguessed chinese, but keep the single character words as good
         for (String item : previous_chinese_words)
         {
             if ((!good_chinese.contains(item)) && (!bad_chinese.contains(item)))
@@ -156,6 +207,8 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 }
             }
         }
+        
+        // Store the chinese words in a table with the state for the colors
         chinese_word_list.clear();
         chinese_word_list_state.clear();
         for (String item : bad_chinese)
@@ -192,7 +245,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         }
         do
         {
-            index = (int) (Math.random() * num_char) + 1;
+            index = (int) (Math.random() * num_char);
             hanzi = main_database.get_character_details(index);
         }
         while (character_history.contains(hanzi));
@@ -436,12 +489,15 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     private ArrayList<String> character_history;
     private HanziDB main_database;
     private HanziApplicationUpdater parent_app;
+    
     private String current_character;
     private ArrayList<String> current_pinyins;
     private ArrayList<String> current_chinese_words;
+    
     private String previous_character;
     private ArrayList<String> previous_pinyins;
     private ArrayList<String> previous_chinese_words;
+    
     private ArrayList<String> guess_pinyins;
     private ArrayList<String> guess_chinese_words;
     private ArrayList<String> chinese_word_list;
