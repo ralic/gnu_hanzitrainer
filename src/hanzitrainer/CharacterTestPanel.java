@@ -255,7 +255,8 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         do
         {
             index = (int) (Math.random() * num_char);
-            hanzi = main_database.get_character_details(index);
+            hanzi = main_database.get_character_details(
+                    main_database.get_character_id(index));
         }
         while (character_history.contains(hanzi));
         character_history.add(hanzi);
