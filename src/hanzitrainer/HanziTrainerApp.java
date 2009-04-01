@@ -1,6 +1,4 @@
 /*
- * HanziTrainerApp.java
- * 
  * HanziTrainer to help you learn Mandarin
  * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
  * All rights reserved.

@@ -41,13 +41,13 @@ import java.util.prefs.*;
  */
 public class HanziTrainerView extends FrameView implements HanziApplicationUpdater
 {
-
     HanziDB main_database;
     private Preferences my_preferences;
     CharacterReviewPanel char_review;
     WordDatabasePanel word_database;
     CharacterTestPanel char_test;
     ChineseWordTestPanel chinese_test;
+    CharacterDatabasePanel char_database;
 
     public HanziTrainerView(SingleFrameApplication app)
     {
@@ -71,6 +71,9 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         Tabs.addTab("Character Test", char_test);
         chinese_test = new ChineseWordTestPanel(main_database, this);
         Tabs.addTab("Chinese Test", chinese_test);
+        char_database = new CharacterDatabasePanel(main_database, this);
+        Tabs.addTab("Character Database", char_database);
+        update_panel_databases();
         
     }
 

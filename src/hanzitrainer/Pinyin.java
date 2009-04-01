@@ -315,4 +315,61 @@ public class Pinyin
         }
         return false;
     }
+    
+    public static int pinyin_tone(String entry)
+    {
+        int i;
+        String temp;
+        for (String try_pinyin : allowed_pinyin)
+        {
+            if (entry.equals(try_pinyin))
+            {
+                return 0;
+            }
+            for (i = 1; i < 5; i++)
+            {
+                temp = try_pinyin + i;
+                if (entry.equals(temp))
+                {
+                    return i;
+                }
+            }
+        }
+        return -1;   
+    }
+    
+    public static boolean pinyins_are_same_radical(String entry1, String entry2)
+    {
+        int i;
+        String temp;
+        String try_pinyin1="", try_pinyin2="";
+                
+        for (String try_pinyin : allowed_pinyin)
+        {
+            if (entry1.equals(try_pinyin))
+            {
+               try_pinyin1=try_pinyin;
+            }
+            if (entry2.equals(try_pinyin))
+            {
+               try_pinyin2=try_pinyin;
+            }
+            for (i = 1; i < 5; i++)
+            {
+                temp = try_pinyin + i;
+                if (entry1.equals(temp))
+                {
+                    try_pinyin1=try_pinyin;
+                }
+                if (entry2.equals(temp))
+                {
+                    try_pinyin2=try_pinyin;
+                }
+            }
+        }
+        if (try_pinyin1.equals(try_pinyin2))
+            return true;
+        else
+            return false;
+    }
 }

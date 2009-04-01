@@ -49,6 +49,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         initComponents();
         CharTableFiller.set_filter("");
         character_history = new ArrayList<String>();
+        set_new_random_character();
     }
 
     public void CharacterReviewUpdateDB()
@@ -202,7 +203,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
 
     private void set_character_review(String hanzi)
     {
-        ArrayList<String> pinyins = main_database.get_pinyin_from_character(hanzi);
+        ArrayList<String> pinyins = main_database.get_pinyin_for_character(hanzi);
         String pinyin_list = "";
         int i, j;
 
@@ -246,28 +247,31 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         CharTableFiller.set_filter(hanzi);
         CharTableFiller.fireTableDataChanged();
     }
+    
+    private void set_new_random_character() {
+        int num_char = main_database.get_number_characters();
+        int index;
+        String hanzi;
+
+        if (num_char == 0) {
+            return;
+        }
+        do {
+            index = (int) (Math.random() * num_char);
+            hanzi = main_database.get_character_details(
+                    main_database.get_character_id(index));
+            System.out.println("getting index " + index);
+        } while (character_history.contains(hanzi));
+        character_history.add(hanzi);
+        if (character_history.size() > (num_char - 1) / 2) {
+            character_history.remove(0);
+        }
+        set_character_review(hanzi);
+
+    }
 
 private void NextCharacterButtonrandom_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NextCharacterButtonrandom_character_action
-    int num_char = main_database.get_number_characters();
-    int index;
-    String hanzi;
-
-    if (num_char == 0)
-    {
-        return;
-    }
-    do
-    {
-        index = (int) (Math.random() * num_char) + 1;
-        hanzi = main_database.get_character_details(index);
-    }
-    while (character_history.contains(hanzi));
-    character_history.add(hanzi);
-    if (character_history.size() > (num_char - 1) / 2)
-    {
-        character_history.remove(0);
-    }
-    set_character_review(hanzi);
+    set_new_random_character();
 }//GEN-LAST:event_NextCharacterButtonrandom_character_action
 
 private void CharsearchentryTextFieldCharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldCharSearchButtonAction

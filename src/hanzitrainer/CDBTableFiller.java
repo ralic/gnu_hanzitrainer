@@ -30,45 +30,30 @@ package hanzitrainer;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 
-
 /**
  *
  * @author Matthieu
  */
-public class DBTableFiller extends AbstractTableModel
+public class CDBTableFiller extends AbstractTableModel
 {
-    private enum table_mode_t { TMODE_ALL, TMODE_CHARACTER, TMODE_WORD }
-    
     HanziDB db;
-    String hanzi;
-    ArrayList<ArrayList<String>> table_for_character;
-    table_mode_t table_mode = table_mode_t.TMODE_ALL;
-
-    public DBTableFiller(HanziDB database)
+ 
+    public CDBTableFiller(HanziDB database)
     {
         db = database;
-        hanzi = new String("");
     }
 
-    public void set_filter(String hanzi)
-    {
-        this.hanzi = hanzi;
-        table_for_character = db.get_words_with_character(hanzi);
-        if (table_for_character.size()==0)
-            System.out.println("No DBTableFiller.set_character : no word for this char");
-        table_mode = table_mode_t.TMODE_CHARACTER;
-    }
-
+    @Override
     public String getColumnName(int column)
     {
         switch (column)
         {
         case 0:
-            return "Chinese";
+            return "Character";
         case 1:
             return "Pinyin";
         case 2:
-            return "Translation";
+            return "Chinese words";
         case 3:
             return "Score";
         default:
@@ -79,14 +64,9 @@ public class DBTableFiller extends AbstractTableModel
     public int getRowCount()
     {
         int res;
-        if (table_mode == table_mode_t.TMODE_ALL)
-        {
-            res = db.get_number_words();
-        }
-        else
-        {
-            res = table_for_character.size();
-        }
+
+        res = db.get_number_characters();
+
         return res;
     }
 
@@ -97,36 +77,42 @@ public class DBTableFiller extends AbstractTableModel
 
     public Object getValueAt(int row, int column)
     {
-        int id;
-        if (table_mode == table_mode_t.TMODE_ALL)
+        int id, i;
+        String pinyin_list = "";
+        String cword_list = "";
+
+        ArrayList<String> pinyins;
+        ArrayList<ArrayList<String>> cwords;
+        if (getRowCount() == 0) {
+            return "";
+        }
+        
+        id = db.get_character_id(row);
+        switch (column)
         {
-            ArrayList<String> word_details;
-            if (getRowCount() == 0)
-            {
-                return "";
-            }
-            id = db.get_word_id(row,0);
-            word_details = db.get_word_details(id);
-            switch (column)
-            {
             case 0:
-                return word_details.get(0);
+                return db.get_character_details(id);
             case 1:
-                return PinyinParser.convert_to_printed_version(word_details.get(1));
+                pinyins = db.get_pinyin_for_character(db.get_character_details(id));
+                pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
+                for (i = 1; i < pinyins.size(); i++)
+                {
+                    pinyin_list += ", " + PinyinParser.convert_to_printed_version(pinyins.get(i));
+                }
+                return pinyin_list;
             case 2:
-                return word_details.get(2);
+                cwords = db.get_words_with_character(db.get_character_details(id));
+                cword_list = cwords.get(0).get(0);
+                for (i = 1; i < cwords.size(); i++)
+                {
+                    cword_list += ", " + cwords.get(i).get(0);
+                }
+                return cword_list;
             case 3:
-                return word_details.get(3);
+                return db.get_character_score(id);
             default:
                 return "(" + row + "," + column + ") ?";
-            }
         }
-        else
-        {
-            String result = table_for_character.get(row).get(column);
-            if (column==1)
-                result = PinyinParser.convert_to_printed_version(result);
-            return result;
-        }
+
     }
 }

@@ -77,17 +77,20 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         String pinyins_result;
         TableModelEvent t_event = new TableModelEvent(this);
 
-
+        // Move all current stuff to previous
         previous_character = current_character;
         previous_pinyins = current_pinyins;
         previous_chinese_words = current_chinese_words;
 
+        // Store the guessed pinyins in a table
         guessed_pinyins = GuessPinyinTextField.getText().split("[,，]");
         guess_pinyins.clear();
         for (String item : guessed_pinyins)
         {
             guess_pinyins.add(item.trim());
         }
+        
+        // Sort out the pinyins between good, bad and others (not guessed)
         for (String item : guess_pinyins)
         {
             if (!previous_pinyins.contains(item))
@@ -106,6 +109,49 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 other_pinyins.add(item);
             }
         }
+        
+        // Update the score for the character depending on the pinyins
+        // for each good pinyin, increase big
+        for (String item : good_pinyins)
+        {
+            main_database.change_character_score(
+                    main_database.get_character_id(current_character), 
+                    true, 1);
+        }
+        // for each bad pinyin, if it is just a bad tone, do not change
+        // if it is just bad, decrease big
+        for (String item : bad_pinyins)
+        {
+            boolean found_similar_radical=false;
+            for (String item_other : other_pinyins)
+            {
+                if (Pinyin.pinyins_are_same_radical(item, item_other))
+                    found_similar_radical=true;
+            }
+            if (!found_similar_radical)
+                main_database.change_character_score(
+                        main_database.get_character_id(current_character), 
+                        false, 1);
+            found_similar_radical=false;
+        }
+        // for each other pinyin, if it does not have any similar bad pinyin
+        // decrease a little
+        for (String item : other_pinyins)
+        {
+            boolean found_similar_radical=false;
+            for (String item_bad : bad_pinyins)
+            {
+                if (Pinyin.pinyins_are_same_radical(item, item_bad))
+                    found_similar_radical=true;
+            }
+            if (!found_similar_radical)
+                main_database.change_character_score(
+                        main_database.get_character_id(current_character), 
+                        false, 2);
+            found_similar_radical=false;
+        }
+        
+        // Create some HTML text with the pinyin to put some colors...
         pinyins_result = "<HTML><FONT COLOR=\"RED\">";
         for (String item : bad_pinyins)
         {
@@ -123,14 +169,17 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         }
         pinyins_result += "</HTML>";
 
+        // Check for any suggested chinese words
         if (!GuessChineseTextField.getText().equals(""))
         {
+            // Store the different words into a table
             guessed_chinese = GuessChineseTextField.getText().split("[,，]");
             guess_chinese_words.clear();
             for (String item : guessed_chinese)
             {
                 guess_chinese_words.add(item.trim());
             }
+            // Sort between good and bad chinese words
             for (String item : guess_chinese_words)
             {
                 if (!previous_chinese_words.contains(item))
@@ -143,13 +192,30 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 }
             }
         }
+        // Find any unguessed chinese, but keep the single character words as good
         for (String item : previous_chinese_words)
         {
             if ((!good_chinese.contains(item)) && (!bad_chinese.contains(item)))
             {
-                other_chinese.add(item);
+                if (item.codePointCount(0, item.length())==1)
+                {
+                    good_chinese.add(item);
+                }
+                else
+                {
+                    other_chinese.add(item);
+                }
             }
         }
+        
+        // for any well guessed Chinese word, increase its score
+        for (String item : good_chinese)
+        {
+            main_database.change_word_score(main_database.get_word_id(item),
+                    true, 1);
+        }
+        
+        // Store the chinese words in a table with the state for the colors
         chinese_word_list.clear();
         chinese_word_list_state.clear();
         for (String item : bad_chinese)
@@ -184,10 +250,15 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         {
             return;
         }
+        
+        // pick a character randomly that cannot be found in the history
         do
         {
-            index = (int) (Math.random() * num_char) + 1;
-            hanzi = main_database.get_character_details(index);
+            index = (int) (HanziDB.random_low() * num_char);
+            System.out.println("random number got " + index + " over " + num_char);
+            hanzi = main_database.get_character_details(
+                    main_database.get_character_id(index));
+            System.out.println("getting index " + index);
         }
         while (character_history.contains(hanzi));
         character_history.add(hanzi);
@@ -201,7 +272,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         {
             current_chinese_words.add(word.get(0));
         }
-        current_pinyins = main_database.get_pinyin_from_character(hanzi);
+        current_pinyins = main_database.get_pinyin_for_character(hanzi);
         current_character = hanzi;
         CharacterLabel.setText(hanzi);
         GuessPinyinTextField.setText("");
@@ -220,7 +291,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         CharacterLabel = new javax.swing.JLabel();
         DoneGuessCharacterButton = new javax.swing.JButton();
         PinyinsLabel = new javax.swing.JLabel();
-        PinyinsLabel1 = new javax.swing.JLabel();
+        AsInLabel = new javax.swing.JLabel();
         GuessPinyinTextField = new javax.swing.JTextField();
         GuessChineseTextField = new javax.swing.JTextField();
         PreviousCharacterLabel = new javax.swing.JLabel();
@@ -250,8 +321,8 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         PinyinsLabel.setText(resourceMap.getString("PinyinsLabel.text")); // NOI18N
         PinyinsLabel.setName("PinyinsLabel"); // NOI18N
 
-        PinyinsLabel1.setText(resourceMap.getString("PinyinsLabel1.text")); // NOI18N
-        PinyinsLabel1.setName("PinyinsLabel1"); // NOI18N
+        AsInLabel.setText(resourceMap.getString("AsInLabel.text")); // NOI18N
+        AsInLabel.setName("AsInLabel"); // NOI18N
 
         GuessPinyinTextField.setText(resourceMap.getString("GuessPinyinTextField.text")); // NOI18N
         GuessPinyinTextField.setName("GuessPinyinTextField"); // NOI18N
@@ -322,17 +393,18 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                                     .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(layout.createSequentialGroup()
                                         .addGap(2, 2, 2)
-                                        .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(8, 8, 8)
-                                .addComponent(PreviousPinyinsLabel))
+                                        .addComponent(PreviousCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(8, 8, 8)
+                                        .addComponent(PreviousPinyinsLabel)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                             .addComponent(DoneGuessCharacterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE))
+                        .addComponent(PreviousCharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(PinyinsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(PinyinsLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(AsInLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(GuessPinyinTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
@@ -353,7 +425,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                             .addComponent(GuessPinyinTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(PinyinsLabel1)
+                            .addComponent(AsInLabel)
                             .addComponent(GuessChineseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -372,11 +444,9 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                                 .addContainerGap())
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(52, 52, 52)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(77, 77, 77)
-                                        .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(PreviousPinyinsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                                .addComponent(PreviousPinyinsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(40, 40, 40)
+                                .addComponent(GoodOrBadLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -414,13 +484,13 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     DoneGuessCharacterButton_action(evt);
 }//GEN-LAST:event_GuessChineseTextFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel AsInLabel;
     private javax.swing.JLabel CharacterLabel;
     private javax.swing.JButton DoneGuessCharacterButton;
     private javax.swing.JLabel GoodOrBadLabel;
     private javax.swing.JTextField GuessChineseTextField;
     private javax.swing.JTextField GuessPinyinTextField;
     private javax.swing.JLabel PinyinsLabel;
-    private javax.swing.JLabel PinyinsLabel1;
     private javax.swing.JScrollPane PreviousCharDBScroll;
     private javax.swing.JTable PreviousCharDBTable;
     private javax.swing.JLabel PreviousCharacterLabel;
@@ -431,12 +501,15 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     private ArrayList<String> character_history;
     private HanziDB main_database;
     private HanziApplicationUpdater parent_app;
+    
     private String current_character;
     private ArrayList<String> current_pinyins;
     private ArrayList<String> current_chinese_words;
+    
     private String previous_character;
     private ArrayList<String> previous_pinyins;
     private ArrayList<String> previous_chinese_words;
+    
     private ArrayList<String> guess_pinyins;
     private ArrayList<String> guess_chinese_words;
     private ArrayList<String> chinese_word_list;

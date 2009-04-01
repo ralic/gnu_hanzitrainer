@@ -1,8 +1,5 @@
 /*
- * 
  * HanziTrainer to help you learn Mandarin
- * Copyright (C) 2008  Matthieu Jeanson
- *
  * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
  * All rights reserved.
  *
@@ -27,7 +24,7 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package hanzitrainer;
 
@@ -118,7 +115,7 @@ public class PinyinChooserFrame extends JPanel
         
         if (is_chinese_char(entry))
         {
-            ArrayList<String> possibilities = database.get_pinyin_from_character(entry);
+            ArrayList<String> possibilities = database.get_pinyin_for_character(entry);
             add_combo_box(index, possibilities);
         }
         else

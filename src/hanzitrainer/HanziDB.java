@@ -1,7 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- * 
  * HanziTrainer to help you learn Mandarin
  * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
  * All rights reserved.
@@ -46,7 +43,9 @@ public class HanziDB
     private boolean initialized = false;
     private String filename = "";
     private boolean changed = false;
-    private static final int database_ver = 1;
+    private static final int database_ver = 2;
+    private static final int minimum_score=0;
+    private static final int maximum_score=100;
 
     public HanziDB()
     {
@@ -55,10 +54,14 @@ public class HanziDB
         create_database();
         changed = false;
 
-        System.out.println("HanziDB : Created a new empty database");
+        System.out.println("HanziDB : Database initialized");
     }
 
-    // we dont want this garbage collected until we are done
+    /**
+     *  Open a database file
+     * 
+     * @param db_file_name filename
+     */
     public void HanziDB_open(String db_file_name)
     {
         shutdown();
@@ -70,14 +73,20 @@ public class HanziDB
             Statement st;
 
             st = conn.createStatement();
-            st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            st.execute("RUNSCRIPT FROM '" + db_file_name + "'");        
             if (check_for_empty_db())
             {
-                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
-                create_database();
-
-                return;
+                // try the old DB with password...
+                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+                if (check_for_empty_db())
+                {
+                    System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
+                    create_database();
+                    
+                    return;
+                }
             }
+            
             if (get_database_version() > database_ver)
             {
                 System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
@@ -97,11 +106,17 @@ public class HanziDB
         {
             System.out.println("HanziDB_open : reading file " + db_file_name + " upgrading");
             upgrade_database();
+            filename = db_file_name;
+            HanziDB_save();
         }
         System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
         filename = db_file_name;
     }
-
+    
+    /**
+     *  Save a database file with the same name of the file opened or previously saved
+     * 
+     */
     public void HanziDB_save()
     {
         changed = false;
@@ -112,13 +127,19 @@ public class HanziDB
         try
         {
             Statement st = conn.createStatement();
-            st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            //st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            st.execute("SCRIPT TO '" + filename + "'");
         }
         catch (Exception e)
         {
+            e.printStackTrace();
         }
     }
-
+    
+    /**
+     *  Close a database file
+     * 
+     */
     public void HanziDB_close()
     {
         shutdown();
@@ -128,17 +149,33 @@ public class HanziDB
         create_database();
 
     }
-
+    
+    /**
+     *  Set the database file
+     * 
+     * @param new_filename new file name
+     * @see HanziDB_get_filename
+     */
     public void HanziDB_set_filename(String new_filename)
     {
         filename = new_filename;
     }
-
+    /**
+     *  Open a database file
+     * 
+     * @see HanziDB_set_filename
+     * @return the file name currently used for the database
+     */
     public String HanziDB_get_filename()
     {
         return filename;
     }
-
+    
+    /**
+     *  Check if the currently opened database is empty
+     * 
+     * @returns True if the database is empty
+     */
     private Boolean check_for_empty_db() throws SQLException
     {
         Statement st = conn.createStatement();
@@ -158,7 +195,13 @@ public class HanziDB
             return true;
         }
     }
-
+    
+    /**
+     *  Look for a Chinese word in the database
+     * 
+     * @param chinese Chinese word
+     * @returns the id of the word
+     */
     private int find_chinese_word(String chinese)
     {
         int res = -1;
@@ -194,6 +237,12 @@ public class HanziDB
         return res;
     }
 
+    /**
+     *  Get the translation(s) for a Chinese word
+     * 
+     * @param chinese Chinese word
+     * @return list of translations
+     */
     public ArrayList<String> get_chinese_word_translation(String chinese)
     {
         ArrayList<String> res = new ArrayList<String>();
@@ -232,7 +281,13 @@ public class HanziDB
         return res;
     }
 
-    public ArrayList<String> get_pinyin_from_character(String character)
+    /**
+     *  Get a list of the pinyins knowns for a Chinese character
+     * 
+     * @param character Chinese character
+     * @return list of pinyin strings
+     */
+    public ArrayList<String> get_pinyin_for_character(String character)
     {
         ArrayList<String> res = new ArrayList<String>();
         if (!initialized)
@@ -280,7 +335,7 @@ public class HanziDB
             return res;
         }
 
-// find the character
+        // find the character
         rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
         if (!rs.next())
         {
@@ -330,7 +385,13 @@ public class HanziDB
         st.close();
         return res;
     }
-
+    
+    /**
+     *  Check if a character is Chinese (within a range of UTF codes)
+     * 
+     * @param input character
+     * @return True if the character seems Chinese
+     */
     private Boolean is_chinese_char(String input)
     {
         int entry;
@@ -449,10 +510,10 @@ public class HanziDB
             ResultSet rs = null, rs2 = null;
             int char_pinyin_id = 0;
             int i;
-            String chinese = "";
+            String chinese = "", pinyin = "";
             int found_chinese_id;
             int tone;
-
+            
             if (pinyins.size() != hanzi.size())
             {
                 System.out.println("add_translation : size of pinyins and hanzis need to be the same");
@@ -463,7 +524,11 @@ public class HanziDB
             for (i = 0; i < hanzi.size(); i++)
             {
                 chinese += hanzi.get(i);
+                pinyin += pinyins.get(i);
             }
+            
+            System.out.println("add_translation : adding word ["+chinese+"] with pinyins ["+pinyin+"]"+
+                    ", translation : ["+english+"]");
             found_chinese_id = find_chinese_word(chinese);
             if (found_chinese_id != -1)
             {
@@ -471,8 +536,18 @@ public class HanziDB
             }
             else
             {
-                // TODO check the validity of the pinyins
+                // check the validity of the pinyins
+                for (i = 0; i<pinyins.size(); i++)
+                {
+                    if (!Pinyin.verify_pinyin(pinyins.get(i)))
+                    {
+                        System.out.println("add_translation : pinyin "+pinyins.get(i)+" does not seem to be correct");
+                        st.close();
+                        return;
+                    }
+                }
 
+                // First create a new Cword
                 st.executeUpdate("INSERT INTO cword() VALUES()");
                 rs = st.executeQuery("SELECT * FROM (" +
                         "SELECT cword.cword_id, SUM(pos) AS res FROM cword" +
@@ -487,8 +562,7 @@ public class HanziDB
                 }
                 found_chinese_id = rs.getInt(1);
 
-
-
+                // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
                 {
                     add_character(hanzi.get(i));
@@ -508,6 +582,8 @@ public class HanziDB
                 }
             }            // TODO handle if there is "'" in the english string
             {
+                // TODO handle ',' within ()
+                
                 StringTokenizer english_tokens = new StringTokenizer(english, ",");
 
                 while (english_tokens.hasMoreTokens())
@@ -536,7 +612,14 @@ public class HanziDB
             ex.printStackTrace();
         }
     }
-
+    
+    /**
+     * Deletes an English translation from the database.
+     * Cleans up any pinyin or character that would not be used anymore
+     * 
+     * @param english English version of the word
+     * @param hanzi Chinese version of the word
+     */
     public synchronized void delete_translation(String english, ArrayList<String> hanzi)
     {
         if (!initialized)
@@ -568,7 +651,6 @@ public class HanziDB
             if (rs.next())
             {
                 System.out.println("delete_translation: the word has other translations");
-                st.close();
                 st.close();
                 return;
             }
@@ -630,7 +712,6 @@ public class HanziDB
         {
             ex.printStackTrace();
         }
-
     }
 
     /**
@@ -685,7 +766,8 @@ public class HanziDB
         initialized = true;
     }
 
-    /*
+    /**
+     * 
      * Create a new database with all the tables and views it needs
      * 
      * @return nothing
@@ -700,7 +782,8 @@ public class HanziDB
                     " field VARCHAR(50), value VARCHAR(50))");
             st.executeUpdate("CREATE TABLE character (" +
                     " char_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                    " hanzi VARCHAR(2))");
+                    " hanzi VARCHAR(2)," +
+                    " score INTEGER DEFAULT 0)");
             st.executeUpdate("CREATE TABLE character_pinyin (" +
                     " character_pinyin_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
                     " char_id INTEGER," +
@@ -708,7 +791,8 @@ public class HanziDB
                     " tone INTEGER," +
                     " FOREIGN KEY (char_id) REFERENCES character(char_id))");
             st.executeUpdate("CREATE TABLE cword (" +
-                    " cword_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)");
+                    " cword_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                    " score INTEGER DEFAULT 0)");
             st.executeUpdate("CREATE TABLE cword_pinyin_bridge (" +
                     " cword_id INTEGER," +
                     " character_pinyin_id INTEGER," +
@@ -723,10 +807,12 @@ public class HanziDB
                     " FOREIGN KEY (cword_id) REFERENCES cword(cword_id))");
             st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
                     " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
-                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
+                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations," +
+                    " c_words.score"+
                     " FROM (SELECT cpb.cword_id," +
                     " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
-                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
+                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin," +
+                    " cw.score"+
                     " FROM cword AS cw" +
                     " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
                     " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
@@ -746,17 +832,49 @@ public class HanziDB
         }
 
     }
-
+    
+    /**
+     * 
+     * Placeholder for upgrading the database when needed
+     * 
+     * @return nothing
+     */
     private void upgrade_database()
     {
         int version;
 
         version = get_database_version();
-        switch (version)
+
+        try {
+            Statement st = conn.createStatement();
+
+            switch (version) {
+                case 1:
+                    st.executeUpdate("ALTER TABLE CHARACTER ADD score INTEGER DEFAULT 0");
+                    st.executeUpdate("ALTER TABLE CWORD ADD COLUMN score INTEGER DEFAULT 0");
+                default:
+                    break;
+            }
+            st.executeUpdate("UPDATE DATABASE_INFO SET VALUE="+database_ver+" WHERE FIELD='version'");
+            st.executeUpdate("DROP VIEW english_pinyin_chinese");
+            st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
+                    " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
+                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations, c_words.score" +
+                    " FROM (SELECT cpb.cword_id," +
+                    " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin," +
+                    " cw.score" +
+                    " FROM cword AS cw" +
+                    " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
+                    " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                    " GROUP BY cpb.cword_id) AS c_words" +
+                    " JOIN english AS e ON e.cword_id=c_words.cword_id " +
+                    " GROUP BY e.cword_id )");
+        }
+        catch (SQLException ex)
         {
-        case 1:
-        default:
-            break;
+            ex.printStackTrace();
         }
         return;
     }
@@ -826,7 +944,14 @@ public class HanziDB
         }
         return 0;
     }
-
+    
+    /**
+     * 
+     * Returns detail information about the words that contain a particular Chinese character
+     * 
+     * @param hanzi Chinese character
+     * @return ArrayList<ArrayList<String>> List of Chinese, pinyin and English versions of the words. Translations are grouped together.
+     */
     public ArrayList<ArrayList<String>> get_words_with_character(String hanzi)
     {
         ArrayList<String> temp;
@@ -837,7 +962,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT epc.cword_id, epc.hanzi, epc.pinyin, epc.translations FROM " +
+            rs = st.executeQuery("SELECT epc.cword_id, epc.hanzi, epc.pinyin, epc.translations, epc.score  FROM " +
                     " (SELECT cword_id FROM" +
                     " character AS ch" +
                     " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
@@ -853,6 +978,7 @@ public class HanziDB
                 temp.add(rs.getString(2));
                 temp.add(rs.getString(3));
                 temp.add(rs.getString(4));
+                temp.add(rs.getString(5));
                 res.add(temp);
             }
         }
@@ -863,11 +989,18 @@ public class HanziDB
         return res;
 
     }
-
+    
+    /**
+     * 
+     * Return the ID of the nth word
+     * 
+     * @param index position in the word list
+     * @return id of a Chinese word
+     */
     public int get_word_id(int index)
     {
         int res = -1;
-        if (!initialized)
+        if (!initialized) 
         {
             return res;
         }
@@ -876,7 +1009,49 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin, hanzi");
+            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY score ASC, pinyin, hanzi");
+            
+            rs.relative(index + 1);
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+    
+    /**
+     * 
+     * Return the ID of the nth word defining also how to sort them
+     * 
+     * @param index position in the word list
+     * @param sorting_mode define how to sort the words (0:pinyin first, 1:score first)
+     * @return id of a Chinese word
+     */
+    public int get_word_id(int index, int sorting_mode)
+    {
+        int res = -1;
+        if (!initialized) 
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            switch(sorting_mode)
+            {
+                case 0:
+                default:
+                    rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin, hanzi");
+                    break;
+                case 1:
+                    rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY score ASC, pinyin, hanzi");
+                    break;
+            }
+            
             rs.relative(index + 1);
             res = rs.getInt(1);
         }
@@ -887,6 +1062,13 @@ public class HanziDB
         return res;
     }
 
+    /**
+     * 
+     * Returns the ID of a Chinese word
+     * 
+     * @param chinese Chinese String of the word in the lsit
+     * @return int ID of the word
+     */
     public int get_word_id(String chinese)
     {
         int res = -1;
@@ -919,7 +1101,7 @@ public class HanziDB
      * 
      * @param index from 0 to the number of words - 1 
      * @see get_number_words
-     * @return ArrayList with : Chinese word, pinyin and translations
+     * @return ArrayList with : Chinese word, pinyin, translations and score
      */
     public ArrayList<String> get_word_details(int index)
     {
@@ -941,6 +1123,7 @@ public class HanziDB
             res.add(rs.getString(2));
             res.add(rs.getString(3));
             res.add(rs.getString(4));
+            res.add(rs.getString(5));
         }
         catch (SQLException ex)
         {
@@ -948,7 +1131,14 @@ public class HanziDB
         }
         return res;
     }
-
+    
+    /**
+     * 
+     * Get the id of a character
+     * 
+     * @param character Chinese character
+     * @return id of the character
+     */
     public int get_character_id(String character)
     {
         int res = -1;
@@ -974,7 +1164,14 @@ public class HanziDB
         }
         return res;
     }
-
+    
+    /**
+     * 
+     * Get the id of an indexed character
+     * 
+     * @param index from 0 to the number of words - 1 
+     * @return id of the character
+     */
     public int get_character_id(int index)
     {
         int res = -1;
@@ -987,7 +1184,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT char_id FROM character ORDER BY hanzi");
+            rs = st.executeQuery("SELECT char_id FROM character ORDER BY score ASC,hanzi");
             rs.relative(index + 1);
             res = rs.getInt(1);
         }
@@ -996,10 +1193,16 @@ public class HanziDB
             ex.printStackTrace();
         }
         return res;
-
     }
 
-    public String get_character_details(int index)
+    /**
+     * 
+     * Get the character from its id
+     * 
+     * @param id id of the character
+     * @return a string that only contains that character
+     */
+    public String get_character_details(int id)
     {
         String res = "";
         if (!initialized)
@@ -1011,7 +1214,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT hanzi FROM character WHERE char_id=" + index);
+            rs = st.executeQuery("SELECT hanzi FROM character WHERE char_id=" + id);
             if (!rs.next())
             {
                 return res;
@@ -1024,34 +1227,7 @@ public class HanziDB
         }
         return res;
     }
-
-    public ArrayList<String> get_pinyin_for_character(String hanzi)
-    {
-        ArrayList<String> res = new ArrayList<String>();
-        if (!initialized)
-        {
-            return res;
-        }
-        try
-        {
-            Statement st = conn.createStatement();
-            ResultSet rs = null;
-
-            rs = st.executeQuery("SELECT pinyin FROM character_pinyin AS cp" +
-                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
-                    " WHERE ch.hanzi='" + hanzi + "'");
-            for (; rs.next();)
-            {
-                res.add(rs.getString(1));
-            }
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
+    
     public boolean get_database_changed()
     {
         return changed;
@@ -1070,11 +1246,153 @@ public class HanziDB
             rs.next();
 
             res = Integer.parseInt(rs.getString(1));
+            
+            System.out.println("Database version " + res);
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
         }
         return res;
+    }
+    
+    /**
+     * 
+     * Get the score for a character from its id
+     * 
+     * @param id id of the character
+     * @return the score value for that character
+     */
+    public int get_character_score(int id)
+    {
+        int res=0;
+        
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT score FROM character AS ch" +
+                    " WHERE ch.char_id="+id);
+            rs.next();
+
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+
+    }
+    
+    /**
+     * 
+     * Get the score for a chinese word from its id
+     * 
+     * @param id id of the word
+     * @return the score value for that word
+     */
+    public int get_word_score(int id)
+    {
+        int res=0;
+        
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT score FROM cword AS cw" +
+                    " WHERE cw.cword_id="+id);
+            rs.next();
+
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+    
+    
+    /**
+     * 
+     * Change the score for a character
+     * 
+     * @param id id of the character
+     * @param mode whether to increase (true) or decrease (false)
+     * @param weight how much weight the current score would have
+     */
+    public void change_character_score(int id, boolean mode, int weight)
+    {
+        int score = get_character_score(id);
+        if (mode)
+        { // increase
+            score = ((weight * score) + maximum_score) / (1 + weight);
+        }
+        else
+        { // decrease
+            score = ((weight * score) + minimum_score) / (1 + weight);
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+
+            st.executeUpdate("UPDATE character AS ch" +
+                    " SET score=" + score +
+                    " WHERE ch.char_id=" + id);
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        changed = true;
+    }
+
+    /**
+     * 
+     * Change the score for a word
+     * 
+     * @param id id of the word
+     * @param mode whether to increase (true) or decrease (false)
+     * @param weight how much weight the current score would have
+     */
+    public void change_word_score(int id, boolean mode, int weight) {
+        int score = get_word_score(id);
+        if (mode)
+        { // increase
+            score = ((weight * score) + maximum_score) / (1 + weight);
+        }
+        else
+        { // decrease
+            score = ((weight * score) + minimum_score) / (1 + weight);
+        }
+
+        try
+        {
+            Statement st = conn.createStatement();
+
+            st.executeUpdate("UPDATE cword AS cw" +
+                    " SET score=" + score +
+                    " WHERE cw.cword_id=" + id);
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        changed = true;
+    }
+    
+    public static double random_low() {
+        double x=Math.random();
+        
+        if (x < .8)
+            return x/4;
+        else
+            return 4*x - 3;
+        //return 1-(Math.sin(Math.PI*x)/Math.PI+x);
     }
 }    // class Testdb
