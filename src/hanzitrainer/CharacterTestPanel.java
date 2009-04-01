@@ -255,6 +255,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         do
         {
             index = (int) (HanziDB.random_low() * num_char);
+            System.out.println("random number got " + index + " over " + num_char);
             hanzi = main_database.get_character_details(
                     main_database.get_character_id(index));
             System.out.println("getting index " + index);
