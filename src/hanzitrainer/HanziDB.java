@@ -510,10 +510,10 @@ public class HanziDB
             ResultSet rs = null, rs2 = null;
             int char_pinyin_id = 0;
             int i;
-            String chinese = "";
+            String chinese = "", pinyin = "";
             int found_chinese_id;
             int tone;
-
+            
             if (pinyins.size() != hanzi.size())
             {
                 System.out.println("add_translation : size of pinyins and hanzis need to be the same");
@@ -524,7 +524,11 @@ public class HanziDB
             for (i = 0; i < hanzi.size(); i++)
             {
                 chinese += hanzi.get(i);
+                pinyin += pinyins.get(i);
             }
+            
+            System.out.println("add_translation : adding word ["+chinese+"] with pinyins ["+pinyin+"]"+
+                    ", translation : ["+english+"]");
             found_chinese_id = find_chinese_word(chinese);
             if (found_chinese_id != -1)
             {
@@ -958,7 +962,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT epc.cword_id, epc.hanzi, epc.pinyin, epc.translations FROM " +
+            rs = st.executeQuery("SELECT epc.cword_id, epc.hanzi, epc.pinyin, epc.translations, epc.score  FROM " +
                     " (SELECT cword_id FROM" +
                     " character AS ch" +
                     " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
@@ -974,6 +978,7 @@ public class HanziDB
                 temp.add(rs.getString(2));
                 temp.add(rs.getString(3));
                 temp.add(rs.getString(4));
+                temp.add(rs.getString(5));
                 res.add(temp);
             }
         }
@@ -1096,7 +1101,7 @@ public class HanziDB
      * 
      * @param index from 0 to the number of words - 1 
      * @see get_number_words
-     * @return ArrayList with : Chinese word, pinyin and translations
+     * @return ArrayList with : Chinese word, pinyin, translations and score
      */
     public ArrayList<String> get_word_details(int index)
     {
@@ -1118,6 +1123,7 @@ public class HanziDB
             res.add(rs.getString(2));
             res.add(rs.getString(3));
             res.add(rs.getString(4));
+            res.add(rs.getString(5));
         }
         catch (SQLException ex)
         {
@@ -1178,7 +1184,7 @@ public class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT char_id FROM character ORDER BY hanzi");
+            rs = st.executeQuery("SELECT char_id FROM character ORDER BY score ASC,hanzi");
             rs.relative(index + 1);
             res = rs.getInt(1);
         }
@@ -1383,6 +1389,10 @@ public class HanziDB
     public static double random_low() {
         double x=Math.random();
         
-        return (Math.sin(Math.PI*x)/Math.PI+x);
+        if (x < .5)
+            return x/2.5;
+        else
+            return 1.6*x - .6;
+        //return 1-(Math.sin(Math.PI*x)/Math.PI+x);
     }
 }    // class Testdb

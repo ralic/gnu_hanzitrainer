@@ -254,9 +254,10 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         // pick a character randomly that cannot be found in the history
         do
         {
-            index = (int) (Math.random() * num_char);
+            index = (int) (HanziDB.random_low() * num_char);
             hanzi = main_database.get_character_details(
                     main_database.get_character_id(index));
+            System.out.println("getting index " + index);
         }
         while (character_history.contains(hanzi));
         character_history.add(hanzi);
