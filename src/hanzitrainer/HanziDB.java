@@ -1389,10 +1389,10 @@ public class HanziDB
     public static double random_low() {
         double x=Math.random();
         
-        if (x < .5)
-            return x/2.5;
+        if (x < .8)
+            return x/4;
         else
-            return 1.6*x - .6;
+            return 4*x - 3;
         //return 1-(Math.sin(Math.PI*x)/Math.PI+x);
     }
 }    // class Testdb
