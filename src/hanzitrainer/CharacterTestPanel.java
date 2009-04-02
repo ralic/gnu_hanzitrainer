@@ -53,7 +53,9 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         character_history = new ArrayList<String>();
         chinese_word_list = new ArrayList<String>();
         chinese_word_list_state = new ArrayList<Integer>();
+        chinese_word_list_translation = new ArrayList<String>();
         current_chinese_words = new ArrayList<String>();
+        current_chinese_words_translation = new ArrayList<String>();
         guess_pinyins = new ArrayList<String>();
         guess_chinese_words = new ArrayList<String>();
 
@@ -74,13 +76,19 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         ArrayList<String> good_chinese = new ArrayList<String>();
         ArrayList<String> bad_chinese = new ArrayList<String>();
         ArrayList<String> other_chinese = new ArrayList<String>();
+        ArrayList<String> good_chinese_translation = new ArrayList<String>();
+        ArrayList<String> bad_chinese_translation = new ArrayList<String>();
+        ArrayList<String> other_chinese_translation = new ArrayList<String>();
         String pinyins_result;
         TableModelEvent t_event = new TableModelEvent(this);
+        int num_char = main_database.get_number_characters();
+        int i;
 
         // Move all current stuff to previous
         previous_character = current_character;
         previous_pinyins = current_pinyins;
         previous_chinese_words = current_chinese_words;
+        previous_chinese_words_translation = current_chinese_words_translation;
 
         // Store the guessed pinyins in a table
         guessed_pinyins = GuessPinyinTextField.getText().split("[,，]");
@@ -151,6 +159,15 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             found_similar_radical=false;
         }
         
+        if (good_pinyins.size() != 0)
+        {
+            character_history.add(current_character);
+            if (character_history.size() > (num_char - 1) / 2) 
+            {
+                character_history.remove(0);
+            }
+        }
+        
         // Create some HTML text with the pinyin to put some colors...
         pinyins_result = "<HTML><FONT COLOR=\"RED\">";
         for (String item : bad_pinyins)
@@ -180,30 +197,43 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
                 guess_chinese_words.add(item.trim());
             }
             // Sort between good and bad chinese words
-            for (String item : guess_chinese_words)
+            for (i=0; i<guess_chinese_words.size(); i++)
             {
+                String item = guess_chinese_words.get(i);
+                
                 if (!previous_chinese_words.contains(item))
                 {
                     bad_chinese.add(item);
+                    bad_chinese_translation.add("");
                 }
                 else
                 {
                     good_chinese.add(item);
+                    good_chinese_translation.add(
+                            previous_chinese_words_translation.get(guess_chinese_words.indexOf(item))
+                            );
                 }
             }
         }
         // Find any unguessed chinese, but keep the single character words as good
-        for (String item : previous_chinese_words)
+        for (i=0; i<previous_chinese_words.size(); i++)
         {
+            String item = previous_chinese_words.get(i);
             if ((!good_chinese.contains(item)) && (!bad_chinese.contains(item)))
             {
                 if (item.codePointCount(0, item.length())==1)
                 {
                     good_chinese.add(item);
+                    good_chinese_translation.add(
+                            previous_chinese_words_translation.get(previous_chinese_words.indexOf(item))
+                            );
                 }
                 else
                 {
                     other_chinese.add(item);
+                    other_chinese_translation.add(
+                            previous_chinese_words_translation.get(previous_chinese_words.indexOf(item))
+                            );
                 }
             }
         }
@@ -218,20 +248,24 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         // Store the chinese words in a table with the state for the colors
         chinese_word_list.clear();
         chinese_word_list_state.clear();
-        for (String item : bad_chinese)
+        chinese_word_list_translation.clear();
+        for (i=0; i<bad_chinese.size(); i++)
         {
-            chinese_word_list.add(item);
+            chinese_word_list.add(bad_chinese.get(i));
             chinese_word_list_state.add(0);
+            chinese_word_list_translation.add(bad_chinese_translation.get(i));
         }
-        for (String item : good_chinese)
+        for (i=0; i<good_chinese.size(); i++)
         {
-            chinese_word_list.add(item);
+            chinese_word_list.add(good_chinese.get(i));
             chinese_word_list_state.add(1);
+            chinese_word_list_translation.add(good_chinese_translation.get(i));
         }
-        for (String item : other_chinese)
+        for (i=0; i<other_chinese.size(); i++)
         {
-            chinese_word_list.add(item);
+            chinese_word_list.add(other_chinese.get(i));
             chinese_word_list_state.add(2);
+            chinese_word_list_translation.add(other_chinese_translation.get(i));
         }
         PreviousCharDBTable.tableChanged(t_event);
 
@@ -255,21 +289,19 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         do
         {
             index = (int) (HanziDB.random_low() * num_char);
+            System.out.println("random number got " + index + " over " + num_char);
             hanzi = main_database.get_character_details(
                     main_database.get_character_id(index));
             System.out.println("getting index " + index);
         }
         while (character_history.contains(hanzi));
-        character_history.add(hanzi);
-        if (character_history.size() > (num_char - 1) / 2)
-        {
-            character_history.remove(0);
-        }
         current_chinese_words.clear();
+        current_chinese_words_translation.clear();
         words = main_database.get_words_with_character(hanzi);
         for (ArrayList<String> word : words)
         {
             current_chinese_words.add(word.get(0));
+            current_chinese_words_translation.add(word.get(2));
         }
         current_pinyins = main_database.get_pinyin_for_character(hanzi);
         current_character = hanzi;
@@ -504,15 +536,18 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     private String current_character;
     private ArrayList<String> current_pinyins;
     private ArrayList<String> current_chinese_words;
+    private ArrayList<String> current_chinese_words_translation;
     
     private String previous_character;
     private ArrayList<String> previous_pinyins;
     private ArrayList<String> previous_chinese_words;
+    private ArrayList<String> previous_chinese_words_translation;
     
     private ArrayList<String> guess_pinyins;
     private ArrayList<String> guess_chinese_words;
     private ArrayList<String> chinese_word_list;
     private ArrayList<Integer> chinese_word_list_state; // 0=good, 1=bad, 2=other
+    private ArrayList<String> chinese_word_list_translation;
 
     public int getRowCount()
     {
@@ -521,19 +556,19 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
 
     public int getColumnCount()
     {
-        return 1;
+        return 2;
     }
 
     public String getColumnName(int columnIndex)
     {
-        if (columnIndex != 0)
+        switch (columnIndex)
         {
-            return "column " + columnIndex + " ??";
+            case 0 :
+                return "Chinese Word";
+            case 1:
+                return "Translation";
         }
-        else
-        {
-            return "Chinese Word";
-        }
+        return "column " + columnIndex + " ??";
     }
 
     public Class<?> getColumnClass(int columnIndex)
@@ -550,16 +585,40 @@ private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt
     {
         int state;
         state = chinese_word_list_state.get(rowIndex);
+        String res = "";
         switch (state)
         {
         case 0:
-            return "<HTML><FONT COLOR=\"RED\">" + chinese_word_list.get(rowIndex) + "</FONT></HTML>";
+            res += "<HTML><FONT COLOR=\"RED\">";
+            break;
         case 1:
-            return "<HTML><FONT COLOR=\"GREEN\">" + chinese_word_list.get(rowIndex) + "</FONT></HTML>";
+            res += "<HTML><FONT COLOR=\"GREEN\">";
+            break;
         case 2:
-            return chinese_word_list.get(rowIndex);
+        default :
+            break;
         }
-        return "??";
+        switch (columnIndex)
+        {
+            case 0:
+                res += chinese_word_list.get(rowIndex);
+                break;
+            case 1:
+                res += chinese_word_list_translation.get(rowIndex);
+                break;
+        }
+        
+        switch (state)
+        {
+        case 0:
+        case 1:
+            res += "</FONT></HTML>";
+            break;
+        case 2:
+        default :
+            break;
+        }
+        return res;
     }
 
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
