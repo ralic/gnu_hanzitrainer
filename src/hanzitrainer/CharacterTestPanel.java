@@ -69,27 +69,122 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
 
     private void check_old_data()
     {
-        String[] guessed_pinyins, guessed_chinese;
-        ArrayList<String> good_pinyins = new ArrayList<String>();
-        ArrayList<String> bad_pinyins = new ArrayList<String>();
-        ArrayList<String> other_pinyins = new ArrayList<String>();
+        String[] guessed_chinese;
         ArrayList<String> good_chinese = new ArrayList<String>();
         ArrayList<String> bad_chinese = new ArrayList<String>();
         ArrayList<String> other_chinese = new ArrayList<String>();
         ArrayList<String> good_chinese_translation = new ArrayList<String>();
         ArrayList<String> bad_chinese_translation = new ArrayList<String>();
         ArrayList<String> other_chinese_translation = new ArrayList<String>();
-        String pinyins_result;
         TableModelEvent t_event = new TableModelEvent(this);
-        int num_char = main_database.get_number_characters();
         int i;
+        
 
         // Move all current stuff to previous
-        previous_character = current_character;
         previous_pinyins = current_pinyins;
+        previous_character = current_character;
         previous_chinese_words = current_chinese_words;
         previous_chinese_words_translation = current_chinese_words_translation;
 
+        check_old_pinyins();
+
+        // Check for any suggested chinese words
+        if (!GuessChineseTextField.getText().equals(""))
+        {
+            // Store the different words into a table
+            guessed_chinese = GuessChineseTextField.getText().split("[,，]");
+            guess_chinese_words.clear();
+            for (String item : guessed_chinese)
+            {
+                guess_chinese_words.add(item.trim());
+            }
+            // Sort between good and bad chinese words
+            for (i=0; i<guess_chinese_words.size(); i++)
+            {
+                String item = guess_chinese_words.get(i);
+                
+                if (!previous_chinese_words.contains(item))
+                {
+                    bad_chinese.add(item);
+                    bad_chinese_translation.add("");
+                }
+                else
+                {
+                    good_chinese.add(item);
+                    good_chinese_translation.add(
+                            previous_chinese_words_translation.get(previous_chinese_words.indexOf(item))
+                            );
+                }
+            }
+        }
+        // Find any unguessed chinese, but keep the single character words as good
+        for (i=0; i<previous_chinese_words.size(); i++)
+        {
+            String item = previous_chinese_words.get(i);
+            if ((!good_chinese.contains(item)) && (!bad_chinese.contains(item)))
+            {
+                if (item.codePointCount(0, item.length())==1)
+                {
+                    good_chinese.add(item);
+                    good_chinese_translation.add(
+                            previous_chinese_words_translation.get(previous_chinese_words.indexOf(item))
+                            );
+                }
+                else
+                {
+                    other_chinese.add(item);
+                    other_chinese_translation.add(
+                            previous_chinese_words_translation.get(previous_chinese_words.indexOf(item))
+                            );
+                }
+            }
+        }
+        
+        // for any well guessed Chinese word, increase its score
+        for (String item : good_chinese)
+        {
+            main_database.change_word_score(main_database.get_word_id(item),
+                    true, 1);
+        }
+        
+        // Store the chinese words in a table with the state for the colors
+        chinese_word_list.clear();
+        chinese_word_list_state.clear();
+        chinese_word_list_translation.clear();
+        for (i=0; i<bad_chinese.size(); i++)
+        {
+            chinese_word_list.add(bad_chinese.get(i));
+            chinese_word_list_state.add(0);
+            chinese_word_list_translation.add(bad_chinese_translation.get(i));
+        }
+        for (i=0; i<good_chinese.size(); i++)
+        {
+            chinese_word_list.add(good_chinese.get(i));
+            chinese_word_list_state.add(1);
+            chinese_word_list_translation.add(good_chinese_translation.get(i));
+        }
+        for (i=0; i<other_chinese.size(); i++)
+        {
+            chinese_word_list.add(other_chinese.get(i));
+            chinese_word_list_state.add(2);
+            chinese_word_list_translation.add(other_chinese_translation.get(i));
+        }
+        PreviousCharDBTable.tableChanged(t_event);
+
+        PreviousCharacterLabel.setText(previous_character);
+    }
+    
+    private void check_old_pinyins()
+    {
+        String[] guessed_pinyins;
+        ArrayList<String> good_pinyins = new ArrayList<String>();
+        ArrayList<String> bad_pinyins = new ArrayList<String>();
+        ArrayList<String> other_pinyins = new ArrayList<String>();
+        String pinyins_result;
+        int num_char = main_database.get_number_characters();
+
+
+        
         // Store the guessed pinyins in a table
         guessed_pinyins = GuessPinyinTextField.getText().split("[,，]");
         guess_pinyins.clear();
@@ -186,91 +281,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         }
         pinyins_result += "</HTML>";
 
-        // Check for any suggested chinese words
-        if (!GuessChineseTextField.getText().equals(""))
-        {
-            // Store the different words into a table
-            guessed_chinese = GuessChineseTextField.getText().split("[,，]");
-            guess_chinese_words.clear();
-            for (String item : guessed_chinese)
-            {
-                guess_chinese_words.add(item.trim());
-            }
-            // Sort between good and bad chinese words
-            for (i=0; i<guess_chinese_words.size(); i++)
-            {
-                String item = guess_chinese_words.get(i);
-                
-                if (!previous_chinese_words.contains(item))
-                {
-                    bad_chinese.add(item);
-                    bad_chinese_translation.add("");
-                }
-                else
-                {
-                    good_chinese.add(item);
-                    good_chinese_translation.add(
-                            previous_chinese_words_translation.get(guess_chinese_words.indexOf(item))
-                            );
-                }
-            }
-        }
-        // Find any unguessed chinese, but keep the single character words as good
-        for (i=0; i<previous_chinese_words.size(); i++)
-        {
-            String item = previous_chinese_words.get(i);
-            if ((!good_chinese.contains(item)) && (!bad_chinese.contains(item)))
-            {
-                if (item.codePointCount(0, item.length())==1)
-                {
-                    good_chinese.add(item);
-                    good_chinese_translation.add(
-                            previous_chinese_words_translation.get(previous_chinese_words.indexOf(item))
-                            );
-                }
-                else
-                {
-                    other_chinese.add(item);
-                    other_chinese_translation.add(
-                            previous_chinese_words_translation.get(previous_chinese_words.indexOf(item))
-                            );
-                }
-            }
-        }
-        
-        // for any well guessed Chinese word, increase its score
-        for (String item : good_chinese)
-        {
-            main_database.change_word_score(main_database.get_word_id(item),
-                    true, 1);
-        }
-        
-        // Store the chinese words in a table with the state for the colors
-        chinese_word_list.clear();
-        chinese_word_list_state.clear();
-        chinese_word_list_translation.clear();
-        for (i=0; i<bad_chinese.size(); i++)
-        {
-            chinese_word_list.add(bad_chinese.get(i));
-            chinese_word_list_state.add(0);
-            chinese_word_list_translation.add(bad_chinese_translation.get(i));
-        }
-        for (i=0; i<good_chinese.size(); i++)
-        {
-            chinese_word_list.add(good_chinese.get(i));
-            chinese_word_list_state.add(1);
-            chinese_word_list_translation.add(good_chinese_translation.get(i));
-        }
-        for (i=0; i<other_chinese.size(); i++)
-        {
-            chinese_word_list.add(other_chinese.get(i));
-            chinese_word_list_state.add(2);
-            chinese_word_list_translation.add(other_chinese_translation.get(i));
-        }
-        PreviousCharDBTable.tableChanged(t_event);
-
-        PreviousPinyinsLabel.setText(pinyins_result);
-        PreviousCharacterLabel.setText(previous_character);
+        PreviousPinyinsLabel.setText(pinyins_result);        
     }
 
     private void set_new_character_to_guess()
