@@ -33,6 +33,7 @@ package hanzitrainer;
  * @author Administrator
  */
 public interface HanziApplicationUpdater {
+    public void update_database();
     public void edit_word(String to_edit);
 
 }
