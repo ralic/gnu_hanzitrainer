@@ -76,7 +76,9 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         CharTableFiller = new DBTableFiller(main_database);
         PinyinsTextfield = new javax.swing.JTextField();
         PinyinsLabel = new javax.swing.JLabel();
-        PinyinsLabel1 = new javax.swing.JLabel();
+        WordListLabel = new javax.swing.JLabel();
+        ScoreLabel = new javax.swing.JLabel();
+        ScoreTextfield = new javax.swing.JTextField();
 
         setName("Form"); // NOI18N
 
@@ -142,8 +144,14 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         PinyinsLabel.setText(resourceMap.getString("PinyinsLabel.text")); // NOI18N
         PinyinsLabel.setName("PinyinsLabel"); // NOI18N
 
-        PinyinsLabel1.setText(resourceMap.getString("PinyinsLabel1.text")); // NOI18N
-        PinyinsLabel1.setName("PinyinsLabel1"); // NOI18N
+        WordListLabel.setText(resourceMap.getString("WordListLabel.text")); // NOI18N
+        WordListLabel.setName("WordListLabel"); // NOI18N
+
+        ScoreLabel.setText(resourceMap.getString("ScoreLabel.text")); // NOI18N
+        ScoreLabel.setName("ScoreLabel"); // NOI18N
+
+        ScoreTextfield.setEditable(false);
+        ScoreTextfield.setName("ScoreTextfield"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -157,7 +165,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(PinyinsLabel)
-                            .addComponent(PinyinsLabel1)))
+                            .addComponent(WordListLabel)))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(CharsearchentryTextField)
@@ -170,7 +178,12 @@ public class CharacterReviewPanel extends javax.swing.JPanel
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)
-                    .addComponent(PinyinsTextfield, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(PinyinsTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ScoreLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ScoreTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -191,20 +204,23 @@ public class CharacterReviewPanel extends javax.swing.JPanel
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(PinyinsLabel)
-                            .addComponent(PinyinsTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(PinyinsTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ScoreLabel)
+                            .addComponent(ScoreTextfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
-                            .addComponent(PinyinsLabel1))
+                            .addComponent(WordListLabel))
                         .addGap(4, 4, 4)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void set_character_review(String hanzi)
+    public void set_character_review(String hanzi)
     {
         ArrayList<String> pinyins = main_database.get_pinyin_for_character(hanzi);
         String pinyin_list = "";
+        int score = main_database.get_character_score(main_database.get_character_id(hanzi));
         int i, j;
 
         if (pinyins.size() != 0)
@@ -243,6 +259,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
             }
         }
         PinyinsTextfield.setText(pinyin_list);
+        ScoreTextfield.setText("" +score);
         CharacterLabel.setText(hanzi);
         CharTableFiller.set_filter(hanzi);
         CharTableFiller.fireTableDataChanged();
@@ -346,8 +363,10 @@ private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST
     private javax.swing.JTextField CharsearchentryTextField;
     private javax.swing.JButton NextCharacterButton;
     private javax.swing.JLabel PinyinsLabel;
-    private javax.swing.JLabel PinyinsLabel1;
     private javax.swing.JTextField PinyinsTextfield;
+    private javax.swing.JLabel ScoreLabel;
+    private javax.swing.JTextField ScoreTextfield;
+    private javax.swing.JLabel WordListLabel;
     // End of variables declaration//GEN-END:variables
     private DBTableFiller CharTableFiller;
     private ArrayList<String> character_history;

@@ -394,6 +394,11 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         PreviousCharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PreviousCharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         PreviousCharacterLabel.setName("PreviousCharacterLabel"); // NOI18N
+        PreviousCharacterLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                PreviousCharacterLabelMouseClicked(evt);
+            }
+        });
 
         PreviouslyLabel.setText(resourceMap.getString("PreviouslyLabel.text")); // NOI18N
         PreviouslyLabel.setName("PreviouslyLabel"); // NOI18N
@@ -525,6 +530,11 @@ private void GuessPinyinTextFieldActionPerformed(java.awt.event.ActionEvent evt)
 private void GuessChineseTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuessChineseTextFieldActionPerformed
     DoneGuessCharacterButton_action(evt);
 }//GEN-LAST:event_GuessChineseTextFieldActionPerformed
+
+private void PreviousCharacterLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PreviousCharacterLabelMouseClicked
+    parent_app.review_character(previous_character);
+}//GEN-LAST:event_PreviousCharacterLabelMouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel AsInLabel;
     private javax.swing.JLabel CharacterLabel;

@@ -35,5 +35,6 @@ package hanzitrainer;
 public interface HanziApplicationUpdater {
     public void update_database();
     public void edit_word(String to_edit);
+    public void review_character(String hanzi);
 
 }

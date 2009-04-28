@@ -115,8 +115,9 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
     private void update_panel_databases()
     {
         vocabulary_builder.VocabularyBuilderUpdateDB();
-        char_review.CharacterReviewUpdateDB();
         word_database.WordDatabaseUpdateDB();
+        char_database.CharDatabaseUpdateDB();
+        char_review.CharacterReviewUpdateDB();
         char_test.CharacterTestUpdateDB();
         chinese_test.ChineseWordTestUpdateDB();
     }
@@ -333,5 +334,10 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
     public void update_database()
     {
         update_panel_databases();
+    }
+    public void review_character(String hanzi)
+    {
+        char_review.set_character_review(hanzi);
+        Tabs.setSelectedIndex(3);
     }
 }

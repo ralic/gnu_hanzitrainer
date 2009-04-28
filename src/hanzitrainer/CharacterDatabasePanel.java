@@ -42,10 +42,10 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
         main_database = database;
         parent_app = updater;
         initComponents();
-        WordDatabaseUpdateDB();
+        CharDatabaseUpdateDB();
     }
 
-    public void WordDatabaseUpdateDB()
+    public void CharDatabaseUpdateDB()
     {
         int res;
         CTableFiller.fireTableDataChanged();
