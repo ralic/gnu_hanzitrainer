@@ -52,6 +52,8 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
 
         res = main_database.get_number_characters();
         numCharLabel.setText("Number of characters : " + res);
+        res = main_database.get_average_character_score();
+        avgCharScoreLabel.setText("Average score : " + res);
     }
 
     /** This method is called from within the constructor to
@@ -67,6 +69,7 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
         DBScroll = new javax.swing.JScrollPane();
         CharDBTable = new javax.swing.JTable();
         CTableFiller = new CDBTableFiller(main_database);
+        avgCharScoreLabel = new javax.swing.JLabel();
 
         setName("Form"); // NOI18N
 
@@ -83,6 +86,8 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
         });
         DBScroll.setViewportView(CharDBTable);
 
+        avgCharScoreLabel.setName("avgCharScoreLabel"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -91,16 +96,21 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                    .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(avgCharScoreLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(numCharLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(avgCharScoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -113,6 +123,7 @@ private void charDBmouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable CharDBTable;
     private javax.swing.JScrollPane DBScroll;
+    private javax.swing.JLabel avgCharScoreLabel;
     private javax.swing.JLabel numCharLabel;
     // End of variables declaration//GEN-END:variables
     private CDBTableFiller CTableFiller;
