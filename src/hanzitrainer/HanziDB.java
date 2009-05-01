@@ -1283,7 +1283,61 @@ public class HanziDB
             ex.printStackTrace();
         }
         return res;
+    }
+    
+        /**
+     * 
+     * Get the average score for all characters
+     * 
+     * @return the score value
+     */
+    public int get_average_character_score()
+    {
+        int res=0;
+        
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
 
+            rs = st.executeQuery("SELECT AVG(score) FROM character");
+            rs.next();
+
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+    
+    /**
+     * 
+     * Get the score for a chinese word from its id
+     * 
+     * @param id id of the word
+     * @return the score value for that word
+     */
+    public int get_average_word_score()
+    {
+        int res=0;
+        
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT AVG(score) FROM cword");
+            rs.next();
+
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
     }
     
     /**
