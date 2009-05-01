@@ -53,8 +53,8 @@ public class WordDatabasePanel extends javax.swing.JPanel
         res = main_database.get_number_words();
         numWordLabel.setText("Number of words : " + res);
 
-        res = main_database.get_number_characters();
-        numCharLabel.setText("Number of characters : " + res);
+        res = main_database.get_average_word_score();
+        avgWordScoreLabel.setText("Average score : " + res);
     }
 
     /** This method is called from within the constructor to
@@ -66,7 +66,7 @@ public class WordDatabasePanel extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        numCharLabel = new javax.swing.JLabel();
+        avgWordScoreLabel = new javax.swing.JLabel();
         numWordLabel = new javax.swing.JLabel();
         DBScroll = new javax.swing.JScrollPane();
         DBTable = new javax.swing.JTable();
@@ -74,7 +74,7 @@ public class WordDatabasePanel extends javax.swing.JPanel
 
         setName("Form"); // NOI18N
 
-        numCharLabel.setName("numCharLabel"); // NOI18N
+        avgWordScoreLabel.setName("avgWordScoreLabel"); // NOI18N
 
         numWordLabel.setName("numWordLabel"); // NOI18N
 
@@ -97,29 +97,24 @@ public class WordDatabasePanel extends javax.swing.JPanel
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(numCharLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(DBScroll)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(avgWordScoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
-                    .addContainerGap()))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(numWordLabel)
-                    .addComponent(numCharLabel))
-                .addContainerGap(224, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(30, 30, 30)
-                    .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
-                    .addContainerGap()))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(numWordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(avgWordScoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(DBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -136,7 +131,7 @@ private void DBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:eve
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane DBScroll;
     private javax.swing.JTable DBTable;
-    private javax.swing.JLabel numCharLabel;
+    private javax.swing.JLabel avgWordScoreLabel;
     private javax.swing.JLabel numWordLabel;
     // End of variables declaration//GEN-END:variables
     private DBTableFiller TableFiller;
