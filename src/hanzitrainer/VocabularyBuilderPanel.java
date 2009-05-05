@@ -8,12 +8,16 @@ package hanzitrainer;
 
 import java.util.Locale;
 import java.util.ArrayList;
+import javax.swing.DefaultListModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
  * @author  matthieu
  */
-public class VocabularyBuilderPanel extends javax.swing.JPanel {
+public class VocabularyBuilderPanel extends javax.swing.JPanel 
+        implements ListSelectionListener {
 
     /** Creates new form VocabularyBuilderPanel */
     public VocabularyBuilderPanel(HanziDB database, HanziApplicationUpdater updater) {
@@ -44,10 +48,9 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel {
         SaveButton = new javax.swing.JButton();
         ResetButton = new javax.swing.JButton();
         PinyinScroll = new javax.swing.JScrollPane();
-        EnglishTranslations = new javax.swing.JComboBox();
-        AddNewWordButton = new javax.swing.JRadioButton();
-        EditWordButton = new javax.swing.JRadioButton();
-        DeleteWordButton = new javax.swing.JRadioButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        EnglishTranslationsListModel = new DefaultListModel();
+        EnglishTranslations = new javax.swing.JList();
 
         setName("Form"); // NOI18N
 
@@ -64,6 +67,8 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel {
         ChineseTextField.setName("ChineseTextField"); // NOI18N
         PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);
         this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);
+        VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database);
+        this.ChineseTextField.getDocument().addDocumentListener(VocabularyBuilderUpdater);
         ChineseTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 ChineseTextFieldFocusGained(evt);
@@ -99,20 +104,13 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel {
 
         PinyinScroll.setName("PinyinScroll"); // NOI18N
 
-        EnglishTranslations.setEnabled(false);
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        EnglishTranslations.setModel(EnglishTranslationsListModel);
+        EnglishTranslations.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         EnglishTranslations.setName("EnglishTranslations"); // NOI18N
-
-        AddNewWordButton.setText(resourceMap.getString("AddNewWordButton.text")); // NOI18N
-        AddNewWordButton.setEnabled(false);
-        AddNewWordButton.setName("AddNewWordButton"); // NOI18N
-
-        EditWordButton.setText(resourceMap.getString("EditWordButton.text")); // NOI18N
-        EditWordButton.setEnabled(false);
-        EditWordButton.setName("EditWordButton"); // NOI18N
-
-        DeleteWordButton.setText(resourceMap.getString("DeleteWordButton.text")); // NOI18N
-        DeleteWordButton.setEnabled(false);
-        DeleteWordButton.setName("DeleteWordButton"); // NOI18N
+        EnglishTranslations.addListSelectionListener(this);
+        jScrollPane1.setViewportView(EnglishTranslations);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -120,32 +118,24 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(PinyinLabel)
-                    .addComponent(ChineseLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(EnglishLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(210, 210, 210)
-                                .addComponent(ResetButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(EnglishTranslations, javax.swing.GroupLayout.Alignment.TRAILING, 0, 336, Short.MAX_VALUE)
-                            .addComponent(EnglishTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 336, Short.MAX_VALUE))
+                            .addComponent(ChineseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(PinyinLabel)
+                            .addComponent(EnglishLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(EditWordButton)
-                            .addComponent(AddNewWordButton)
-                            .addComponent(DeleteWordButton))
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(ChineseTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
-                            .addComponent(PinyinScroll, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE))
-                        .addGap(8, 8, 8))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(EnglishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
+                            .addComponent(PinyinScroll)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
+                            .addComponent(ChineseTextField))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(ResetButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(246, 246, 246))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,22 +151,15 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(EnglishLabel)
-                            .addComponent(EnglishTranslations, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(7, 7, 7)
+                        .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(ResetButton)
                             .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(AddNewWordButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(EditWordButton)
-                        .addGap(3, 3, 3)
-                        .addComponent(DeleteWordButton)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                    .addComponent(EnglishLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -185,51 +168,38 @@ private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-F
 // TODO add your handling code here:
     ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
 
-    EnglishTranslations.removeAllItems();
-    EnglishTranslations.setEnabled(false);
-    AddNewWordButton.setEnabled(false);
-    EditWordButton.setEnabled(false);
-    DeleteWordButton.setEnabled(false);
-    AddNewWordButton.setSelected(false);
-    EditWordButton.setSelected(false);
-    DeleteWordButton.setSelected(false);
+    //EnglishTranslationsListModel.removeAllElements();
 }//GEN-LAST:event_ChineseTextFieldFocusGained
 
 
-private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
-// TODO add your handling code here:
-    String hanzi_string = ChineseTextField.getText();
-    ArrayList<String> translations = new ArrayList<String>();
+
+protected String getChineseTextField()
+{
+    return ChineseTextField.getText();
+}
+
+protected void setEnglishTranslationsList(ArrayList<String> content)
+{
     int i;
-
-    ChineseTextField.getInputContext().selectInputMethod(Locale.getDefault());
-
-    translations = main_database.get_chinese_word_translation(hanzi_string);
-    if (translations.size() == 0)
+    
+    EnglishTranslationsListModel.removeAllElements();
+    EnglishTranslationsListModel.addElement("[new]");
+    for (i = 0; i < content.size(); i++)
     {
-        return;
+        EnglishTranslationsListModel.addElement(content.get(i));
     }
-    EnglishTranslations.addItem("[new]");
-    for (i = 0; i < translations.size(); i++)
-    {
-        EnglishTranslations.addItem(translations.get(i));
-    }
-    EnglishTranslations.setEnabled(true);
-    AddNewWordButton.setEnabled(true);
-    EditWordButton.setEnabled(true);
-    DeleteWordButton.setEnabled(true);
-    AddNewWordButton.setSelected(true);
-}//GEN-LAST:event_ChineseTextFieldFocusLost
+    EnglishTranslations.setSelectedIndex(0);
+    EnglishTranslations.ensureIndexIsVisible(0);
+}
 
-
-private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EnglishTextFieldSaveButtonActionPerformed
-// TODO add your handling code here:
+private void SaveAction()
+{
     String english = EnglishTextField.getText();
     ArrayList<String> pinyin = PinyinChooser.get_pinyins();
     String hanzi_string = ChineseTextField.getText();
     ArrayList<String> hanzi = new ArrayList<String>();
-    int i;
-
+    int i, listIndex;
+    
     for (i = 0; i < pinyin.size(); i++)
     {
         if (!Pinyin.verify_pinyin(pinyin.get(i)))
@@ -237,6 +207,7 @@ private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEven
             return;
         }
     }
+ 
     for (i = 0; i < hanzi_string.codePointCount(0, hanzi_string.length()); i++)
     {
         int from;
@@ -252,7 +223,10 @@ private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEven
         }
         hanzi.add(hanzi_string.substring(from, to));
     }
-    if ((!AddNewWordButton.isEnabled()) || (AddNewWordButton.isSelected()))
+    
+    listIndex = EnglishTranslations.getSelectedIndex();
+    
+    if (listIndex == 0)
     {
         if (english.length() == 0)
         {
@@ -262,113 +236,41 @@ private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEven
     }
     else
     {
-        if (DeleteWordButton.isSelected())
+        if (english.length() == 0)
+        {
+            main_database.delete_translation(
+                    (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
+        }
+        else
         {
             if (EnglishTranslations.getSelectedIndex() == 0)
             {
                 return;
             }
-            main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
-        }
-        else
-        {
-            if (EditWordButton.isSelected())
+            if (english.length() == 0)
             {
-                if (EnglishTranslations.getSelectedIndex() == 0)
-                {
-                    return;
-                }
-                if (english.length() == 0)
-                {
-                    return;
-                }
-                main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
-                main_database.add_translation(english, pinyin, hanzi);
+                return;
             }
+            main_database.delete_translation(
+                    (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
+            main_database.add_translation(english, pinyin, hanzi);
         }
     }
-
+    
     parent_app.update_database();
 
-    EnglishTranslations.removeAllItems();
+    EnglishTranslationsListModel.removeAllElements();
     ChineseTextField.setText("");
     EnglishTextField.setText("");
     ChineseTextField.requestFocus();
+}
+
+private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EnglishTextFieldSaveButtonActionPerformed
+    SaveAction();
 }//GEN-LAST:event_EnglishTextFieldSaveButtonActionPerformed
 
 private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveButtonActionPerformed
-// TODO add your handling code here:
-    String english = EnglishTextField.getText();
-    ArrayList<String> pinyin = PinyinChooser.get_pinyins();
-    String hanzi_string = ChineseTextField.getText();
-    ArrayList<String> hanzi = new ArrayList<String>();
-    int i;
-
-    for (i = 0; i < pinyin.size(); i++)
-    {
-        if (!Pinyin.verify_pinyin(pinyin.get(i)))
-        {
-            return;
-        }
-    }
-    for (i = 0; i < hanzi_string.codePointCount(0, hanzi_string.length()); i++)
-    {
-        int from;
-        int to;
-        from = hanzi_string.offsetByCodePoints(0, i);
-        if (i == hanzi_string.codePointCount(0, hanzi_string.length()) - 1)
-        {
-            to = hanzi_string.length();
-        }
-        else
-        {
-            to = hanzi_string.offsetByCodePoints(0, i + 1);
-        }
-        hanzi.add(hanzi_string.substring(from, to));
-    }
-    if ((!AddNewWordButton.isEnabled()) || (AddNewWordButton.isSelected()))
-    {
-        if (english.length() == 0)
-        {
-            return;
-        }
-        main_database.add_translation(english, pinyin, hanzi);
-    }
-    else
-    {
-        if (DeleteWordButton.isSelected())
-        {
-            if (EnglishTranslations.getSelectedIndex() == 0)
-            {
-                return;
-            }
-            main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
-        }
-        else
-        {
-            if (EditWordButton.isSelected())
-            {
-                if (EnglishTranslations.getSelectedIndex() == 0)
-                {
-                    return;
-                }
-                if (english.length() == 0)
-                {
-                    return;
-                }
-                main_database.delete_translation((String) EnglishTranslations.getSelectedItem(), hanzi);
-                main_database.add_translation(english, pinyin, hanzi);
-            }
-        }
-    }
-
-    parent_app.update_database();
-
-    EnglishTranslations.removeAllItems();
-    ChineseTextField.setText("");
-    EnglishTextField.setText("");
-    ChineseTextField.requestFocus();
-
+    SaveAction();
 }//GEN-LAST:event_SaveButtonActionPerformed
 
 
@@ -378,26 +280,43 @@ private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     EnglishTextField.setText("");
 }//GEN-LAST:event_ResetButtonActionPerformed
 
+private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusLost
+// TODO add your handling code here:
+    ChineseTextField.getInputContext().selectInputMethod(Locale.US);
+}//GEN-LAST:event_ChineseTextFieldFocusLost
+
     public void edit_word(String to_edit)
     {
         ChineseTextField.setText(to_edit);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JRadioButton AddNewWordButton;
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
-    private javax.swing.JRadioButton DeleteWordButton;
-    private javax.swing.JRadioButton EditWordButton;
     private javax.swing.JLabel EnglishLabel;
     private javax.swing.JTextField EnglishTextField;
-    private javax.swing.JComboBox EnglishTranslations;
+    private javax.swing.JList EnglishTranslations;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JScrollPane PinyinScroll;
     private javax.swing.JButton ResetButton;
     private javax.swing.JButton SaveButton;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
+    private DefaultListModel EnglishTranslationsListModel;
     private HanziDB main_database;
     private HanziApplicationUpdater parent_app;
     private PinyinChooserFrame PinyinChooser;
+    private VocabularyBuilderPanelUpdater VocabularyBuilderUpdater;
+
+    public void valueChanged(ListSelectionEvent e) {
+        int listIndex;
+        String value;
+        
+        listIndex = EnglishTranslations.getSelectedIndex();
+        if ((listIndex != 0) && (listIndex != -1))
+        {
+            value = (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex());
+            EnglishTextField.setText(value);
+        }
+    }
 }

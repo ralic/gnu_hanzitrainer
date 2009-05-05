@@ -18,40 +18,29 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                  <Component id="PinyinLabel" alignment="1" min="-2" max="-2" attributes="1"/>
-                  <Component id="ChineseLabel" alignment="0" max="32767" attributes="1"/>
-                  <Component id="EnglishLabel" alignment="0" max="32767" attributes="1"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Group type="102" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="210" max="-2" attributes="0"/>
-                              <Component id="ResetButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="SaveButton" min="-2" pref="59" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="EnglishTranslations" alignment="1" pref="336" max="32767" attributes="3"/>
-                          <Component id="EnglishTextField" alignment="1" pref="336" max="32767" attributes="2"/>
+                          <Component id="ChineseLabel" alignment="0" max="32767" attributes="1"/>
+                          <Component id="PinyinLabel" alignment="0" min="-2" max="-2" attributes="1"/>
+                          <Component id="EnglishLabel" alignment="0" pref="38" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="EditWordButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="AddNewWordButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="DeleteWordButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="EnglishTextField" alignment="0" pref="464" max="32767" attributes="3"/>
+                          <Component id="PinyinScroll" alignment="0" max="32767" attributes="3"/>
+                          <Component id="jScrollPane1" alignment="0" pref="464" max="32767" attributes="1"/>
+                          <Component id="ChineseTextField" alignment="0" max="32767" attributes="3"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="ChineseTextField" alignment="0" pref="431" max="32767" attributes="2"/>
-                          <Component id="PinyinScroll" alignment="0" pref="431" max="32767" attributes="2"/>
-                      </Group>
-                      <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="ResetButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="SaveButton" min="-2" pref="59" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="246" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -59,7 +48,7 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="ChineseLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -73,27 +62,18 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="EnglishLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="EnglishTranslations" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="jScrollPane1" min="-2" pref="43" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="EnglishTextField" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="ResetButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="SaveButton" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="AddNewWordButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="EditWordButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                      <Component id="DeleteWordButton" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="EnglishLabel" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="22" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -126,7 +106,7 @@
         <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="ChineseTextFieldFocusLost"/>
       </Events>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);&#xd;&#xa;this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);&#xd;&#xa;"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);&#xd;&#xa;this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);&#xd;&#xa;VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database);&#xd;&#xa;this.ChineseTextField.getDocument().addDocumentListener(VocabularyBuilderUpdater);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="EnglishTextField">
@@ -163,35 +143,30 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
     </Container>
-    <Component class="javax.swing.JComboBox" name="EnglishTranslations">
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="0"/>
-        </Property>
-        <Property name="enabled" type="boolean" value="false"/>
-        <Property name="name" type="java.lang.String" value="EnglishTranslations" noResource="true"/>
+        <Property name="name" type="java.lang.String" value="jScrollPane1" noResource="true"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JRadioButton" name="AddNewWordButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="AddNewWordButton.text"/>
-        <Property name="enabled" type="boolean" value="false"/>
-        <Property name="name" type="java.lang.String" value="AddNewWordButton" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JRadioButton" name="EditWordButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="EditWordButton.text"/>
-        <Property name="enabled" type="boolean" value="false"/>
-        <Property name="name" type="java.lang.String" value="EditWordButton" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JRadioButton" name="DeleteWordButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="DeleteWordButton.text"/>
-        <Property name="enabled" type="boolean" value="false"/>
-        <Property name="name" type="java.lang.String" value="DeleteWordButton" noResource="true"/>
-      </Properties>
-    </Component>
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JList" name="EnglishTranslations">
+          <Properties>
+            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="EnglishTranslationsListModel" type="code"/>
+            </Property>
+            <Property name="selectionMode" type="int" value="0"/>
+            <Property name="name" type="java.lang.String" value="EnglishTranslations" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="EnglishTranslationsListModel = new DefaultListModel();"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="EnglishTranslations.addListSelectionListener(this);"/>
+          </AuxValues>
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>
