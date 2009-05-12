@@ -29,6 +29,7 @@
  */
 package hanzitrainer;
 
+import java.awt.Dialog;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
 import java.io.File;
@@ -53,7 +54,8 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         super(app);
         String database_file;
 
-        my_preferences = Preferences.userRoot();
+        //my_preferences = Preferences.userRoot();
+        my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
 
         main_database = new HanziDB();
         database_file = my_preferences.get("database_filename", "");
@@ -75,6 +77,8 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         chinese_test = new ChineseWordTestPanel(main_database, this);
         Tabs.addTab("Chinese Test", chinese_test);
         update_panel_databases();
+        
+        Settings = new SettingsDialog(this.getFrame(), true);
         
     }
 
@@ -136,11 +140,12 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         OpenDBMenuItem = new javax.swing.JMenuItem();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        CloseDBMenuItem = new javax.swing.JMenuItem();
         SaveDBMenuItem = new javax.swing.JMenuItem();
         SaveDBAsMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
+        OptionsMenuItem = new javax.swing.JMenuItem();
         vocabularyEditorButtonGroup = new javax.swing.ButtonGroup();
         ChoicePane = new javax.swing.JOptionPane();
 
@@ -188,15 +193,15 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         fileMenu.add(OpenDBMenuItem);
         OpenDBMenuItem.getAccessibleContext().setAccessibleDescription(resourceMap.getString("OpenDBItem1.AccessibleContext.accessibleDescription")); // NOI18N
 
-        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
-        jMenuItem1.setName("jMenuItem1"); // NOI18N
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        CloseDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.CTRL_MASK));
+        CloseDBMenuItem.setText(resourceMap.getString("CloseDBMenuItem.text")); // NOI18N
+        CloseDBMenuItem.setName("CloseDBMenuItem"); // NOI18N
+        CloseDBMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 close_database(evt);
             }
         });
-        fileMenu.add(jMenuItem1);
+        fileMenu.add(CloseDBMenuItem);
 
         SaveDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         SaveDBMenuItem.setText(resourceMap.getString("SaveDBMenuItem.text")); // NOI18N
@@ -228,6 +233,16 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
 
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
+
+        OptionsMenuItem.setText(resourceMap.getString("OptionsMenuItem.text")); // NOI18N
+        OptionsMenuItem.setName("OptionsMenuItem"); // NOI18N
+        OptionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                OptionsMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(OptionsMenuItem);
+
         menuBar.add(helpMenu);
 
         ChoicePane.setName("ChoicePane"); // NOI18N
@@ -312,19 +327,26 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
     }
 }//GEN-LAST:event_FileMenuSelected
 
+private void OptionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OptionsMenuItemActionPerformed
+
+    Settings.setVisible(true);
+}//GEN-LAST:event_OptionsMenuItemActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JOptionPane ChoicePane;
+    private javax.swing.JMenuItem CloseDBMenuItem;
     private javax.swing.JMenuItem OpenDBMenuItem;
+    private javax.swing.JMenuItem OptionsMenuItem;
     private javax.swing.JMenuItem SaveDBAsMenuItem;
     private javax.swing.JMenuItem SaveDBMenuItem;
     private javax.swing.JTabbedPane Tabs;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.ButtonGroup vocabularyEditorButtonGroup;
     // End of variables declaration//GEN-END:variables
     private PinyinChooserFrame PinyinChooser;
     private javax.swing.JFileChooser DBFileChooser;
+    private SettingsDialog Settings;
 
     public void edit_word(String to_edit)
     {

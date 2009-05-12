@@ -1440,13 +1440,5 @@ public class HanziDB
         changed = true;
     }
     
-    public static double random_low() {
-        double x=Math.random();
-        
-        if (x < .8)
-            return x/4;
-        else
-            return 4*x - 3;
-        //return 1-(Math.sin(Math.PI*x)/Math.PI+x);
-    }
+
 }    // class Testdb

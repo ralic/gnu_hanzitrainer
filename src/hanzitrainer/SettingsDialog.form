@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.5" maxVersion="1.6" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="name" type="java.lang.String" value="Form" noResource="true"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="CedictFileLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="RandomPickerLabel" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Group type="102" attributes="1">
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="CedictFileField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="RandomPickerSlider" min="-2" pref="158" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="RandomPickerValueLabel" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="CedictFileBrowseButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <Component id="SettingsTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="44" max="32767" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace pref="266" max="32767" attributes="0"/>
+              <Component id="OKButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="SettingsTitleLabel" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="RandomPickerValueLabel" max="32767" attributes="1"/>
+                          <Component id="RandomPickerSlider" alignment="0" max="32767" attributes="1"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="RandomPickerLabel" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="CedictFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="CedictFileField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="CedictFileBrowseButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="38" max="32767" attributes="0"/>
+              <Component id="OKButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="SettingsTitleLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="SettingsTitleLabel.text"/>
+        <Property name="name" type="java.lang.String" value="SettingsTitleLabel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="RandomPickerLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="RandomPickerLabel.text"/>
+        <Property name="name" type="java.lang.String" value="RandomPickerLabel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSlider" name="RandomPickerSlider">
+      <Properties>
+        <Property name="minimum" type="int" value="5"/>
+        <Property name="name" type="java.lang.String" value="RandomPickerSlider" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="mouseDragged" listener="java.awt.event.MouseMotionListener" parameters="java.awt.event.MouseEvent" handler="RandomPickerSliderMouseDragged"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="RandomPickerValueLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="RandomPickerValueLabel.text"/>
+        <Property name="name" type="java.lang.String" value="RandomPickerValueLabel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="CedictFileLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="CedictFileLabel.text"/>
+        <Property name="name" type="java.lang.String" value="CedictFileLabel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="CedictFileField">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="CedictFileField.text"/>
+        <Property name="name" type="java.lang.String" value="CedictFileField" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="CedictFileFieldActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="CedictFileBrowseButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="CedictFileBrowseButton.text"/>
+        <Property name="name" type="java.lang.String" value="CedictFileBrowseButton" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="OKButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="OKButton.text"/>
+        <Property name="name" type="java.lang.String" value="OKButton" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="OKButtonActionPerformed"/>
+      </Events>
+    </Component>
+  </SubComponents>
+</Form>

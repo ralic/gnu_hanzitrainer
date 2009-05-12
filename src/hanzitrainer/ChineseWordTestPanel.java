@@ -68,7 +68,7 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         }
         do
         {
-            index = (int) (HanziDB.random_low() * num_words);
+            index = (int) (SettingsDialog.random_low() * num_words);
             id = main_database.get_word_id(index);
             word_information = main_database.get_word_details(id);
         }
