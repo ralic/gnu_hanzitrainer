@@ -166,9 +166,7 @@ private void OKButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     
     cedictFile = CedictFileField.getText();
     my_preferences.put("cedict file :", cedictFile);
-
-
-
+    
     this.setVisible(false);
 }//GEN-LAST:event_OKButtonActionPerformed
 

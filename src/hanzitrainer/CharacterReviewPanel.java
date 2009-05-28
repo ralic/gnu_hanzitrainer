@@ -42,7 +42,7 @@ import java.util.Locale;
 public class CharacterReviewPanel extends javax.swing.JPanel
 {
     /** Creates new form CharacterReviewPanel */
-    public CharacterReviewPanel(HanziDB database, HanziApplicationUpdater updater)
+    public CharacterReviewPanel(HanziDBscore database, HanziApplicationUpdater updater)
     {
         main_database = database;
         parent_app = updater;
@@ -268,6 +268,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
     private void set_new_random_character() {
         int num_char = main_database.get_number_characters();
         int index;
+        int char_id;
         String hanzi;
 
         if (num_char == 0) {
@@ -275,9 +276,9 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         }
         do {
             index = (int) (Math.random() * num_char);
-            hanzi = main_database.get_character_details(
-                    main_database.get_character_id(index));
-            System.out.println("getting index " + index);
+            char_id = main_database.get_character_id(index);
+            hanzi = main_database.get_character_details(char_id);
+            System.out.println("getting index " + index + " character :" + hanzi);
         } while (character_history.contains(hanzi));
         character_history.add(hanzi);
         if (character_history.size() > (num_char - 1) / 2) {
@@ -370,7 +371,7 @@ private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST
     // End of variables declaration//GEN-END:variables
     private DBTableFiller CharTableFiller;
     private ArrayList<String> character_history;
-    private HanziDB main_database;
+    private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
 
 }

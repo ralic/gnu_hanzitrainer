@@ -43,7 +43,7 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
 {
 
     /** Creates new form ChineseWordTestPanel */
-    public ChineseWordTestPanel(HanziDB database, HanziApplicationUpdater updater)
+    public ChineseWordTestPanel(HanziDBscore database, HanziApplicationUpdater updater)
     {
         main_database = database;
         parent_app = updater;
@@ -66,22 +66,22 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         {
             return;
         }
-        do
-        {
-            index = (int) (SettingsDialog.random_low() * num_words);
-            id = main_database.get_word_id(index);
-            word_information = main_database.get_word_details(id);
+        if (chinese_word_history.size() > 0) {
+            do {
+                index = (int) (SettingsDialog.random_low() * num_words);
+                id = main_database.get_word_id(index);
+                word_information = main_database.get_word_details(id);
+            }
+            while (chinese_word_history.contains(word_information.get(0)));
+            chinese_word_history.add(word_information.get(0));
+            if (chinese_word_history.size() > num_words / 2)
+            {
+                chinese_word_history.remove(0);
+            }
+            current_translation = word_information.get(2);
+            current_pinyin = word_information.get(1);
+            current_chinese = word_information.get(0);
         }
-        while (chinese_word_history.contains(word_information.get(0)));
-        chinese_word_history.add(word_information.get(0));
-        if (chinese_word_history.size() > num_words / 2)
-        {
-            chinese_word_history.remove(0);
-        }
-        current_translation = word_information.get(2);
-        current_pinyin = word_information.get(1);
-        current_chinese = word_information.get(0);
-
         TranslationLabel.setText(current_translation);
         ChineseGuessTextField.setText("");
     }
@@ -354,7 +354,7 @@ private void EditPreviousWordButtonActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JLabel TranslationLabel;
     private javax.swing.JLabel YourguessLabel;
     // End of variables declaration//GEN-END:variables
-    private HanziDB main_database;
+    private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
     private ArrayList<String> chinese_word_history;
     private String current_translation;

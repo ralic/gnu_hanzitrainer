@@ -20,7 +20,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         implements ListSelectionListener {
 
     /** Creates new form VocabularyBuilderPanel */
-    public VocabularyBuilderPanel(HanziDB database, HanziApplicationUpdater updater) {
+    public VocabularyBuilderPanel(HanziDBscore database, HanziApplicationUpdater updater) {
         main_database = database;
         parent_app = updater;
         initComponents();
@@ -123,7 +123,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(ChineseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(PinyinLabel)
-                            .addComponent(EnglishLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
+                            .addComponent(EnglishLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(EnglishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
@@ -303,7 +303,7 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     private DefaultListModel EnglishTranslationsListModel;
-    private HanziDB main_database;
+    private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
     private PinyinChooserFrame PinyinChooser;
     private VocabularyBuilderPanelUpdater VocabularyBuilderUpdater;

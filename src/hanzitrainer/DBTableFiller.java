@@ -39,21 +39,27 @@ public class DBTableFiller extends AbstractTableModel
 {
     private enum table_mode_t { TMODE_ALL, TMODE_CHARACTER, TMODE_WORD }
     
-    HanziDB db;
+    HanziDBscore db;
     String hanzi;
     ArrayList<ArrayList<String>> table_for_character;
     table_mode_t table_mode = table_mode_t.TMODE_ALL;
 
-    public DBTableFiller(HanziDB database)
+    public DBTableFiller(HanziDBscore database)
     {
         db = database;
         hanzi = new String("");
+        table_for_character = new ArrayList<ArrayList<String>>();
     }
 
     public void set_filter(String hanzi)
     {
+        ArrayList<Integer> words;
+        int i;
         this.hanzi = hanzi;
-        table_for_character = db.get_words_with_character(hanzi);
+        words = db.get_words_with_character(hanzi);
+        for (i = 0; i < words.size(); i++) {
+            table_for_character.add(db.get_word_details(words.get(i)));
+        }
         if (table_for_character.size()==0)
             System.out.println("No DBTableFiller.set_character : no word for this char");
         table_mode = table_mode_t.TMODE_CHARACTER;

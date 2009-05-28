@@ -45,7 +45,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
 {
 
     /** Creates new form CharacterTest */
-    public CharacterTestPanel(HanziDB database, HanziApplicationUpdater updater)
+    public CharacterTestPanel(HanziDBscore database, HanziApplicationUpdater updater)
     {
         main_database = database;
         parent_app = updater;
@@ -289,7 +289,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         int num_char = main_database.get_number_characters();
         int index;
         String hanzi;
-        ArrayList<ArrayList<String>> words;
+        ArrayList<Integer> words;
 
         if (num_char == 0)
         {
@@ -309,10 +309,10 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         current_chinese_words.clear();
         current_chinese_words_translation.clear();
         words = main_database.get_words_with_character(hanzi);
-        for (ArrayList<String> word : words)
+        for (Integer word_id : words)
         {
-            current_chinese_words.add(word.get(0));
-            current_chinese_words_translation.add(word.get(2));
+            current_chinese_words.add(main_database.get_word_details(word_id).get(0));
+            current_chinese_words_translation.add(main_database.get_word_details(word_id).get(2));
         }
         current_pinyins = main_database.get_pinyin_for_character(hanzi);
         current_character = hanzi;
@@ -551,7 +551,7 @@ private void PreviousCharacterLabelMouseClicked(java.awt.event.MouseEvent evt) {
     // End of variables declaration//GEN-END:variables
     private DBTableFiller char_table_filler;
     private ArrayList<String> character_history;
-    private HanziDB main_database;
+    private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
     
     private String current_character;

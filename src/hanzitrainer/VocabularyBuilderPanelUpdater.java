@@ -15,9 +15,9 @@ import javax.swing.event.DocumentEvent;
 public class VocabularyBuilderPanelUpdater implements javax.swing.event.DocumentListener {
 
     private VocabularyBuilderPanel parent_app;
-    private HanziDB main_database;
+    private HanziDBscore main_database;
     
-    public VocabularyBuilderPanelUpdater(VocabularyBuilderPanel parent, HanziDB database)
+    public VocabularyBuilderPanelUpdater(VocabularyBuilderPanel parent, HanziDBscore database)
     {
         parent_app = parent;
         main_database = database;

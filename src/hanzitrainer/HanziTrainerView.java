@@ -40,7 +40,7 @@ import java.util.prefs.*;
  */
 public class HanziTrainerView extends FrameView implements HanziApplicationUpdater
 {
-    HanziDB main_database;
+    HanziDBscore main_database;
     private Preferences my_preferences;
     CharacterReviewPanel char_review;
     WordDatabasePanel word_database;
@@ -57,7 +57,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         //my_preferences = Preferences.userRoot();
         my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
 
-        main_database = new HanziDB();
+        main_database = new HanziDBscore();
         database_file = my_preferences.get("database_filename", "");
         if (!database_file.equals(""))
         {

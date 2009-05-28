@@ -37,7 +37,7 @@ package hanzitrainer;
 public class CharacterDatabasePanel extends javax.swing.JPanel {
     
     /** Creates new form CharacterDatabasePanel */
-    public CharacterDatabasePanel(HanziDB database, HanziApplicationUpdater updater)
+    public CharacterDatabasePanel(HanziDBscore database, HanziApplicationUpdater updater)
     {
         main_database = database;
         parent_app = updater;
@@ -127,6 +127,6 @@ private void charDBmouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
     private javax.swing.JLabel numCharLabel;
     // End of variables declaration//GEN-END:variables
     private CDBTableFiller CTableFiller;
-    private HanziDB main_database;
+    private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
 }
