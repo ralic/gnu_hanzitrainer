@@ -77,6 +77,7 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
 
         DBScroll.setName("DBScroll"); // NOI18N
 
+        CharDBTable.setAutoCreateRowSorter(true);
         CharDBTable.setModel(CTableFiller);
         CharDBTable.setName("CharDBTable"); // NOI18N
         CharDBTable.addMouseListener(new java.awt.event.MouseAdapter() {

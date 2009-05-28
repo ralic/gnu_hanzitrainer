@@ -80,6 +80,7 @@ public class WordDatabasePanel extends javax.swing.JPanel
 
         DBScroll.setName("DBScroll"); // NOI18N
 
+        DBTable.setAutoCreateRowSorter(true);
         DBTable.setModel(TableFiller);
         DBTable.setName("DBTable"); // NOI18N
         DBTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
