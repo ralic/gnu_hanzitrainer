@@ -92,6 +92,11 @@ public class Pinyin
             }
         }
     }
+
+    public String get_lame_version()
+    {
+        return entry;
+    }
     
     public String get_print_version()
     {

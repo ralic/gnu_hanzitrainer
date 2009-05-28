@@ -53,23 +53,9 @@ public class PinyinChooserFrame extends JPanel
     private FlowLayout panel_layout;
     private JScrollPane scroller_container;
     private int entry_length;
-    private javax.swing.JTextArea to_update = null;
-    private HanziDBscore database;
+    private HanziDB database;
 
-    public PinyinChooserFrame(JScrollPane scroller, HanziDBscore db, javax.swing.JTextArea log)
-    {
-        super();
-        scroller_container = scroller;
-        entry_list = new ArrayList<javax.swing.JComponent>();
-        number_of_boxes = 0;
-        panel_layout = new FlowLayout(FlowLayout.LEFT);
-        setLayout(panel_layout);
-        to_update = log;
-        entry_length = 0;
-        database = db;
-    }
-
-    public PinyinChooserFrame(JScrollPane scroller, HanziDBscore db)
+    public PinyinChooserFrame(JScrollPane scroller, HanziDB db)
     {
         super();
         scroller_container = scroller;
@@ -83,10 +69,7 @@ public class PinyinChooserFrame extends JPanel
 
     private void debuglog(String log)
     {
-        if (to_update != null)
-        {
-            to_update.append(log);
-        }
+        System.out.println("PinyinChooserFrame : " + log);
     }
 
     private Boolean is_chinese_char(String input)
@@ -157,6 +140,12 @@ public class PinyinChooserFrame extends JPanel
         panel_layout.removeLayoutComponent(item);
     }
 
+    private void set_combo_box(int index, String pinyin)
+    {
+        JComboBox item = (JComboBox) entry_list.get(index);
+        item.setSelectedItem(pinyin);
+    }
+
     public ArrayList<String> get_pinyins()
     {
         ArrayList<String> res = new ArrayList<String>();
@@ -192,9 +181,36 @@ public class PinyinChooserFrame extends JPanel
         scroller_container.setViewportView(this);
     }
 
+    private void check_existing_word(String current)
+    {
+        int id = database.get_word_id(current);
+        int i;
+
+        if (id != -1)
+        {
+            String pinyin_str = database.get_word_details(id).get(1);
+            ArrayList<Pinyin> pinyins = PinyinParser.parse_string(pinyin_str);
+            debuglog("found word id " + id + " " + pinyin_str);
+            for (i=0; i<pinyins.size();i++)
+            {
+                set_combo_box(i, pinyins.get(i).get_lame_version());
+            }
+        }
+        return;
+    }
+
     public void changedUpdate(javax.swing.event.DocumentEvent e)
     {
-        // not sure there is anything to do here...
+        Document doc = e.getDocument();
+        try
+        {
+            check_existing_word(doc.getText(0, doc.getLength()));
+        }
+        catch (BadLocationException ex)
+        {
+            debuglog("bad location (changedUpdate) !");
+            Logger.getLogger(PinyinChooserFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void insertUpdate(javax.swing.event.DocumentEvent e)
@@ -209,13 +225,13 @@ public class PinyinChooserFrame extends JPanel
             inserted = doc.getText(e.getOffset(), e.getLength());
             if ((Character.isWhitespace(inserted.codePointAt(e.getLength() - 1))))
             {
-                debuglog("not yet\n");
+                debuglog("not yet");
             }
             else
             {
                 if (e.getOffset() > entry_length)
                 {
-                    debuglog("inserted " + (e.getOffset() - entry_length) + " spaces\n");
+                    debuglog("inserted " + (e.getOffset() - entry_length) + " spaces");
                     for (i = 0; i < e.getOffset() - entry_length; i++)
                     {
                         add_label(e.getOffset(), new String(" "));
@@ -225,14 +241,16 @@ public class PinyinChooserFrame extends JPanel
                 {
                     add_item(e.getOffset(), doc.getText(e.getOffset() + i, 1));
                 }
-                debuglog("inserted " + e.getLength() + " long, at " + e.getOffset() + " added [" + doc.getText(e.getOffset(), e.getLength()) + "]\n");
+                debuglog("inserted " + e.getLength() + " long, at " + e.getOffset() + " added [" + doc.getText(e.getOffset(), e.getLength()) + "]");
                 entry_length = doc.getLength();
             }
+
+            check_existing_word(doc.getText(0, doc.getLength()));
 
         }
         catch (BadLocationException ex)
         {
-            debuglog("bad location !\n");
+            debuglog("bad location !");
             Logger.getLogger(PinyinChooserFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -244,23 +262,25 @@ public class PinyinChooserFrame extends JPanel
 
         if (doc.getLength() == entry_length)
         {
-            debuglog("no change\n");
+            debuglog("no change");
+            return;
         }
         else
         {
-            debuglog(doc.getLength() + " != " + entry_length + "\n");
+            //debuglog(doc.getLength() + " != " + entry_length);
             entry_length = doc.getLength();
             try
             {
-                debuglog("removed " + e.getLength() + " long, at " + e.getOffset() + " now [" + doc.getText(0, doc.getLength()) + "]\n");
+                debuglog("removed " + e.getLength() + " long, at " + e.getOffset() + " now [" + doc.getText(0, doc.getLength()) + "]");
                 for (i = 0; i < e.getLength(); i++)
                 {
                     remove_combo_box(e.getOffset());
                 }
+                check_existing_word(doc.getText(0, doc.getLength()));
             }
             catch (BadLocationException ex)
             {
-                debuglog("bad location !\n");
+                debuglog("bad location !");
                 Logger.getLogger(PinyinChooserFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

@@ -37,9 +37,6 @@ import java.util.*;
 public class PinyinParser
 {
 
-    private String to_parse = "";
-    private ArrayList<Pinyin> parsed;
-
     /**
      * Class creator without any initialization 
      */
@@ -47,41 +44,7 @@ public class PinyinParser
     {
     }
 
-    /**
-     * Class creator that initialize it with the String give as input
-     * 
-     * @param input String of pinyin to be parsed
-     */
-    public PinyinParser(String input)
-    {
-        set_string_to_parse(input);
-    }
-
-    /**
-     * Change the String of pinyin to be parsed
-     * @param input the String of pinyin
-     */
-    public void set_string_to_parse(String input)
-    {
-        to_parse = input;
-        parsed = parse_string(input);
-        if (parsed.size() == 0)
-        {
-            to_parse = "";
-        }
-        return;
-    }
-
-    /**
-     * Return the String of pinyin that was used
-     * @return The pinyin String that has been parsed
-     */
-    public String get_string_parsed()
-    {
-        return to_parse;
-    }
-
-    static private ArrayList<Pinyin> parse_string(String pinyin_string)
+    static public ArrayList<Pinyin> parse_string(String pinyin_string)
     {
         int strophe_index;
         ArrayList<Pinyin> result = new ArrayList<Pinyin>();
@@ -145,53 +108,6 @@ public class PinyinParser
         }
 
         return result;
-    }
-
-    /**
-     * 
-     * @return the number of pinyin elements in the String that was parsed
-     */
-    public int get_number_of_elements()
-    {
-        if (to_parse.equals(""))
-        {
-            return 0;
-        }
-        else
-        {
-            return parsed.size();
-        }
-    }
-
-    /**
-     * 
-     * @param index the Pinyin element index in the String
-     * @return the Pinyin queried
-     */
-    public Pinyin get_element(int index)
-    {
-        if (index >= get_number_of_elements())
-        {
-            return new Pinyin();
-        }
-        return parsed.get(index);
-    }
-
-    /**
-     * 
-     * @return the printed version of the whole pinyin String
-     */
-    public String get_print_version()
-    {
-        int i;
-        String result = "";
-
-        for (i = 0; i < get_number_of_elements(); i++)
-        {
-            result += get_element(i).get_print_version();
-        }
-        return result;
-
     }
 
     /**
