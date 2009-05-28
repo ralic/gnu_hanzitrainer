@@ -25,13 +25,12 @@
                   <Component id="EnglishLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="TranslationLabel" pref="389" max="32767" attributes="0"/>
+              <Component id="TranslationLabel" pref="398" max="32767" attributes="0"/>
               <EmptySpace min="10" pref="10" max="10" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="MeaningLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="YourguessLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="PinyinLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="CorrectChineseLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -49,14 +48,13 @@
                   <Component id="PreviousChineseLabel" alignment="0" pref="384" max="32767" attributes="0"/>
                   <Component id="PreviouspinyinLabel" alignment="0" pref="384" max="32767" attributes="0"/>
                   <Component id="GuessLabel" pref="384" max="32767" attributes="0"/>
-                  <Component id="PreviousMeaningLabel" alignment="0" pref="384" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="210" max="-2" attributes="0"/>
               <Component id="DoneButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="242" max="32767" attributes="0"/>
+              <EmptySpace pref="293" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -95,12 +93,7 @@
                   <Component id="GuessLabel" alignment="2" min="-2" max="-2" attributes="0"/>
                   <Component id="YourguessLabel" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="2" attributes="0">
-                  <Component id="PreviousMeaningLabel" alignment="2" min="-2" max="-2" attributes="0"/>
-                  <Component id="MeaningLabel" alignment="2" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="EditPreviousWordButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="EditGuess" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -183,18 +176,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="GuessLabel.text"/>
         <Property name="name" type="java.lang.String" value="GuessLabel" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="MeaningLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="MeaningLabel.text"/>
-        <Property name="name" type="java.lang.String" value="MeaningLabel" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="PreviousMeaningLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="PreviousMeaningLabel.text"/>
-        <Property name="name" type="java.lang.String" value="PreviousMeaningLabel" noResource="true"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="PinyinLabel">
