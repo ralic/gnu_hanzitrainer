@@ -103,7 +103,9 @@ public class CDBTableFiller extends AbstractTableModel
                 return pinyin_list;
             case 2:
                 cwords = db.get_words_with_character(db.get_character_details(id));
-                for (i = 0; i < cwords.size(); i++)
+                cword_details = db.get_word_details(cwords.get(0));
+                cword_list += cword_details.get(0);
+                for (i = 1; i < cwords.size(); i++)
                 {
                     cword_details = db.get_word_details(cwords.get(i));
                     cword_list += ", " + cword_details.get(0);
