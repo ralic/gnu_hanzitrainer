@@ -36,7 +36,10 @@ package hanzitrainer;
  */
 public class CharacterDatabasePanel extends javax.swing.JPanel {
     
-    /** Creates new form CharacterDatabasePanel */
+    /** Creates new form CharacterDatabasePanel
+     * @param database The database to get the information from
+     * @param updater The top level application which can link to the character review panel (if any)
+     */
     public CharacterDatabasePanel(HanziDBscore database, HanziApplicationUpdater updater)
     {
         main_database = database;
@@ -45,6 +48,9 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
         CharDatabaseUpdateDB();
     }
 
+    /**
+     *
+     */
     public void CharDatabaseUpdateDB()
     {
         int res;

@@ -78,7 +78,10 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         ArrayList<String> other_chinese_translation = new ArrayList<String>();
         TableModelEvent t_event = new TableModelEvent(this);
         int i;
-        
+
+        // If there was nothing, then do not do anything...
+        if (current_character == "")
+            return;
 
         // Move all current stuff to previous
         previous_pinyins = current_pinyins;
@@ -183,6 +186,9 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         String pinyins_result;
         int num_char = main_database.get_number_characters();
 
+        // If there was nothing, then do not do anything...
+        if (current_character == "")
+            return;
 
         
         // Store the guessed pinyins in a table
@@ -293,6 +299,11 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
 
         if (num_char == 0)
         {
+            current_character = "";
+            current_pinyins = new ArrayList<String>();
+            CharacterLabel.setText(current_character);
+            GuessPinyinTextField.setText("");
+            GuessChineseTextField.setText("");
             return;
         }
         

@@ -76,7 +76,7 @@ public abstract class HanziDB
     /**
      *  Check if the currently opened database is empty
      * 
-     * @returns True if the database is empty
+     * @return True if the database is empty
      */
     protected Boolean check_for_empty_db() throws SQLException
     {
@@ -607,7 +607,6 @@ public abstract class HanziDB
     /**
      *  Initializes a new database
      * 
-     * @return nothing
      */
     protected void database_init()
     {
@@ -633,7 +632,6 @@ public abstract class HanziDB
      * 
      * Create a new database with all the tables and views it needs
      * 
-     * @return nothing
      */
     protected void create_database()
     {
@@ -696,7 +694,6 @@ public abstract class HanziDB
      * 
      * Placeholder for upgrading the database when needed
      * 
-     * @return nothing
      */
     protected void upgrade_database()
     {
@@ -881,7 +878,7 @@ public abstract class HanziDB
      * Get details about a particular chinese word
      * 
      * @param index from 0 to the number of words - 1 
-     * @see get_number_words
+     * @see get_number_words()
      * @return ArrayList with : Chinese word, pinyin, translations and score
      */
     public ArrayList<String> get_word_details(int index)

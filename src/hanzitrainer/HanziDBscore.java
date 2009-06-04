@@ -168,7 +168,6 @@ public class HanziDBscore extends HanziDB
      * 
      * Create a new database with all the tables and views it needs
      * 
-     * @return nothing
      */
     protected void create_database()
     {
@@ -207,7 +206,6 @@ public class HanziDBscore extends HanziDB
      * Get details about a particular chinese word
      * 
      * @param index from 0 to the number of words - 1 
-     * @see get_number_words
      * @return ArrayList with : Chinese word, pinyin, translations and score
      */
     public ArrayList<String> get_word_details(int index)
@@ -338,8 +336,7 @@ public class HanziDBscore extends HanziDB
      * 
      * Get the score for a chinese word from its id
      * 
-     * @param id id of the word
-     * @return the score value for that word
+     * @return the average score for all words
      */
     public int get_average_word_score()
     {

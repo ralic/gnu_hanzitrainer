@@ -119,6 +119,8 @@ public class PinyinParser
     {
         int i;
         String result = "";
+        if (input == "")
+            return result;
         ArrayList<Pinyin> parsed = parse_string(input);
         for (i = 0; i < parsed.size(); i++)
         {
