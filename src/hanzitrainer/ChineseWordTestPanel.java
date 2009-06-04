@@ -49,6 +49,7 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         parent_app = updater;
         initComponents();
         chinese_word_history = new ArrayList<String>();
+        set_new_word_guess();
     }
 
     public void ChineseWordTestUpdateDB()
@@ -66,22 +67,22 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         {
             return;
         }
-        if (chinese_word_history.size() > 0) {
-            do {
-                index = (int) (SettingsDialog.random_low() * num_words);
-                id = main_database.get_word_id(index);
-                word_information = main_database.get_word_details(id);
-            }
-            while (chinese_word_history.contains(word_information.get(0)));
-            chinese_word_history.add(word_information.get(0));
-            if (chinese_word_history.size() > num_words / 2)
-            {
-                chinese_word_history.remove(0);
-            }
-            current_translation = word_information.get(2);
-            current_pinyin = word_information.get(1);
-            current_chinese = word_information.get(0);
+        
+        do {
+            index = (int) (SettingsDialog.random_low() * num_words);
+            id = main_database.get_word_id(index);
+            word_information = main_database.get_word_details(id);
+        } while (chinese_word_history.contains(word_information.get(0)));
+
+        chinese_word_history.add(word_information.get(0));
+        if (chinese_word_history.size() > num_words / 2)
+        {
+            chinese_word_history.remove(0);
         }
+        current_translation = word_information.get(2);
+        current_pinyin = word_information.get(1);
+        current_chinese = word_information.get(0);
+
         TranslationLabel.setText(current_translation);
         ChineseGuessTextField.setText("");
     }
