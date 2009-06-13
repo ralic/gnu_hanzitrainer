@@ -158,6 +158,7 @@ public class HanziDBscore extends HanziDB
         return filename;
     }
     
+    @Override
      protected synchronized void add_character(String character) throws SQLException
     {
         super.add_character(character);
@@ -169,6 +170,7 @@ public class HanziDBscore extends HanziDB
      * Create a new database with all the tables and views it needs
      * 
      */
+    @Override
     protected void create_database()
     {
         super.create_database();
@@ -208,6 +210,7 @@ public class HanziDBscore extends HanziDB
      * @param index from 0 to the number of words - 1 
      * @return ArrayList with : Chinese word, pinyin, translations and score
      */
+    @Override
     public ArrayList<String> get_word_details(int index)
     {
         ArrayList<String> res = new ArrayList<String>();
@@ -244,6 +247,7 @@ public class HanziDBscore extends HanziDB
      * @param id id of the character
      * @return a string that only contains that character
      */
+    @Override
     public String get_character_details(int id)
     {
         String res = "";
@@ -269,12 +273,6 @@ public class HanziDBscore extends HanziDB
         }
         return res;
     }
-    
-    public boolean get_database_changed()
-    {
-        return changed;
-    }
-
     
     /**
      * 
@@ -499,6 +497,42 @@ public class HanziDBscore extends HanziDB
         }
         changed = true;
     }
-    
 
+    /**
+     *
+     * Reset the scores for all words
+     */
+    public void reset_word_scores() {
+        try
+        {
+            Statement st = conn.createStatement();
+
+            st.executeUpdate("UPDATE cword AS cw SET score=20");
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        changed = true;
+    }
+
+    /**
+     *
+     * Reset the scores for all characters
+     */
+    public void reset_character_scores() {
+        try
+        {
+            Statement st = conn.createStatement();
+
+            st.executeUpdate("UPDATE character AS cw SET score=20");
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        changed = true;
+    }
 }    // class Testdb
