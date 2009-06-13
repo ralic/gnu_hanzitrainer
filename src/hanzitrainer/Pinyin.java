@@ -342,6 +342,28 @@ public class Pinyin
         }
         return -1;   
     }
+
+    public static String pinyin_base(String entry)
+    {
+        int i;
+        String temp;
+        for (String try_pinyin : allowed_pinyin)
+        {
+            if (entry.equals(try_pinyin))
+            {
+                return try_pinyin;
+            }
+            for (i = 1; i < 5; i++)
+            {
+                temp = try_pinyin + i;
+                if (entry.equals(temp))
+                {
+                    return try_pinyin;
+                }
+            }
+        }
+        return "";
+    }
     
     public static boolean pinyins_are_same_radical(String entry1, String entry2)
     {
