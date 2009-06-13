@@ -37,7 +37,7 @@ import java.util.ArrayList;
  */
 public class DBTableFiller extends AbstractTableModel
 {
-    private enum table_mode_t { TMODE_ALL, TMODE_CHARACTER, TMODE_WORD }
+    private enum table_mode_t { TMODE_ALL, TMODE_CHARACTER }
     
     HanziDBscore db;
     String hanzi;
@@ -56,6 +56,7 @@ public class DBTableFiller extends AbstractTableModel
         ArrayList<Integer> words;
         int i;
         this.hanzi = hanzi;
+        table_for_character.clear();
         words = db.get_words_with_character(hanzi);
         for (i = 0; i < words.size(); i++) {
             table_for_character.add(db.get_word_details(words.get(i)));
@@ -84,12 +85,12 @@ public class DBTableFiller extends AbstractTableModel
 
     public int getRowCount()
     {
-        int res;
+        int res = 0;
         if (table_mode == table_mode_t.TMODE_ALL)
         {
             res = db.get_number_words();
         }
-        else
+        else if (table_mode == table_mode_t.TMODE_CHARACTER)
         {
             res = table_for_character.size();
         }
