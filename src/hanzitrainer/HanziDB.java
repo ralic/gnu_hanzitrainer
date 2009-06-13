@@ -769,7 +769,79 @@ public abstract class HanziDB
         }
         return 0;
     }
-    
+
+    /**
+     * 
+     * Returns detail information about the words that contain a particular Chinese character with a filter on a particular pinyin
+     * 
+     * @param hanzi Chinese character
+     * @param pinyin pinyin to filter with
+     * @return ArrayList<ArrayList<String>> List of Chinese, pinyin and English versions of the words. Translations are grouped together.
+     */
+    public ArrayList<Integer> get_words_with_character(String hanzi, String pinyin)
+    {
+
+        ArrayList<Integer> res = new ArrayList<Integer>();
+
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            int tone = Pinyin.pinyin_tone(pinyin);
+            String pinyin_base = Pinyin.pinyin_base(pinyin);
+
+            System.out.println("Querying db with char :" + hanzi +" pinyin :" +pinyin_base+ " tone :" + tone);
+
+            if (tone != 0)
+            {
+            rs = st.executeQuery("SELECT epc.cword_id FROM " +
+                    " (SELECT cword_id FROM" +
+                    " character AS ch" +
+                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
+                    " JOIN cword_pinyin_bridge AS cpb ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                    " WHERE cp.character_pinyin_id = " +
+                    " (SELECT character_pinyin_id FROM " +
+                    " character AS ch" +
+                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
+                    " WHERE ch.hanzi='"+ hanzi + "'" +
+                    " AND cp.pinyin='"+ pinyin_base + "'" +
+                    " AND cp.tone=" + tone + ")" +
+                    " GROUP BY cpb.cword_id) AS selected_words" +
+                    " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id" +
+                    " ORDER BY epc.pinyin");
+            }
+            else
+            {
+            rs = st.executeQuery("SELECT epc.cword_id FROM " +
+                    " (SELECT cword_id FROM" +
+                    " character AS ch" +
+                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
+                    " JOIN cword_pinyin_bridge AS cpb ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                    " WHERE cp.character_pinyin_id = " +
+                    " (SELECT character_pinyin_id FROM " +
+                    " character AS ch" +
+                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
+                    " WHERE ch.hanzi='"+ hanzi + "'" +
+                    " AND cp.pinyin='"+ pinyin_base + "'" +
+                    " AND cp.tone is NULL)" +
+                    " GROUP BY cpb.cword_id) AS selected_words" +
+                    " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id" +
+                    " ORDER BY epc.pinyin");
+            }
+            for (; rs.next();)
+            {
+                res.add(rs.getInt(1));
+            }
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+
+    }
+
     /**
      * 
      * Returns detail information about the words that contain a particular Chinese character
