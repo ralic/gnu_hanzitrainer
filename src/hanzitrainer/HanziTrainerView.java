@@ -48,6 +48,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
     ChineseWordTestPanel chinese_test;
     CharacterDatabasePanel char_database;
     VocabularyBuilderPanel vocabulary_builder;
+    ToneTestPanel tone_test;
 
     public HanziTrainerView(SingleFrameApplication app)
     {
@@ -76,6 +77,8 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         Tabs.addTab("Character Test", char_test);
         chinese_test = new ChineseWordTestPanel(main_database, this);
         Tabs.addTab("Chinese Test", chinese_test);
+        tone_test = new ToneTestPanel(main_database, this);
+        Tabs.addTab("Tone Test", tone_test);
         update_panel_databases();
         
         Settings = new SettingsDialog(this.getFrame(), true);
