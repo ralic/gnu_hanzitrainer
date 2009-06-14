@@ -43,7 +43,7 @@ public abstract class HanziDB
     protected boolean initialized = false;
     protected boolean changed = false;
     protected static final int database_ver = 2;
-    
+
     public HanziDB()
     {
         database_init();
@@ -60,19 +60,19 @@ public abstract class HanziDB
      * @param db_file_name filename
      */
     public abstract void HanziDB_open(String db_file_name);
-    
+
     /**
      *  Save a database file with the same name of the file opened or previously saved
      * 
      */
     public abstract void HanziDB_save();
-    
+
     /**
      *  Close a database file
      * 
      */
     public abstract void HanziDB_close();
-    
+
     /**
      *  Check if the currently opened database is empty
      * 
@@ -97,8 +97,6 @@ public abstract class HanziDB
             return true;
         }
     }
-    
-
 
     /**
      *  Get the translation(s) for a Chinese word
@@ -199,56 +197,28 @@ public abstract class HanziDB
         }
 
         // find the character
-        rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
-        if (!rs.next())
-        {
-            System.out.println("find_existing_pinyin_character : Could not find the character");
-            st.close();
-            return res;
-        }
-        char_id = rs.getInt(1);
+        char_id = get_character_id(character);
 
         // tone that we want to store
-        tone = pinyin.charAt(pinyin.length() - 1);
-        if ((tone < '1') || (tone > '4'))
+        tone = Pinyin.pinyin_tone(pinyin);
+        radical = Pinyin.pinyin_base(pinyin);
+
+        rs = st.executeQuery("SELECT cp.character_pinyin_id FROM character_pinyin AS cp" +
+                " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + radical + "' AND cp.tone=" + tone);
+        if (rs.next())
         {
-            tone = 0;
-            rs = st.executeQuery("SELECT cp.character_pinyin_id FROM character_pinyin AS cp" +
-                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + pinyin + "' AND cp.tone IS NULL");
-            if (rs.next())
-            {
-                res = rs.getInt(1);
-                System.out.println("find_existing_pinyin_character : combination of pinyin/character exists (with no tone) " + res);
-                st.close();
-            }
-            else
-            {
-                System.out.println("find_existing_pinyin_character : cannot find combination (no tone)");
-            }
-            return res;
+            res = rs.getInt(1);
+            System.out.println("find_existing_pinyin_character : combination of pinyin/character exists (same tone) " + res);
         }
         else
         {
-            tone = (int) tone - '0';
-            radical = pinyin.substring(0, pinyin.length() - 1);
-            rs = st.executeQuery("SELECT cp.character_pinyin_id FROM character_pinyin AS cp" +
-                    " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + radical + "' AND cp.tone=" + tone);
-            if (rs.next())
-            {
-                res = rs.getInt(1);
-                System.out.println("find_existing_pinyin_character : combination of pinyin/character exists (same tone) " + res);
-                st.close();
-                return res;
-            }
-
             System.out.println("find_existing_pinyin_character : Cannot find " + char_id + " " + radical + " " + tone + "!!");
-
         }
 
         st.close();
         return res;
     }
-    
+
     /**
      *  Check if a character is Chinese (within a range of UTF codes)
      * 
@@ -281,6 +251,8 @@ public abstract class HanziDB
         Statement st = conn.createStatement();
         ResultSet rs = null;
 
+        System.out.println("Adding character "+ character);
+
         if (!is_chinese_char(character))
         {
             System.out.println("add_character : trying to add a non chinese character");
@@ -307,6 +279,8 @@ public abstract class HanziDB
         int char_id, res;
         int tone;
         String radical = "";
+
+        System.out.println("Adding pinyin " + pinyin + " for character " + character);
 
         // check that we are really dealing wSith a chinese character
         // TODO : this should probably be done outside of this function
@@ -337,20 +311,11 @@ public abstract class HanziDB
         char_id = rs.getInt(1);
 
         // tone that we want to store
-        tone = pinyin.charAt(pinyin.length() - 1);
-        if ((tone < '1') || (tone > '4'))
-        {
-            System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + pinyin + ", tone 0");
-            st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + pinyin + "',NULL)");
-        }
-        else
-        {
-            tone = (int) tone - '0';
-            radical = pinyin.substring(0, pinyin.length() - 1);
-            System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + pinyin + ", tone " + tone);
-            st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + radical + "'," + tone + ")");
+        tone = Pinyin.pinyin_tone(pinyin);
+        radical = Pinyin.pinyin_base(pinyin);
 
-        }
+        System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + radical + ", tone " + tone);
+        st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + radical + "'," + tone + ")");
 
         st.close();
         changed = true;
@@ -370,13 +335,13 @@ public abstract class HanziDB
         try
         {
             Statement st = conn.createStatement();
-            ResultSet rs = null, rs2 = null;
+            ResultSet rs = null;
             int char_pinyin_id = 0;
             int i;
             String chinese = "", pinyin = "";
             int found_chinese_id;
             int tone;
-            
+
             if (pinyins.size() != hanzi.size())
             {
                 System.out.println("add_translation : size of pinyins and hanzis need to be the same");
@@ -389,9 +354,9 @@ public abstract class HanziDB
                 chinese += hanzi.get(i);
                 pinyin += pinyins.get(i);
             }
-            
-            System.out.println("add_translation : adding word ["+chinese+"] with pinyins ["+pinyin+"]"+
-                    ", translation : ["+english+"]");
+
+            System.out.println("add_translation : adding word [" + chinese + "] with pinyins [" + pinyin + "]" +
+                    ", translation : [" + english + "]");
             found_chinese_id = get_word_id(chinese);
             if (found_chinese_id != -1)
             {
@@ -400,11 +365,11 @@ public abstract class HanziDB
             else
             {
                 // check the validity of the pinyins
-                for (i = 0; i<pinyins.size(); i++)
+                for (i = 0; i < pinyins.size(); i++)
                 {
                     if (!Pinyin.verify_pinyin(pinyins.get(i)))
                     {
-                        System.out.println("add_translation : pinyin "+pinyins.get(i)+" does not seem to be correct");
+                        System.out.println("add_translation : pinyin " + pinyins.get(i) + " does not seem to be correct");
                         st.close();
                         return;
                     }
@@ -424,6 +389,7 @@ public abstract class HanziDB
                     return;
                 }
                 found_chinese_id = rs.getInt(1);
+                System.out.println("Cword id is "+found_chinese_id);
 
                 // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
@@ -431,10 +397,10 @@ public abstract class HanziDB
                     add_character(hanzi.get(i));
                     add_pinyin(hanzi.get(i), pinyins.get(i));
                     char_pinyin_id = find_existing_pinyin_character(hanzi.get(i), pinyins.get(i));
-                    tone = pinyins.get(i).charAt(pinyins.get(i).length() - 1);
+                    tone = Pinyin.pinyin_tone(pinyins.get(i));
 
                     System.out.println("add_translation : adding chinese:" + found_chinese_id + ", char_pinyin:" + char_pinyin_id + " at " + i);
-                    if ((tone < '1') || (tone > '4'))
+                    if (tone == 0)
                     {
                         st.executeUpdate("INSERT INTO cword_pinyin_bridge(cword_id, character_pinyin_id, pos, notone) VALUES(" + found_chinese_id + "," + char_pinyin_id + "," + i + ",true)");
                     }
@@ -446,7 +412,7 @@ public abstract class HanziDB
             }            // TODO handle if there is "'" in the english string
             {
                 // TODO handle ',' within ()
-                
+
                 StringTokenizer english_tokens = new StringTokenizer(english, ",");
 
                 while (english_tokens.hasMoreTokens())
@@ -455,11 +421,14 @@ public abstract class HanziDB
 
                     current_token = current_token.replace("'", "''");
 
+                    System.out.println("Add translation [" + current_token + "] to chinese " + found_chinese_id);
+
                     rs = st.executeQuery("SELECT eng_id FROM english " +
                             " WHERE cword_id =" + found_chinese_id +
                             " AND translation='" + current_token + "'");
                     if (rs.next())
                     {
+                        System.out.println("Already found");
                         continue;
                     }
                     st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + current_token + "')");
@@ -475,7 +444,190 @@ public abstract class HanziDB
             ex.printStackTrace();
         }
     }
-    
+
+    /**
+     * Deletes a character not used anymore
+     *
+     * @param char_id the ID of the character to delete
+     */
+    protected synchronized void delete_character(int char_id)
+    {
+        try
+        {
+            Statement st = conn.createStatement();
+
+            System.out.println("delete_translation : removing that character");
+            st.executeUpdate("DELETE FROM character " +
+                    " WHERE char_id=" + char_id);
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Check for a potential character that does not link anywhere anymore
+     *
+     * @param char_id the ID of the character to potentially remove
+     */
+    protected synchronized void check_for_isolated_character(int char_id)
+    {
+        ResultSet rs = null;
+
+        try
+        {
+            Statement st = conn.createStatement();
+
+            rs = st.executeQuery("SELECT character_pinyin_id FROM character_pinyin" +
+                    " WHERE char_id=" + char_id);
+            if (!rs.next())
+            {
+                delete_character(char_id);
+            }
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Deletes a character/pinyin not used anymore
+     *
+     * @param char_pinyin_id the ID of the character/pinyin to delete
+     */
+    protected synchronized void delete_char_pinyin(int char_pinyin_id)
+    {
+        int char_id;
+        ResultSet rs = null;
+
+        try
+        {
+            Statement st = conn.createStatement();
+            System.out.println("delete_translation : remove that character_pinyin");
+
+            rs = st.executeQuery("SELECT char_id FROM character_pinyin" +
+                    " WHERE character_pinyin_id=" + char_pinyin_id);
+            rs.next();
+            char_id = rs.getInt(1);
+
+            st.executeUpdate("DELETE FROM character_pinyin" +
+                    " WHERE character_pinyin_id=" + char_pinyin_id);
+            check_for_isolated_character(char_id);
+
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Check for a potential character/pinyin that does not link anywhere anymore
+     *
+     * @param char_pinyin_id the ID of the character/pinyin to potentially remove
+     */
+    protected synchronized void check_for_isolated_char_pinyin(int char_pinyin_id)
+    {
+        ResultSet rs = null;
+
+        try
+        {
+            Statement st = conn.createStatement();
+
+            // check if that pair of pinyin/character is used somewhere else
+            rs = st.executeQuery("SELECT cword_id FROM cword_pinyin_bridge" +
+                    " WHERE character_pinyin_id=" + char_pinyin_id);
+
+            if (!rs.next())
+            {
+                delete_char_pinyin(char_pinyin_id);
+            }
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Delete a cword that's not to be used anymore
+     *
+     * @param cword_id the ID of the cword to delete
+     */
+    protected synchronized void delete_cword(int cword_id)
+    {
+        int char_pinyin_id;
+
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+            rs = st.executeQuery("SELECT character_pinyin_id FROM cword_pinyin_bridge" +
+                    " WHERE cword_id=" + cword_id);
+            while (rs.next())
+            {
+                char_pinyin_id = rs.getInt(1);
+
+                // remove that pair from this word
+                st.executeUpdate("DELETE FROM cword_pinyin_bridge" +
+                        " WHERE cword_id=" + cword_id +
+                        " AND character_pinyin_id=" + char_pinyin_id);
+
+                check_for_isolated_char_pinyin(char_pinyin_id);
+
+                rs = st.executeQuery("SELECT character_pinyin_id FROM cword_pinyin_bridge" +
+                        " WHERE cword_id=" + cword_id);
+            }
+
+            System.out.println("delete_translation : removing the chinese word from DB");
+            // finally delete the word
+            st.executeUpdate("DELETE FROM cword" +
+                    " WHERE cword_id=" + cword_id);
+
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Check for potential cwords not linked to anything anymore
+     *
+     * @param cword_id the ID of the word to potentially remove
+     */
+    protected synchronized void check_for_isolated_cword(int cword_id)
+    {
+
+        ResultSet rs = null;
+
+        try
+        {
+            Statement st = conn.createStatement();
+
+            // now look if this chinese word is still in use
+            rs = st.executeQuery("SELECT eng_id FROM english" +
+                    " WHERE cword_id=" + cword_id);
+            if (!rs.next())
+            {
+                delete_cword(cword_id);
+            }
+
+            st.close();
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
     /**
      * Deletes an English translation from the database.
      * Cleans up any pinyin or character that would not be used anymore
@@ -492,8 +644,6 @@ public abstract class HanziDB
         try
         {
             Statement st = conn.createStatement();
-            ResultSet rs = null, rs2 = null;
-            int char_pinyin_id = 0, char_id = 0;
             int i;
             String chinese = "";
             int found_chinese_id;
@@ -509,64 +659,7 @@ public abstract class HanziDB
                     " AND translation='" + english + "'");
 
             // now look if this chinese word is still in use
-            rs = st.executeQuery("SELECT eng_id FROM english" +
-                    " WHERE cword_id=" + found_chinese_id);
-            if (rs.next())
-            {
-                System.out.println("delete_translation: the word has other translations");
-                st.close();
-                return;
-            }
-            rs = st.executeQuery("SELECT character_pinyin_id FROM cword_pinyin_bridge" +
-                    " WHERE cword_id=" + found_chinese_id);
-            while (rs.next())
-            {
-                char_pinyin_id = rs.getInt(1);
-
-                // remove that pair from this word
-                st.executeUpdate("DELETE FROM cword_pinyin_bridge" +
-                        " WHERE cword_id=" + found_chinese_id +
-                        " AND character_pinyin_id=" + char_pinyin_id);
-
-                // check if that pair of pinyin/character is used somewhere else
-                rs2 = st.executeQuery("SELECT cword_id FROM cword_pinyin_bridge" +
-                        " WHERE cword_id<>" + found_chinese_id +
-                        " AND character_pinyin_id=" + char_pinyin_id);
-
-                if (!rs2.next())
-                {
-                    // check if that caracter is used
-                    rs2 = st.executeQuery("SELECT char_id FROM character_pinyin" +
-                            " WHERE character_pinyin_id=" + char_pinyin_id);
-                    rs2.next();
-                    char_id = rs2.getInt(1);
-
-                    System.out.println("delete_translation : remove that character_pinyin");
-                    st.executeUpdate("DELETE FROM character_pinyin" +
-                            " WHERE character_pinyin_id=" + char_pinyin_id);
-
-                    rs2 = st.executeQuery("SELECT character_pinyin_id FROM character_pinyin" +
-                            " WHERE char_id=" + char_id);
-                    if (!rs2.next())
-                    {
-                        System.out.println("delete_translation : removing that character");
-                        st.executeUpdate("DELETE FROM character " +
-                                " WHERE char_id=" + char_id);
-                    }
-
-                }
-                else
-                {
-                    System.out.println("delete_translation : That character pinyin is still in use");
-                }
-                rs = st.executeQuery("SELECT character_pinyin_id FROM cword_pinyin_bridge" +
-                        " WHERE cword_id=" + found_chinese_id);
-            }
-
-            System.out.println("delete_translation : removing the chinese word from DB");
-            // finally delete the word
-            st.executeUpdate("DELETE FROM cword" +
-                    " WHERE cword_id=" + found_chinese_id);
+            check_for_isolated_cword(found_chinese_id);
 
             st.close();
             changed = true;
@@ -666,10 +759,10 @@ public abstract class HanziDB
                     " FOREIGN KEY (cword_id) REFERENCES cword(cword_id))");
             st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
                     " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
-                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations"+
+                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
                     " FROM (SELECT cpb.cword_id," +
                     " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
-                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin"+
+                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
                     " FROM cword AS cw" +
                     " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
                     " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
@@ -689,19 +782,55 @@ public abstract class HanziDB
         }
 
     }
-    
+
     /**
      * 
      * Placeholder for upgrading the database when needed
-     * 
+     *
+     * @return true is the database has been upgraded
      */
-    protected void upgrade_database()
+    protected boolean upgrade_database()
     {
         int version;
 
         version = get_database_version();
 
-        return;
+        if (version <= 2)
+        {
+            System.out.println("Upgrading master database to version 3");
+
+            try
+            {
+                Statement st = conn.createStatement();
+
+                // Make sure the pinyin table never has NULL
+                st.executeUpdate("UPDATE character_pinyin" +
+                        " SET tone=0 WHERE tone IS NULL");
+
+                st.executeUpdate("DROP VIEW english_pinyin_chinese");
+                st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
+                        " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
+                        " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
+                        " FROM (SELECT cpb.cword_id," +
+                        " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                        " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
+                        " FROM cword AS cw" +
+                        " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
+                        " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                        " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                        " GROUP BY cpb.cword_id) AS c_words" +
+                        " JOIN english AS e ON e.cword_id=c_words.cword_id " +
+                        " GROUP BY e.cword_id )");
+                st.close();
+            }
+            catch (SQLException ex)
+            {
+                ex.printStackTrace();
+            }
+
+        }
+
+        return false;
     }
 
     /**
@@ -791,10 +920,8 @@ public abstract class HanziDB
             int tone = Pinyin.pinyin_tone(pinyin);
             String pinyin_base = Pinyin.pinyin_base(pinyin);
 
-            System.out.println("Querying db with char :" + hanzi +" pinyin :" +pinyin_base+ " tone :" + tone);
+            System.out.println("Querying db with char :" + hanzi + " pinyin :" + pinyin_base + " tone :" + tone);
 
-            if (tone != 0)
-            {
             rs = st.executeQuery("SELECT epc.cword_id FROM " +
                     " (SELECT cword_id FROM" +
                     " character AS ch" +
@@ -804,31 +931,12 @@ public abstract class HanziDB
                     " (SELECT character_pinyin_id FROM " +
                     " character AS ch" +
                     " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
-                    " WHERE ch.hanzi='"+ hanzi + "'" +
-                    " AND cp.pinyin='"+ pinyin_base + "'" +
+                    " WHERE ch.hanzi='" + hanzi + "'" +
+                    " AND cp.pinyin='" + pinyin_base + "'" +
                     " AND cp.tone=" + tone + ")" +
                     " GROUP BY cpb.cword_id) AS selected_words" +
                     " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id" +
                     " ORDER BY epc.pinyin");
-            }
-            else
-            {
-            rs = st.executeQuery("SELECT epc.cword_id FROM " +
-                    " (SELECT cword_id FROM" +
-                    " character AS ch" +
-                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
-                    " JOIN cword_pinyin_bridge AS cpb ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                    " WHERE cp.character_pinyin_id = " +
-                    " (SELECT character_pinyin_id FROM " +
-                    " character AS ch" +
-                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
-                    " WHERE ch.hanzi='"+ hanzi + "'" +
-                    " AND cp.pinyin='"+ pinyin_base + "'" +
-                    " AND cp.tone is NULL)" +
-                    " GROUP BY cpb.cword_id) AS selected_words" +
-                    " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id" +
-                    " ORDER BY epc.pinyin");
-            }
             for (; rs.next();)
             {
                 res.add(rs.getInt(1));
@@ -851,7 +959,7 @@ public abstract class HanziDB
      */
     public ArrayList<Integer> get_words_with_character(String hanzi)
     {
-    
+
         ArrayList<Integer> res = new ArrayList<Integer>();
 
         try
@@ -880,7 +988,7 @@ public abstract class HanziDB
         return res;
 
     }
-    
+
     /**
      * 
      * Return the ID of the nth word
@@ -891,7 +999,7 @@ public abstract class HanziDB
     public int get_word_id(int index)
     {
         int res = -1;
-        if (!initialized) 
+        if (!initialized)
         {
             return res;
         }
@@ -901,7 +1009,7 @@ public abstract class HanziDB
             ResultSet rs = null;
 
             rs = st.executeQuery("SELECT cword_id FROM english_pinyin_chinese ORDER BY pinyin, hanzi");
-            
+
             rs.relative(index + 1);
             res = rs.getInt(1);
         }
@@ -911,7 +1019,7 @@ public abstract class HanziDB
         }
         return res;
     }
-    
+
     /**
      * 
      * Returns the ID of a Chinese word
@@ -980,7 +1088,7 @@ public abstract class HanziDB
         }
         return res;
     }
-    
+
     /**
      * 
      * Get the id of a character
@@ -1013,7 +1121,7 @@ public abstract class HanziDB
         }
         return res;
     }
-    
+
     /**
      * 
      * Get the id of an indexed character
@@ -1076,7 +1184,7 @@ public abstract class HanziDB
         }
         return res;
     }
-    
+
     public boolean get_database_changed()
     {
         return changed;
@@ -1095,7 +1203,7 @@ public abstract class HanziDB
             rs.next();
 
             res = Integer.parseInt(rs.getString(1));
-            
+
             System.out.println("Database version " + res);
         }
         catch (SQLException ex)
@@ -1104,6 +1212,4 @@ public abstract class HanziDB
         }
         return res;
     }
-    
-
 }    // class Testdb
