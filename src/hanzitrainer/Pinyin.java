@@ -52,19 +52,10 @@ public class Pinyin
             return;
         }
         entry = pinyin_string;
-        if ((entry.codePointAt(entry.length() - 1) > '0') && (entry.codePointAt(entry.length() - 1) < '5'))
+        if ((entry.codePointAt(entry.length() - 1) >= '0') && (entry.codePointAt(entry.length() - 1) < '5'))
         {
             tone = entry.codePointAt(entry.length() - 1) - '0';
             radical = entry.substring(0, entry.length() - 1);
-        }
-        else
-        {
-            radical = entry;
-            tone = 0;
-            print = entry;
-        }
-        if (tone != 0)
-        {
             for (i = 0; i < allowed_pinyin.length; i++)
             {
                 if (radical.equals(allowed_pinyin[i]))
@@ -74,22 +65,32 @@ public class Pinyin
             }
             switch (tone)
             {
-            case 1:
-                print=allowed_pinyin_tone1[i];
-                break;
-            case 2:
-                print=allowed_pinyin_tone2[i];
-                break;
-            case 3:
-                print=allowed_pinyin_tone3[i];
-                break;
-            case 4:
-                print=allowed_pinyin_tone4[i];
-                break;
-            default:
-                print="error in tone !";
-                break;
+                case 0:
+                    print = allowed_pinyin[i];
+                    break;
+                case 1:
+                    print = allowed_pinyin_tone1[i];
+                    break;
+                case 2:
+                    print = allowed_pinyin_tone2[i];
+                    break;
+                case 3:
+                    print = allowed_pinyin_tone3[i];
+                    break;
+                case 4:
+                    print = allowed_pinyin_tone4[i];
+                    break;
+                default:
+                    print = "error in tone !";
+                    break;
             }
+        }
+        else
+        {
+            // tone not specified
+            radical = entry;
+            tone = 0;
+            print = entry;
         }
     }
 
@@ -309,7 +310,7 @@ public class Pinyin
             {
                 return true;
             }
-            for (i = 1; i < 5; i++)
+            for (i = 0; i < 5; i++)
             {
                 temp = try_pinyin + i;
                 if (entry.equals(temp))
@@ -331,7 +332,7 @@ public class Pinyin
             {
                 return 0;
             }
-            for (i = 1; i < 5; i++)
+            for (i = 0; i < 5; i++)
             {
                 temp = try_pinyin + i;
                 if (entry.equals(temp))
@@ -353,7 +354,7 @@ public class Pinyin
             {
                 return try_pinyin;
             }
-            for (i = 1; i < 5; i++)
+            for (i = 0; i < 5; i++)
             {
                 temp = try_pinyin + i;
                 if (entry.equals(temp))
@@ -367,36 +368,13 @@ public class Pinyin
     
     public static boolean pinyins_are_same_radical(String entry1, String entry2)
     {
-        int i;
-        String temp;
-        String try_pinyin1="", try_pinyin2="";
-                
-        for (String try_pinyin : allowed_pinyin)
+        if (pinyin_base(entry1).equals(pinyin_base(entry2)))
         {
-            if (entry1.equals(try_pinyin))
-            {
-               try_pinyin1=try_pinyin;
-            }
-            if (entry2.equals(try_pinyin))
-            {
-               try_pinyin2=try_pinyin;
-            }
-            for (i = 1; i < 5; i++)
-            {
-                temp = try_pinyin + i;
-                if (entry1.equals(temp))
-                {
-                    try_pinyin1=try_pinyin;
-                }
-                if (entry2.equals(temp))
-                {
-                    try_pinyin2=try_pinyin;
-                }
-            }
-        }
-        if (try_pinyin1.equals(try_pinyin2))
             return true;
+        }
         else
+        {
             return false;
+        }
     }
 }
