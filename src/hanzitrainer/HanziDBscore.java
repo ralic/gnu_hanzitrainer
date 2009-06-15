@@ -42,6 +42,7 @@ public class HanziDBscore extends HanziDB
 
     public HanziDBscore()
     {
+        super();
         System.out.println("HanziDBscore initialized");
     }
 
@@ -50,64 +51,16 @@ public class HanziDBscore extends HanziDB
      * 
      * @param db_file_name filename
      */
+    @Override
     public void HanziDB_open(String db_file_name)
     {
-        shutdown();
-        database_init();
-        changed = false;
-
-        try
-        {
-            Statement st;
-
-            st = conn.createStatement();
-            st.execute("RUNSCRIPT FROM '" + db_file_name + "'");
-            if (check_for_empty_db())
-            {
-                // try the old DB with password...
-                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
-                if (check_for_empty_db())
-                {
-                    System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
-                    create_database();
-                    st.close();
-
-                    return;
-                }
-            }
-
-            if (get_database_version() > database_ver)
-            {
-                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
-                shutdown();
-                database_init();
-                create_database();
-                st.close();
-
-                return;
-            }
-            st.close();
-        }
-        catch (SQLException e)
-        {
-            System.out.println("got exception " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        if (upgrade_database() == true)
-        {
-            filename = db_file_name;
-            HanziDB_save();
-        }
-
+        super.HanziDB_open(db_file_name);
         if (upgrade_score_database() == true)
         {
             filename = db_file_name;
             HanziDB_save();
         }
 
-        System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
-        filename = db_file_name;
     }
 
     protected int get_score_database_version()
@@ -125,7 +78,7 @@ public class HanziDBscore extends HanziDB
             }
             else
             {
-                res = rs.getInt(1);
+                res = Integer.parseInt(rs.getString(1));
             }
             st.close();
         }
@@ -195,55 +148,6 @@ public class HanziDBscore extends HanziDB
 
         }
         return false;
-    }
-
-    /**
-     *  Save a database file with the same name of the file opened or previously saved
-     * 
-     */
-    public void HanziDB_save()
-    {
-        changed = false;
-        if (filename.equals(""))
-        {
-            return;
-        }
-        try
-        {
-            Statement st = conn.createStatement();
-            //st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
-            st.execute("SCRIPT TO '" + filename + "'");
-            st.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     *  Close a database file
-     * 
-     */
-    public void HanziDB_close()
-    {
-        shutdown();
-        HanziDB_set_filename("");
-        database_init();
-
-        create_database();
-
-    }
-
-    /**
-     *  Set the database file
-     * 
-     * @param new_filename new file name
-     * @see HanziDB_get_filename
-     */
-    public void HanziDB_set_filename(String new_filename)
-    {
-        filename = new_filename;
     }
 
     /**

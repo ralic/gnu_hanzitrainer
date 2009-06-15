@@ -39,6 +39,7 @@ import java.util.StringTokenizer;
 public abstract class HanziDB
 {
 
+    protected String filename;
     protected Connection conn;
     protected boolean initialized = false;
     protected boolean changed = false;
@@ -59,19 +60,102 @@ public abstract class HanziDB
      * 
      * @param db_file_name filename
      */
-    public abstract void HanziDB_open(String db_file_name);
+    public void HanziDB_open(String db_file_name)
+    {
+
+        shutdown();
+        database_init();
+        changed = false;
+
+        try
+        {
+            Statement st;
+
+            st = conn.createStatement();
+            st.execute("RUNSCRIPT FROM '" + db_file_name + "'");
+            if (check_for_empty_db())
+            {
+                // try the old DB with password...
+                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+                if (check_for_empty_db())
+                {
+                    System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
+                    create_database();
+                    st.close();
+
+                    return;
+                }
+            }
+
+            if (get_database_version() > database_ver)
+            {
+                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
+                shutdown();
+                database_init();
+                create_database();
+                st.close();
+
+                return;
+            }
+            st.close();
+        }
+        catch (SQLException e)
+        {
+            System.out.println("got exception " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        if (upgrade_database() == true)
+        {
+            filename = db_file_name;
+            HanziDB_save();
+        }
+
+        System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
+        filename = db_file_name;
+    }
 
     /**
      *  Save a database file with the same name of the file opened or previously saved
      * 
      */
-    public abstract void HanziDB_save();
+    public void HanziDB_save()
+    {
+        changed = false;
+        if (filename.equals(""))
+        {
+            return;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            //st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            st.execute("SCRIPT TO '" + filename + "'");
+            st.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     /**
      *  Close a database file
      * 
      */
-    public abstract void HanziDB_close();
+    public void HanziDB_close()
+    {
+        shutdown();
+        filename = "";
+        database_init();
+
+        create_database();
+    }
+
+    public void HanziDB_set_filename(String name)
+    {
+        filename = name;
+    }
 
     /**
      *  Check if the currently opened database is empty
@@ -227,22 +311,18 @@ public abstract class HanziDB
      */
     protected Boolean is_chinese_char(String input)
     {
-        int entry;
-        if (input.codePointCount(0, input.length()) != 1)
+        int entry = input.codePointAt(0);
+        if (((entry >= 0x4E00) && (entry <= 0x9fff)) // main CJK
+                || ((entry >= 0x2e00) && (entry <= 0x31ff)) // additional punctuation
+                || ((entry >= 0x3400) && (entry <= 0x4dbf)) // extension A
+                )
         {
-            return false;
+            return true;
         }
         else
         {
-            entry = input.codePointAt(0);
-            if ((entry >= 0x4E00) && (entry <= 0x9fff))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            System.out.println("" + entry + " is not a chinese character");
+            return false;
         }
     }
 
@@ -251,7 +331,7 @@ public abstract class HanziDB
         Statement st = conn.createStatement();
         ResultSet rs = null;
 
-        System.out.println("Adding character "+ character);
+        System.out.println("Adding character " + character);
 
         if (!is_chinese_char(character))
         {
@@ -389,7 +469,7 @@ public abstract class HanziDB
                     return;
                 }
                 found_chinese_id = rs.getInt(1);
-                System.out.println("Cword id is "+found_chinese_id);
+                System.out.println("Cword id is " + found_chinese_id);
 
                 // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
@@ -411,27 +491,17 @@ public abstract class HanziDB
                 }
             }            // TODO handle if there is "'" in the english string
             {
-                // TODO handle ',' within ()
+                english = english.substring(0, Math.min(249, english.length()));
+                english = english.replaceAll("'", "''");
 
-                StringTokenizer english_tokens = new StringTokenizer(english, ",");
+                System.out.println("Add translation [" + english + "] to chinese " + found_chinese_id);
 
-                while (english_tokens.hasMoreTokens())
+                rs = st.executeQuery("SELECT eng_id FROM english " +
+                        " WHERE cword_id =" + found_chinese_id +
+                        " AND translation='" + english + "'");
+                if (!rs.next())
                 {
-                    String current_token = english_tokens.nextToken().trim();
-
-                    current_token = current_token.replace("'", "''");
-
-                    System.out.println("Add translation [" + current_token + "] to chinese " + found_chinese_id);
-
-                    rs = st.executeQuery("SELECT eng_id FROM english " +
-                            " WHERE cword_id =" + found_chinese_id +
-                            " AND translation='" + current_token + "'");
-                    if (rs.next())
-                    {
-                        System.out.println("Already found");
-                        continue;
-                    }
-                    st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + current_token + "')");
+                    st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + english + "')");
                 }
             }
 
@@ -755,7 +825,7 @@ public abstract class HanziDB
             st.executeUpdate("CREATE TABLE english (" +
                     " eng_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
                     " cword_id INTEGER," +
-                    " translation VARCHAR(50)," +
+                    " translation VARCHAR(250)," +
                     " FOREIGN KEY (cword_id) REFERENCES cword(cword_id))");
             st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
                     " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
@@ -821,6 +891,7 @@ public abstract class HanziDB
                         " GROUP BY cpb.cword_id) AS c_words" +
                         " JOIN english AS e ON e.cword_id=c_words.cword_id " +
                         " GROUP BY e.cword_id )");
+                st.executeUpdate("UPDATE database_info SET value='3' WHERE field='version'");
                 st.close();
             }
             catch (SQLException ex)
@@ -830,6 +901,25 @@ public abstract class HanziDB
 
         }
 
+        if (version <= 3)
+        {
+            System.out.println("Upgrading master database to version 4");
+
+            try
+            {
+                Statement st = conn.createStatement();
+
+                // upgrade the size for translations
+                st.executeUpdate("ALTER TABLE english ALTER COLUMN translation VARCHAR(250)");
+                st.executeUpdate("UPDATE database_info SET value='4' WHERE field='version'");
+                st.close();
+            }
+            catch (SQLException ex)
+            {
+                ex.printStackTrace();
+            }
+
+        }
         return false;
     }
 

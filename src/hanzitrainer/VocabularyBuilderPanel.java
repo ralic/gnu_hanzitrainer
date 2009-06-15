@@ -3,11 +3,11 @@
  *
  * Created on April 23, 2009, 2:24 AM
  */
-
 package hanzitrainer;
 
 import java.util.Locale;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -16,19 +16,20 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author  matthieu
  */
-public class VocabularyBuilderPanel extends javax.swing.JPanel 
-        implements ListSelectionListener {
+public class VocabularyBuilderPanel extends javax.swing.JPanel
+        implements ListSelectionListener
+{
 
     /** Creates new form VocabularyBuilderPanel */
-    public VocabularyBuilderPanel(HanziDBscore database, HanziApplicationUpdater updater) {
+    public VocabularyBuilderPanel(HanziDBscore database, HanziApplicationUpdater updater)
+    {
         main_database = database;
         parent_app = updater;
         initComponents();
     }
-    
+
     public void VocabularyBuilderUpdateDB()
     {
-    
     }
 
     /** This method is called from within the constructor to
@@ -163,107 +164,103 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         );
     }// </editor-fold>//GEN-END:initComponents
 
-
 private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
 // TODO add your handling code here:
     ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
 
-    //EnglishTranslationsListModel.removeAllElements();
+//EnglishTranslationsListModel.removeAllElements();
 }//GEN-LAST:event_ChineseTextFieldFocusGained
 
-
-
-protected String getChineseTextField()
-{
-    return ChineseTextField.getText();
-}
-
-protected void setEnglishTranslationsList(ArrayList<String> content)
-{
-    int i;
-    
-    EnglishTranslationsListModel.removeAllElements();
-    EnglishTranslationsListModel.addElement("[new]");
-    for (i = 0; i < content.size(); i++)
+    protected String getChineseTextField()
     {
-        EnglishTranslationsListModel.addElement(content.get(i));
+        return ChineseTextField.getText();
     }
-    EnglishTranslations.setSelectedIndex(0);
-    EnglishTranslations.ensureIndexIsVisible(0);
-}
 
-private void SaveAction()
-{
-    String english = EnglishTextField.getText();
-    ArrayList<String> pinyin = PinyinChooser.get_pinyins();
-    String hanzi_string = ChineseTextField.getText();
-    ArrayList<String> hanzi = new ArrayList<String>();
-    int i, listIndex;
-    
-    for (i = 0; i < pinyin.size(); i++)
+    protected void setEnglishTranslationsList(ArrayList<String> content)
     {
-        if (!Pinyin.verify_pinyin(pinyin.get(i)))
+        int i;
+
+        EnglishTranslationsListModel.removeAllElements();
+        EnglishTranslationsListModel.addElement("[new]");
+        for (i = 0; i < content.size(); i++)
         {
-            return;
+            EnglishTranslationsListModel.addElement(content.get(i));
         }
+        EnglishTranslations.setSelectedIndex(0);
+        EnglishTranslations.ensureIndexIsVisible(0);
     }
- 
-    for (i = 0; i < hanzi_string.codePointCount(0, hanzi_string.length()); i++)
+
+    private void SaveAction()
     {
-        int from;
-        int to;
-        from = hanzi_string.offsetByCodePoints(0, i);
-        if (i == hanzi_string.codePointCount(0, hanzi_string.length()) - 1)
+        String english = EnglishTextField.getText();
+        ArrayList<String> pinyin = PinyinChooser.get_pinyins();
+        String hanzi_string = ChineseTextField.getText();
+        ArrayList<String> hanzi = new ArrayList<String>();
+        int i, listIndex;
+
+        for (i = 0; i < pinyin.size(); i++)
         {
-            to = hanzi_string.length();
-        }
-        else
-        {
-            to = hanzi_string.offsetByCodePoints(0, i + 1);
-        }
-        hanzi.add(hanzi_string.substring(from, to));
-    }
-    
-    listIndex = EnglishTranslations.getSelectedIndex();
-    
-    if (listIndex == 0)
-    {
-        if (english.length() == 0)
-        {
-            return;
-        }
-        main_database.add_translation(english, pinyin, hanzi);
-    }
-    else
-    {
-        if (english.length() == 0)
-        {
-            main_database.delete_translation(
-                    (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
-        }
-        else
-        {
-            if (EnglishTranslations.getSelectedIndex() == 0)
+            if (!Pinyin.verify_pinyin(pinyin.get(i)))
             {
                 return;
             }
+        }
+
+        for (i = 0; i < hanzi_string.codePointCount(0, hanzi_string.length()); i++)
+        {
+            int from = hanzi_string.offsetByCodePoints(0, i);
+            int to = hanzi_string.offsetByCodePoints(0, i + 1);
+
+            hanzi.add(hanzi_string.substring(from, to));
+        }
+
+        listIndex = EnglishTranslations.getSelectedIndex();
+
+        if (listIndex == 0)
+        {
             if (english.length() == 0)
             {
                 return;
             }
-            main_database.delete_translation(
-                    (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
-            main_database.add_translation(english, pinyin, hanzi);
-        }
-    }
-    
-    parent_app.update_database();
+            StringTokenizer english_tokens = new StringTokenizer(english, ",");
 
-    EnglishTranslationsListModel.removeAllElements();
-    ChineseTextField.setText("");
-    EnglishTextField.setText("");
-    ChineseTextField.requestFocus();
-}
+            while (english_tokens.hasMoreTokens())
+            {
+                String current_token = english_tokens.nextToken().trim();
+
+                main_database.add_translation(current_token, pinyin, hanzi);
+            }
+        }
+        else
+        {
+            if (english.length() == 0)
+            {
+                main_database.delete_translation(
+                        (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
+            }
+            else
+            {
+                if (EnglishTranslations.getSelectedIndex() == 0)
+                {
+                    return;
+                }
+                if (english.length() == 0)
+                {
+                    return;
+                }
+                main_database.delete_translation(
+                        (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
+                main_database.add_translation(english, pinyin, hanzi);
+            }
+        }
+
+        parent_app.update_database();
+
+        EnglishTranslationsListModel.removeAllElements();
+        ChineseTextField.setText("");
+        EnglishTextField.setText("");
+        ChineseTextField.requestFocus();
+    }
 
 private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EnglishTextFieldSaveButtonActionPerformed
     SaveAction();
@@ -272,7 +269,6 @@ private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEven
 private void SaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveButtonActionPerformed
     SaveAction();
 }//GEN-LAST:event_SaveButtonActionPerformed
-
 
 private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResetButtonActionPerformed
 // TODO add your handling code here:
@@ -289,7 +285,6 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     {
         ChineseTextField.setText(to_edit);
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
@@ -308,10 +303,11 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     private PinyinChooserFrame PinyinChooser;
     private VocabularyBuilderPanelUpdater VocabularyBuilderUpdater;
 
-    public void valueChanged(ListSelectionEvent e) {
+    public void valueChanged(ListSelectionEvent e)
+    {
         int listIndex;
         String value;
-        
+
         listIndex = EnglishTranslations.getSelectedIndex();
         if ((listIndex != 0) && (listIndex != -1))
         {
