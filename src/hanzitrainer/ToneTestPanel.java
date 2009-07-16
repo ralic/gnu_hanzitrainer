@@ -48,6 +48,9 @@ public class ToneTestPanel extends javax.swing.JPanel {
 
     public void set_pinyin_test(String hanzi, String pinyin)
     {
+        current_character = hanzi;
+        current_pinyin = pinyin;
+
         CharacterLabel.setText(hanzi);
         PinyinLabel.setText(Pinyin.pinyin_base(pinyin));
         ToneTableFiller.set_filter(hanzi, pinyin);
@@ -64,6 +67,7 @@ public class ToneTestPanel extends javax.swing.JPanel {
         if (num_char == 0) {
             return;
         }
+
         do
         {
             index = (int) (Math.random() * num_char);
@@ -71,12 +75,6 @@ public class ToneTestPanel extends javax.swing.JPanel {
             hanzi = main_database.get_character_details(char_id);
             System.out.println("getting index " + index + " character :" + hanzi);
         } while (character_history.contains(hanzi));
-
-        /*
-        index = 149;
-        char_id = main_database.get_character_id(index);
-        hanzi = main_database.get_character_details(char_id);
-        */
 
         character_history.add(hanzi);
         if (character_history.size() > (num_char - 1) / 2) {
@@ -92,7 +90,6 @@ public class ToneTestPanel extends javax.swing.JPanel {
         {
             pinyin = pinyins.get(0);
         }
-
 
         set_pinyin_test(hanzi,pinyin);
 
@@ -117,6 +114,8 @@ public class ToneTestPanel extends javax.swing.JPanel {
         ThirdToneButton = new javax.swing.JButton();
         FourthToneButton = new javax.swing.JButton();
         PinyinLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setName("Form"); // NOI18N
 
@@ -147,18 +146,44 @@ public class ToneTestPanel extends javax.swing.JPanel {
 
         FirstToneButton.setText(resourceMap.getString("FirstToneButton.text")); // NOI18N
         FirstToneButton.setName("FirstToneButton"); // NOI18N
+        FirstToneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                FirstToneButtonActionPerformed(evt);
+            }
+        });
 
         SecondToneButton.setText(resourceMap.getString("SecondToneButton.text")); // NOI18N
         SecondToneButton.setName("SecondToneButton"); // NOI18N
+        SecondToneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SecondToneButtonActionPerformed(evt);
+            }
+        });
 
         ThirdToneButton.setText(resourceMap.getString("ThirdToneButton.text")); // NOI18N
         ThirdToneButton.setName("ThirdToneButton"); // NOI18N
+        ThirdToneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ThirdToneButtonActionPerformed(evt);
+            }
+        });
 
         FourthToneButton.setText(resourceMap.getString("FourthToneButton.text")); // NOI18N
         FourthToneButton.setName("FourthToneButton"); // NOI18N
+        FourthToneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                FourthToneButtonActionPerformed(evt);
+            }
+        });
 
         PinyinLabel.setText(resourceMap.getString("PinyinLabel.text")); // NOI18N
         PinyinLabel.setName("PinyinLabel"); // NOI18N
+
+        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
+        jLabel1.setName("jLabel1"); // NOI18N
+
+        jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
+        jLabel2.setName("jLabel2"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -166,25 +191,30 @@ public class ToneTestPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(NoToneButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(FirstToneButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(SecondToneButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ThirdToneButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(NoToneButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(FirstToneButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(SecondToneButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(ThirdToneButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(FourthToneButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(PinyinLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(CharDBScroll, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE))))
+                    .addComponent(PinyinLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(FourthToneButton))
+                .addGap(24, 24, 24))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(135, 135, 135)
+                .addComponent(jLabel1)
+                .addGap(45, 45, 45)
+                .addComponent(jLabel2)
+                .addContainerGap(146, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -193,17 +223,21 @@ public class ToneTestPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(PinyinLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(12, 12, 12)
                         .addComponent(CharDBScroll, 0, 0, Short.MAX_VALUE))
                     .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(FourthToneButton)
-                    .addComponent(ThirdToneButton)
-                    .addComponent(SecondToneButton)
+                    .addComponent(NoToneButton)
                     .addComponent(FirstToneButton)
-                    .addComponent(NoToneButton))
-                .addGap(95, 95, 95))
+                    .addComponent(SecondToneButton)
+                    .addComponent(ThirdToneButton)
+                    .addComponent(FourthToneButton))
+                .addGap(66, 66, 66)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -218,10 +252,45 @@ public class ToneTestPanel extends javax.swing.JPanel {
 }//GEN-LAST:event_CharDBTableMouseClicked
 
     private void NoToneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NoToneButtonActionPerformed
+        check_result(0);
         set_new_random_pinyin();
-        // TODO add your handling code here:
     }//GEN-LAST:event_NoToneButtonActionPerformed
 
+    private void FirstToneButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_FirstToneButtonActionPerformed
+    {//GEN-HEADEREND:event_FirstToneButtonActionPerformed
+        check_result(1);
+        set_new_random_pinyin();
+    }//GEN-LAST:event_FirstToneButtonActionPerformed
+
+    private void SecondToneButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_SecondToneButtonActionPerformed
+    {//GEN-HEADEREND:event_SecondToneButtonActionPerformed
+        check_result(2);
+        set_new_random_pinyin();
+    }//GEN-LAST:event_SecondToneButtonActionPerformed
+
+    private void ThirdToneButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ThirdToneButtonActionPerformed
+    {//GEN-HEADEREND:event_ThirdToneButtonActionPerformed
+        check_result(3);
+        set_new_random_pinyin();
+    }//GEN-LAST:event_ThirdToneButtonActionPerformed
+
+    private void FourthToneButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_FourthToneButtonActionPerformed
+    {//GEN-HEADEREND:event_FourthToneButtonActionPerformed
+        check_result(4);
+        set_new_random_pinyin();
+    }//GEN-LAST:event_FourthToneButtonActionPerformed
+
+    private void check_result(int tone)
+    {
+        if (Pinyin.pinyin_tone(current_pinyin) == tone)
+        {
+            //success
+        }
+        else
+        {
+            //failure
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane CharDBScroll;
@@ -233,9 +302,15 @@ public class ToneTestPanel extends javax.swing.JPanel {
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JButton SecondToneButton;
     private javax.swing.JButton ThirdToneButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
     private ToneTestTableFiller ToneTableFiller;
     private ArrayList<String> character_history;
     private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
+
+    private String current_character;
+    private String current_pinyin;
+
 }

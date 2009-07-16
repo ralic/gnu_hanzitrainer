@@ -19,31 +19,35 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="NoToneButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="FirstToneButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="SecondToneButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="ThirdToneButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="10" pref="10" max="10" attributes="0"/>
-                      <Component id="NoToneButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="FirstToneButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="SecondToneButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="ThirdToneButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="FourthToneButton" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="CharacterLabel" min="-2" pref="157" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="PinyinLabel" alignment="0" min="-2" pref="79" max="-2" attributes="0"/>
-                          <Component id="CharDBScroll" alignment="0" pref="315" max="32767" attributes="1"/>
-                      </Group>
-                  </Group>
+                  <Component id="PinyinLabel" min="-2" pref="79" max="-2" attributes="0"/>
+                  <Component id="FourthToneButton" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+              <Component id="CharacterLabel" min="-2" pref="157" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
+              <Component id="CharDBScroll" pref="223" max="32767" attributes="1"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="135" max="-2" attributes="0"/>
+              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+              <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="146" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -52,22 +56,27 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Component id="PinyinLabel" min="-2" pref="33" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                       <Component id="CharDBScroll" min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="CharacterLabel" alignment="0" min="-2" pref="142" max="-2" attributes="0"/>
+                  <Component id="CharacterLabel" min="-2" pref="142" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="FourthToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="ThirdToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="SecondToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="FirstToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="NoToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="FirstToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="SecondToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ThirdToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="FourthToneButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="95" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="3" min="-2" pref="52" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -122,29 +131,53 @@
         <Property name="text" type="java.lang.String" resourceKey="FirstToneButton.text"/>
         <Property name="name" type="java.lang.String" value="FirstToneButton" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="FirstToneButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="SecondToneButton">
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="SecondToneButton.text"/>
         <Property name="name" type="java.lang.String" value="SecondToneButton" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="SecondToneButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="ThirdToneButton">
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="ThirdToneButton.text"/>
         <Property name="name" type="java.lang.String" value="ThirdToneButton" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ThirdToneButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="FourthToneButton">
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="FourthToneButton.text"/>
         <Property name="name" type="java.lang.String" value="FourthToneButton" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="FourthToneButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="PinyinLabel">
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="PinyinLabel.text"/>
         <Property name="name" type="java.lang.String" value="PinyinLabel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="jLabel1.text"/>
+        <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel2">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="jLabel2.text"/>
+        <Property name="name" type="java.lang.String" value="jLabel2" noResource="true"/>
       </Properties>
     </Component>
   </SubComponents>
