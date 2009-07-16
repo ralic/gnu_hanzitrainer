@@ -53,10 +53,14 @@
                   </Group>
                   <Component id="SettingsTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="44" max="32767" attributes="0"/>
+              <EmptySpace pref="122" max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace pref="266" max="32767" attributes="0"/>
+              <EmptySpace pref="208" max="32767" attributes="0"/>
+              <Component id="ApplyButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="CancelButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="OKButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -88,7 +92,11 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="CedictFileBrowseButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace pref="38" max="32767" attributes="0"/>
-              <Component id="OKButton" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="OKButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="CancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ApplyButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -150,6 +158,24 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="OKButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="CancelButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="CancelButton.text"/>
+        <Property name="name" type="java.lang.String" value="CancelButton" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="CancelButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="ApplyButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="ApplyButton.text"/>
+        <Property name="name" type="java.lang.String" value="ApplyButton" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ApplyButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

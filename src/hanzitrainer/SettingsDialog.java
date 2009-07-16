@@ -3,35 +3,38 @@
  *
  * Created on April 28, 2009, 8:28 AM
  */
-
 package hanzitrainer;
 
+import java.io.File;
 import java.util.prefs.Preferences;
+import javax.swing.JFileChooser;
 
 /**
  *
  * @author  matthieu
  */
-public class SettingsDialog extends javax.swing.JDialog {
-
-    
+public class SettingsDialog extends javax.swing.JDialog
+{
     /** Creates new form SettingsDialog */
-    public SettingsDialog(java.awt.Frame parent, boolean modal) {
+    public SettingsDialog(java.awt.Frame parent, CedictParser cedict, boolean modal)
+    {
         super(parent, modal);
-        
+
         Preferences my_preferences;
         int randomness;
-        String cedictFile;
-        
+        String cedict_file;
+
         initComponents();
-        
+
+        cedict_parser = cedict;
+
         my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
         randomness = my_preferences.getInt("randomness :", 50);
         RandomPickerSlider.setValue(randomness);
-        RandomPickerValueLabel.setText(Integer.toString(randomness));  
-        
-        cedictFile = my_preferences.get("cedict file :", "");
-        CedictFileField.setText(cedictFile);
+        RandomPickerValueLabel.setText(Integer.toString(randomness));
+
+        cedict_file = my_preferences.get("cedict file :", "");
+        CedictFileField.setText(cedict_file);
     }
 
     /** This method is called from within the constructor to
@@ -51,6 +54,8 @@ public class SettingsDialog extends javax.swing.JDialog {
         CedictFileField = new javax.swing.JTextField();
         CedictFileBrowseButton = new javax.swing.JButton();
         OKButton = new javax.swing.JButton();
+        CancelButton = new javax.swing.JButton();
+        ApplyButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -95,6 +100,22 @@ public class SettingsDialog extends javax.swing.JDialog {
             }
         });
 
+        CancelButton.setText(resourceMap.getString("CancelButton.text")); // NOI18N
+        CancelButton.setName("CancelButton"); // NOI18N
+        CancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CancelButtonActionPerformed(evt);
+            }
+        });
+
+        ApplyButton.setText(resourceMap.getString("ApplyButton.text")); // NOI18N
+        ApplyButton.setName("ApplyButton"); // NOI18N
+        ApplyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ApplyButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -123,7 +144,11 @@ public class SettingsDialog extends javax.swing.JDialog {
                     .addComponent(SettingsTitleLabel))
                 .addContainerGap(44, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(266, Short.MAX_VALUE)
+                .addContainerGap(208, Short.MAX_VALUE)
+                .addComponent(ApplyButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(CancelButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(OKButton)
                 .addContainerGap())
         );
@@ -148,7 +173,10 @@ public class SettingsDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(CedictFileBrowseButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-                .addComponent(OKButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(OKButton)
+                    .addComponent(CancelButton)
+                    .addComponent(ApplyButton))
                 .addContainerGap())
         );
 
@@ -156,22 +184,24 @@ public class SettingsDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
 private void OKButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OKButtonActionPerformed
-    Preferences my_preferences;
-    int value = RandomPickerSlider.getValue();
-    String cedictFile;
-    
-    RandomPickerValueLabel.setText(Integer.toString(value));
-    my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
-    my_preferences.put("randomness :", Integer.toString(value));
-    
-    cedictFile = CedictFileField.getText();
-    my_preferences.put("cedict file :", cedictFile);
-    
+    ApplyButtonActionPerformed(evt);
+
     this.setVisible(false);
 }//GEN-LAST:event_OKButtonActionPerformed
 
 private void CedictFileFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CedictFileFieldActionPerformed
-// TODO add your handling code here:
+    int returnVal;
+
+    if (CedictFileChooser == null)
+    {
+        CedictFileChooser = new javax.swing.JFileChooser();
+    }
+    returnVal = CedictFileChooser.showOpenDialog(this);
+    if (returnVal == JFileChooser.APPROVE_OPTION)
+    {
+        File file = CedictFileChooser.getSelectedFile();
+        CedictFileField.setText(file.getPath());
+    }
 }//GEN-LAST:event_CedictFileFieldActionPerformed
 
 private void RandomPickerSliderMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_RandomPickerSliderMouseDragged
@@ -179,7 +209,31 @@ private void RandomPickerSliderMouseDragged(java.awt.event.MouseEvent evt) {//GE
     RandomPickerValueLabel.setText(Integer.toString(value));
 }//GEN-LAST:event_RandomPickerSliderMouseDragged
 
+private void CancelButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_CancelButtonActionPerformed
+{//GEN-HEADEREND:event_CancelButtonActionPerformed
+    this.setVisible(false);
+}//GEN-LAST:event_CancelButtonActionPerformed
+
+private void ApplyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ApplyButtonActionPerformed
+{//GEN-HEADEREND:event_ApplyButtonActionPerformed
+    Preferences my_preferences;
+    int value = RandomPickerSlider.getValue();
+    String cedictFile;
+
+    RandomPickerValueLabel.setText(Integer.toString(value));
+    my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
+    my_preferences.put("randomness :", Integer.toString(value));
+
+    cedictFile = CedictFileField.getText();
+    if (cedict_parser.Cedict_import(cedictFile) == 0)
+    {
+        my_preferences.put("cedict file :", cedictFile);
+    }
+}//GEN-LAST:event_ApplyButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ApplyButton;
+    private javax.swing.JButton CancelButton;
     private javax.swing.JButton CedictFileBrowseButton;
     private javax.swing.JTextField CedictFileField;
     private javax.swing.JLabel CedictFileLabel;
@@ -190,7 +244,11 @@ private void RandomPickerSliderMouseDragged(java.awt.event.MouseEvent evt) {//GE
     private javax.swing.JLabel SettingsTitleLabel;
     // End of variables declaration//GEN-END:variables
 
-    public static double random_low() {
+    private javax.swing.JFileChooser CedictFileChooser;
+    private CedictParser cedict_parser;
+
+    public static double random_low()
+    {
         Preferences my_preferences;
         int randomness;
         double x = Math.random();

@@ -50,6 +50,8 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
     VocabularyBuilderPanel vocabulary_builder;
     ToneTestPanel tone_test;
 
+    CedictParser cedict_parser;
+
     public HanziTrainerView(SingleFrameApplication app)
     {
         super(app);
@@ -80,8 +82,10 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         tone_test = new ToneTestPanel(main_database, this);
         Tabs.addTab("Tone Test", tone_test);
         update_panel_databases();
+
+        cedict_parser = new CedictParser(this.getFrame());
         
-        Settings = new SettingsDialog(this.getFrame(), true);
+        Settings = new SettingsDialog(this.getFrame(), cedict_parser, true);
         
     }
 
@@ -331,7 +335,6 @@ private void FileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:even
 }//GEN-LAST:event_FileMenuSelected
 
 private void OptionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OptionsMenuItemActionPerformed
-
     Settings.setVisible(true);
 }//GEN-LAST:event_OptionsMenuItemActionPerformed
 
