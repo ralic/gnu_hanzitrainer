@@ -34,7 +34,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 public abstract class HanziDB
 {
@@ -910,8 +909,22 @@ public abstract class HanziDB
                 Statement st = conn.createStatement();
 
                 // upgrade the size for translations
+                st.executeUpdate("DROP VIEW english_pinyin_chinese");
                 st.executeUpdate("ALTER TABLE english ALTER COLUMN translation VARCHAR(250)");
                 st.executeUpdate("UPDATE database_info SET value='4' WHERE field='version'");
+                st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
+                        " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
+                        " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
+                        " FROM (SELECT cpb.cword_id," +
+                        " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                        " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
+                        " FROM cword AS cw" +
+                        " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
+                        " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                        " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                        " GROUP BY cpb.cword_id) AS c_words" +
+                        " JOIN english AS e ON e.cword_id=c_words.cword_id " +
+                        " GROUP BY e.cword_id )");
                 st.close();
             }
             catch (SQLException ex)
