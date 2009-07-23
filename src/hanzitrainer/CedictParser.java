@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -45,13 +46,22 @@ import javax.swing.SwingWorker;
  */
 public class CedictParser extends HanziDB
 {
+
     /**
      *
      */
     public CedictParser(java.awt.Frame parent)
     {
         super();
+
+        Preferences my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
         init_other_components(parent);
+        filename = my_preferences.get("cedict temp db :", "");
+        if (!filename.equals(""))
+        {
+            System.out.print("Cedict parser init, opened db "+filename);
+            HanziDB_open(filename);
+        }
     }
 
     /**
@@ -128,7 +138,7 @@ public class CedictParser extends HanziDB
                 my_preferences.put("cedict temp db :", filename);
 
                 // compute and store md5 checksum
-                md5 = MD5.asHex(MD5.getHash(new File(this.cedict_file)));
+                md5 = hanzitrainer.md5.MD5.asHex(hanzitrainer.md5.MD5.getHash(new File(this.cedict_file)));
 
                 my_preferences.put("cedict file md5 :", md5);
             }
@@ -136,8 +146,6 @@ public class CedictParser extends HanziDB
             {
                 System.out.println("Cannot store Cedict data into temp database\n" + ex);
             }
-
-            
         }
 
         @Override
@@ -202,35 +210,39 @@ public class CedictParser extends HanziDB
         Preferences my_preferences;
         String old_md5, new_md5;
 
-
-        // check if we already imported this file in this session
-        if (cedict_file_name.equals(cedict_file))
-        {
-            return 0;
-        }
-
         // check if it is the same file we already imported before
         my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
         old_md5 = my_preferences.get("cedict file md5 :", "");
         try
         {
             // compute the hash of the given file
-            new_md5 = MD5.asHex(MD5.getHash(new File(cedict_file_name)));
+            new_md5 = hanzitrainer.md5.MD5.asHex(hanzitrainer.md5.MD5.getHash(new File(cedict_file_name)));
             if (old_md5.equals(new_md5))
             {
                 // load from the temporary database
                 filename = my_preferences.get("cedict temp db :", "");
                 HanziDB_open(filename);
                 cedict_file = cedict_file_name;
-
-                my_preferences.put("cedict file :", cedict_file);
+                try
+                {
+                    if (this.check_for_empty_db() == false)
+                    {
+                        my_preferences.put("cedict file :", cedict_file);
+                        System.out.println("Opened temporary database for cedict, file %s" + filename);
+                        return 0;
+                    }
+                }
+                catch (SQLException ex)
+                {
+                    System.out.println("Cannot check for empty database, assume it failed\n");
+                }
             }
         }
         catch (IOException ex)
         {
             System.out.println("Cannot calculate new MD5 for some reason...\n");
         }
-        
+
 
         // reinitialize everything
         this.HanziDB_close();
