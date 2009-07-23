@@ -64,10 +64,17 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         database_file = my_preferences.get("database_filename", "");
         if (!database_file.equals(""))
         {
+            System.out.println("Was using " + database_file + " before");
             main_database.HanziDB_open(database_file);
         }
+        else
+        {
+            System.out.print("No previous database to reopen");
+        }
+        cedict_parser = new CedictParser(this.getFrame());
+
         initComponents();
-        vocabulary_builder = new VocabularyBuilderPanel(main_database, this);
+        vocabulary_builder = new VocabularyBuilderPanel(main_database, cedict_parser, this);
         Tabs.addTab("Vocabulary Builder", vocabulary_builder);
         word_database = new WordDatabasePanel(main_database, this);
         Tabs.addTab("Word Database", word_database);
@@ -83,8 +90,6 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         Tabs.addTab("Tone Test", tone_test);
         update_panel_databases();
 
-        cedict_parser = new CedictParser(this.getFrame());
-        
         Settings = new SettingsDialog(this.getFrame(), cedict_parser, true);
         
     }

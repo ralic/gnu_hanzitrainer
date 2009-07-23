@@ -5,10 +5,16 @@
  */
 package hanzitrainer;
 
+import java.awt.Component;
+import java.awt.Font;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -24,6 +30,15 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
     public VocabularyBuilderPanel(HanziDBscore database, HanziApplicationUpdater updater)
     {
         main_database = database;
+        parent_app = updater;
+        initComponents();
+    }
+
+    /** Creates new form VocabularyBuilderPanel and include the Cedict parser */
+    public VocabularyBuilderPanel(HanziDBscore database, CedictParser cedict, HanziApplicationUpdater updater)
+    {
+        main_database = database;
+        cedict_database = cedict;
         parent_app = updater;
         initComponents();
     }
@@ -51,6 +66,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         PinyinScroll = new javax.swing.JScrollPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         EnglishTranslationsListModel = new DefaultListModel();
+        ETRenderer = new EnglishTranslationsRenderer();
         EnglishTranslations = new javax.swing.JList();
 
         setName("Form"); // NOI18N
@@ -66,9 +82,17 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         EnglishLabel.setName("EnglishLabel"); // NOI18N
 
         ChineseTextField.setName("ChineseTextField"); // NOI18N
-        PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);
+        if (cedict_database != null)
+        {
+            PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database, cedict_database);
+            VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database, cedict_database);
+        }
+        else
+        {
+            PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);
+            VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database);
+        }
         this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);
-        VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database);
         this.ChineseTextField.getDocument().addDocumentListener(VocabularyBuilderUpdater);
         ChineseTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -111,6 +135,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         EnglishTranslations.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         EnglishTranslations.setName("EnglishTranslations"); // NOI18N
         EnglishTranslations.addListSelectionListener(this);
+        EnglishTranslations.setCellRenderer(ETRenderer);
         jScrollPane1.setViewportView(EnglishTranslations);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -122,7 +147,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ChineseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(ChineseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)
                             .addComponent(PinyinLabel)
                             .addComponent(EnglishLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -164,6 +189,47 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private class EnglishTranslationsRenderer extends JLabel implements ListCellRenderer
+    {
+        private int change_index;
+        private DefaultListCellRenderer default_renderer;
+
+        public EnglishTranslationsRenderer()
+        {
+            change_index = -1;
+            default_renderer = new DefaultListCellRenderer();
+        }
+
+        public EnglishTranslationsRenderer(int index)
+        {
+            change_index = index;
+            default_renderer = new DefaultListCellRenderer();
+        }
+
+        public void set_change_index(int index)
+        {
+            change_index = index;
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+        {
+            Component comp = default_renderer.getListCellRendererComponent(list,value,index,isSelected,cellHasFocus);
+            setText(value.toString());
+            if ((change_index != -1) && (index >= change_index))
+            {
+                System.out.println("index " + index + ", change " + change_index + ", text " +value.toString());
+                setFont(comp.getFont().deriveFont(Font.ITALIC));
+            }
+            else
+            {
+                setFont(comp.getFont().deriveFont(Font.PLAIN));
+            }
+
+            return this;
+        }
+    }
+
 private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ChineseTextFieldFocusGained
 // TODO add your handling code here:
     ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
@@ -186,6 +252,25 @@ private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-F
         {
             EnglishTranslationsListModel.addElement(content.get(i));
         }
+        EnglishTranslations.setSelectedIndex(0);
+        EnglishTranslations.ensureIndexIsVisible(0);
+    }
+
+    protected void setEnglishTranslationsList(ArrayList<String> content, ArrayList<String> secondary)
+    {
+        int i;
+
+        EnglishTranslationsListModel.removeAllElements();
+        EnglishTranslationsListModel.addElement("[new]");
+        for (i = 0; i < content.size(); i++)
+        {
+            EnglishTranslationsListModel.addElement(content.get(i));
+        }
+        for (i = 0; i < secondary.size(); i++)
+        {
+            EnglishTranslationsListModel.addElement(secondary.get(i));
+        }
+        ETRenderer.set_change_index(content.size()+1);
         EnglishTranslations.setSelectedIndex(0);
         EnglishTranslations.ensureIndexIsVisible(0);
     }
@@ -298,8 +383,10 @@ private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIR
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     private DefaultListModel EnglishTranslationsListModel;
+    private EnglishTranslationsRenderer ETRenderer;
     private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
+    private CedictParser cedict_database=null;
     private PinyinChooserFrame PinyinChooser;
     private VocabularyBuilderPanelUpdater VocabularyBuilderUpdater;
 

@@ -25,19 +25,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package hanzitrainer;
 
 import java.awt.Component;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import javax.swing.JComponent;
 import java.util.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ListCellRenderer;
 import javax.swing.text.*;
 
 /**
@@ -54,6 +57,38 @@ public class PinyinChooserFrame extends JPanel
     private JScrollPane scroller_container;
     private int entry_length;
     private HanziDB database;
+    private CedictParser cedict_database = null;
+
+    private class PinyinChooserComboRenderer extends JLabel implements ListCellRenderer
+    {
+
+        private int change_index;
+        private DefaultListCellRenderer default_renderer;
+
+        public PinyinChooserComboRenderer(int index)
+        {
+            change_index = index;
+            default_renderer = new DefaultListCellRenderer();
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+        {
+            Component comp = default_renderer.getListCellRendererComponent(list,value,index,isSelected,cellHasFocus);
+            setText(value.toString());
+            if (index >= change_index)
+            {
+                System.out.println("index " + index + ", change " + change_index + ", text " +value.toString());
+                setFont(comp.getFont().deriveFont(Font.ITALIC));
+            }
+            else
+            {
+                setFont(comp.getFont().deriveFont(Font.PLAIN));
+            }
+
+            return this;
+        }
+    }
 
     public PinyinChooserFrame(JScrollPane scroller, HanziDB db)
     {
@@ -65,6 +100,12 @@ public class PinyinChooserFrame extends JPanel
         setLayout(panel_layout);
         entry_length = 0;
         database = db;
+    }
+
+    public PinyinChooserFrame(JScrollPane scroller, HanziDB db, CedictParser cedict)
+    {
+        this(scroller, db);
+        cedict_database = cedict;
     }
 
     private void debuglog(String log)
@@ -95,11 +136,28 @@ public class PinyinChooserFrame extends JPanel
 
     private void add_item(int index, String entry)
     {
-        
+
         if (is_chinese_char(entry))
         {
             ArrayList<String> possibilities = database.get_pinyin_for_character(entry);
-            add_combo_box(index, possibilities);
+            if (cedict_database == null)
+            {
+                add_combo_box(index, possibilities);
+            }
+            else
+            {
+                ArrayList<String> cedict_possibilities = cedict_database.get_pinyin_for_character(entry);
+                for (int i=0; i<cedict_possibilities.size(); i++)
+                {
+                    String s = cedict_possibilities.get(i);
+                    int siz = possibilities.size();
+                    if (possibilities.contains(s))
+                    {
+                        cedict_possibilities.remove(i);
+                    }
+                }
+                add_combo_box(index, possibilities, cedict_possibilities);
+            }
         }
         else
         {
@@ -111,12 +169,30 @@ public class PinyinChooserFrame extends JPanel
     {
         int i;
         JComboBox temp_box = new JComboBox();
-        //temp_box.setModel(new javax.swing.DefaultComboBoxModel(content));
-        for (i=0; i<content.size(); i++)
+        for (i = 0; i < content.size(); i++)
         {
             temp_box.addItem(content.get(i));
         }
         temp_box.setEditable(true);
+        entry_list.add(index, temp_box);
+        number_of_boxes++;
+        update_layout();
+    }
+
+    private void add_combo_box(int index, ArrayList<String> content, ArrayList<String> secondary)
+    {
+        int i;
+        JComboBox temp_box = new JComboBox();
+        for (i = 0; i < content.size(); i++)
+        {
+            temp_box.addItem(content.get(i));
+        }
+        for (i = 0; i < secondary.size(); i++)
+        {
+            temp_box.addItem(secondary.get(i));
+        }
+        temp_box.setEditable(true);
+        temp_box.setRenderer(new PinyinChooserComboRenderer(content.size()));
         entry_list.add(index, temp_box);
         number_of_boxes++;
         update_layout();
@@ -159,8 +235,8 @@ public class PinyinChooserFrame extends JPanel
             }
             else
             {
-                JComboBox box = (JComboBox)(entry_list.get(i));
-                String selected = (String)(box.getSelectedItem());
+                JComboBox box = (JComboBox) (entry_list.get(i));
+                String selected = (String) (box.getSelectedItem());
                 res.add(selected);
             }
         }
@@ -191,7 +267,7 @@ public class PinyinChooserFrame extends JPanel
             String pinyin_str = database.get_word_details(id).get(1);
             ArrayList<Pinyin> pinyins = PinyinParser.parse_string(pinyin_str);
             debuglog("found word id " + id + " " + pinyin_str);
-            for (i=0; i<pinyins.size();i++)
+            for (i = 0; i < pinyins.size(); i++)
             {
                 set_combo_box(i, pinyins.get(i).get_lame_version());
             }

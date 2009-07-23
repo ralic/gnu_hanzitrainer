@@ -24,7 +24,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="ChineseLabel" alignment="0" max="32767" attributes="1"/>
+                          <Component id="ChineseLabel" alignment="0" pref="51" max="32767" attributes="1"/>
                           <Component id="PinyinLabel" alignment="0" min="-2" max="-2" attributes="1"/>
                           <Component id="EnglishLabel" alignment="0" pref="51" max="32767" attributes="1"/>
                       </Group>
@@ -107,7 +107,7 @@
         <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="ChineseTextFieldFocusLost"/>
       </Events>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);&#xd;&#xa;this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);&#xd;&#xa;VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database);&#xd;&#xa;this.ChineseTextField.getDocument().addDocumentListener(VocabularyBuilderUpdater);"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="if (cedict_database != null)&#xd;&#xa;{&#xd;&#xa;    PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database, cedict_database);&#xd;&#xa;    VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database, cedict_database);&#xd;&#xa;}&#xd;&#xa;else&#xd;&#xa;{&#xd;&#xa;    PinyinChooser = new PinyinChooserFrame(PinyinScroll,main_database);&#xd;&#xa;    VocabularyBuilderUpdater = new VocabularyBuilderPanelUpdater(this, main_database);&#xd;&#xa;}&#xd;&#xa;this.ChineseTextField.getDocument().addDocumentListener(PinyinChooser);&#xd;&#xa;this.ChineseTextField.getDocument().addDocumentListener(VocabularyBuilderUpdater);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="EnglishTextField">
@@ -163,8 +163,8 @@
             <Property name="name" type="java.lang.String" value="EnglishTranslations" noResource="true"/>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="EnglishTranslationsListModel = new DefaultListModel();"/>
-            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="EnglishTranslations.addListSelectionListener(this);"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="EnglishTranslationsListModel = new DefaultListModel();&#xd;&#xa;ETRenderer = new EnglishTranslationsRenderer();"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="EnglishTranslations.addListSelectionListener(this);&#xd;&#xa;EnglishTranslations.setCellRenderer(ETRenderer);"/>
           </AuxValues>
         </Component>
       </SubComponents>
