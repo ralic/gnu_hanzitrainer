@@ -35,7 +35,6 @@ import java.util.ArrayList;
 public class HanziDBscore extends HanziDB
 {
 
-    private String filename = "";
     private static final int minimum_score = 0;
     private static final int maximum_score = 100;
     private static final int reset_score = 20;
@@ -150,16 +149,6 @@ public class HanziDBscore extends HanziDB
         return false;
     }
 
-    /**
-     *  Open a database file
-     * 
-     * @see HanziDB_set_filename
-     * @return the file name currently used for the database
-     */
-    public String HanziDB_get_filename()
-    {
-        return filename;
-    }
 
     @Override
     protected synchronized void add_character(String character) throws SQLException

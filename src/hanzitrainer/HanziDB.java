@@ -50,6 +50,7 @@ public abstract class HanziDB
 
         create_database();
         changed = false;
+        filename = "";
 
         System.out.println("HanziDB : Database initialized");
     }
@@ -154,6 +155,17 @@ public abstract class HanziDB
     public void HanziDB_set_filename(String name)
     {
         filename = name;
+    }
+
+    /**
+     *  Open a database file
+     *
+     * @see HanziDB_set_filename
+     * @return the file name currently used for the database
+     */
+    public String HanziDB_get_filename()
+    {
+        return filename;
     }
 
     /**
