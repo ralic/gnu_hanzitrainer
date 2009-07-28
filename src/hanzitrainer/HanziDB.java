@@ -42,7 +42,7 @@ public abstract class HanziDB
     protected Connection conn;
     protected boolean initialized = false;
     protected boolean changed = false;
-    protected static final int database_ver = 2;
+    protected static final int database_ver = 3;
 
     public HanziDB()
     {
@@ -173,24 +173,29 @@ public abstract class HanziDB
      * 
      * @return True if the database is empty
      */
-    protected Boolean check_for_empty_db() throws SQLException
+    protected Boolean check_for_empty_db()
     {
-        Statement st = conn.createStatement();
-        DatabaseMetaData dbm = conn.getMetaData();
-        ResultSet rs = dbm.getTables(null, null, null, new String[]
-                {
-                    "TABLE"
-                });
-        if (rs.next())
+        Statement st;
+        try
         {
-            st.close();
-            return false;
+            st = conn.createStatement();
+
+            DatabaseMetaData dbm = conn.getMetaData();
+            ResultSet rs = dbm.getTables(null, null, null, new String[] {"TABLE"});
+            if (rs.next()) {
+                st.close();
+                return false;
+            }
+            else {
+                st.close();
+                return true;
+            }
         }
-        else
+        catch (SQLException ex)
         {
-            st.close();
-            return true;
+            
         }
+        return true;
     }
 
     /**
@@ -964,7 +969,7 @@ public abstract class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT COUNT(cword_id) FROM english_pinyin_chinese GROUP BY TRUE");
+            rs = st.executeQuery("SELECT COUNT(cword_id) FROM cword GROUP BY TRUE");
             if (!rs.next())
             {
                 return 0;
@@ -1020,7 +1025,7 @@ public abstract class HanziDB
      * 
      * @param hanzi Chinese character
      * @param pinyin pinyin to filter with
-     * @return ArrayList<ArrayList<String>> List of Chinese, pinyin and English versions of the words. Translations are grouped together.
+     * @return ArrayList<Integer> List of Chinese word ids
      */
     public ArrayList<Integer> get_words_with_character(String hanzi, String pinyin)
     {
@@ -1070,7 +1075,7 @@ public abstract class HanziDB
      * Returns detail information about the words that contain a particular Chinese character
      * 
      * @param hanzi Chinese character
-     * @return ArrayList<ArrayList<String>> List of Chinese, pinyin and English versions of the words. Translations are grouped together.
+     * @return ArrayList<Integer> List of Chinese word ids
      */
     public ArrayList<Integer> get_words_with_character(String hanzi)
     {

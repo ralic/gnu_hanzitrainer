@@ -45,7 +45,10 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="RandomPickerValueLabel" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="CedictFileBrowseButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="CheckDBButton" alignment="0" max="32767" attributes="1"/>
+                                      <Component id="CedictFileBrowseButton" alignment="0" max="32767" attributes="1"/>
+                                  </Group>
                               </Group>
                               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                           </Group>
@@ -56,7 +59,7 @@
               <EmptySpace pref="122" max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace pref="208" max="32767" attributes="0"/>
+              <EmptySpace pref="286" max="32767" attributes="0"/>
               <Component id="ApplyButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="CancelButton" min="-2" max="-2" attributes="0"/>
@@ -91,13 +94,22 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="CedictFileBrowseButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="38" max="32767" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="OKButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="CancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="ApplyButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace pref="38" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="OKButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="CancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="ApplyButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="CheckDBButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -177,6 +189,18 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ApplyButtonActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="CheckDBButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="CheckDBButton.text"/>
+        <Property name="name" type="java.lang.String" value="CheckDBButton" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="CheckDBButtonActionPerformed"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="if (cedict_parser.check_for_empty_db() == true)&#xa;{&#xa;    CheckDBButton.setEnabled(false);&#xa;}&#xa;else&#xa;{&#xa;    CheckDBButton.setEnabled(true);&#xa;}"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

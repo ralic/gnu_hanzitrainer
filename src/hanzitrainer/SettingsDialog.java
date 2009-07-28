@@ -16,7 +16,7 @@ import javax.swing.JFileChooser;
 public class SettingsDialog extends javax.swing.JDialog
 {
     /** Creates new form SettingsDialog */
-    public SettingsDialog(java.awt.Frame parent, CedictParser cedict, boolean modal)
+    public SettingsDialog(java.awt.Frame parent, CedictParser cedict, HanziDB hanzi, boolean modal)
     {
         super(parent, modal);
 
@@ -24,9 +24,10 @@ public class SettingsDialog extends javax.swing.JDialog
         int randomness;
         String cedict_file;
 
-        initComponents();
-
         cedict_parser = cedict;
+        main_database = hanzi;
+
+        initComponents();
 
         my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
         randomness = my_preferences.getInt("randomness :", 50);
@@ -56,6 +57,7 @@ public class SettingsDialog extends javax.swing.JDialog
         OKButton = new javax.swing.JButton();
         CancelButton = new javax.swing.JButton();
         ApplyButton = new javax.swing.JButton();
+        CheckDBButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -116,6 +118,22 @@ public class SettingsDialog extends javax.swing.JDialog
             }
         });
 
+        CheckDBButton.setText(resourceMap.getString("CheckDBButton.text")); // NOI18N
+        CheckDBButton.setName("CheckDBButton"); // NOI18N
+        if (cedict_parser.check_for_empty_db() == true)
+        {
+            CheckDBButton.setEnabled(false);
+        }
+        else
+        {
+            CheckDBButton.setEnabled(true);
+        }
+        CheckDBButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CheckDBButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -139,12 +157,14 @@ public class SettingsDialog extends javax.swing.JDialog
                                         .addComponent(RandomPickerSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(RandomPickerValueLabel))
-                                    .addComponent(CedictFileBrowseButton))
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(CheckDBButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(CedictFileBrowseButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                                 .addGap(4, 4, 4))))
                     .addComponent(SettingsTitleLabel))
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(122, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(208, Short.MAX_VALUE)
+                .addContainerGap(286, Short.MAX_VALUE)
                 .addComponent(ApplyButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(CancelButton)
@@ -172,12 +192,18 @@ public class SettingsDialog extends javax.swing.JDialog
                     .addComponent(CedictFileField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(CedictFileBrowseButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(OKButton)
-                    .addComponent(CancelButton)
-                    .addComponent(ApplyButton))
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(OKButton)
+                            .addComponent(CancelButton)
+                            .addComponent(ApplyButton))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(CheckDBButton)
+                        .addContainerGap())))
         );
 
         pack();
@@ -231,12 +257,18 @@ private void ApplyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIR
     }
 }//GEN-LAST:event_ApplyButtonActionPerformed
 
+private void CheckDBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckDBButtonActionPerformed
+    // will check local database against cedict database
+    cedict_parser.check_local_db(main_database);
+}//GEN-LAST:event_CheckDBButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ApplyButton;
     private javax.swing.JButton CancelButton;
     private javax.swing.JButton CedictFileBrowseButton;
     private javax.swing.JTextField CedictFileField;
     private javax.swing.JLabel CedictFileLabel;
+    private javax.swing.JButton CheckDBButton;
     private javax.swing.JButton OKButton;
     private javax.swing.JLabel RandomPickerLabel;
     private javax.swing.JSlider RandomPickerSlider;
@@ -246,6 +278,7 @@ private void ApplyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIR
 
     private javax.swing.JFileChooser CedictFileChooser;
     private CedictParser cedict_parser;
+    private HanziDB main_database;
 
     public static double random_low()
     {
