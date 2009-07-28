@@ -58,8 +58,10 @@ public class CedictParser extends HanziDB
         filename = my_preferences.get("cedict temp db :", "");
         if (!filename.equals(""))
         {
-            System.out.print("Cedict parser init, opened db "+filename);
+            long start_time = System.currentTimeMillis(), end_time;
             HanziDB_open(filename);
+            end_time = System.currentTimeMillis();
+            System.out.print("Cedict parser init, opened db "+filename+" in " + (end_time - start_time)/1000 + " seconds");
         }
     }
 
@@ -224,6 +226,8 @@ public class CedictParser extends HanziDB
 
                         remaining_time = (((current_time - start_time) * (max_line - line) / line)) / (1000);
                         progress_monitor.setNote("Cedict Parsing, " + remaining_time / 60 + "'" + remaining_time % 60 + "\" remaining...");
+                        Thread.sleep(1);
+                        r.gc();
                     }
 
                     System.out.println("parsing :" + one_line);
@@ -237,9 +241,6 @@ public class CedictParser extends HanziDB
                         status = -1;
                         return status;
                     }
-
-                    Thread.sleep(1);
-                    r.gc();
 
                     one_line = reader.readLine();
                     one_line = new String(one_line.getBytes(), "UTF-8");
@@ -396,7 +397,7 @@ public class CedictParser extends HanziDB
         {
             int from = chinese.offsetByCodePoints(0, i);
             int to = chinese.offsetByCodePoints(0, i + 1);
-            System.out.println("Adding " + chinese.substring(from, to));
+            //System.out.println("Adding " + chinese.substring(from, to));
             hanzi_list.add(chinese.substring(from, to));
         }
 
@@ -407,7 +408,7 @@ public class CedictParser extends HanziDB
             String token = pinyin_tokenizer.nextToken();
             //pinyin_list.add(pinyin_tokenizer.nextToken());
             pinyin_list.add(token);
-            System.out.println("Adding " + token);
+            //System.out.println("Adding " + token);
         }
 
         for (int i = 0; i < translations.size(); i++)
