@@ -61,7 +61,7 @@ public class CedictParser extends HanziDB
             long start_time = System.currentTimeMillis(), end_time;
             HanziDB_open(filename);
             end_time = System.currentTimeMillis();
-            System.out.print("Cedict parser init, opened db "+filename+" in " + (end_time - start_time)/1000 + " seconds");
+            System.out.println("Cedict parser init, opened db "+filename+" in " + (end_time - start_time)/1000 + " seconds");
         }
     }
 
@@ -101,7 +101,6 @@ public class CedictParser extends HanziDB
 
         int count=0;
 
-
         if (this.get_number_words() == 0)
         {
             return res;
@@ -124,19 +123,20 @@ public class CedictParser extends HanziDB
                     System.out.println("word " + chinese_word + "does not match (" + pinyin + ", " + cedict_pinyin + ")");
                     res.add(cword_id);
                 }
-
+                else
+                {
+                    System.out.println("word " + chinese_word + " match");
+                }
+                Thread.yield();
             }
-            System.out.println("Was able to check " + count + " words");
-            return res;
+            else
+            {
+                System.out.println("Could not find " + chinese_word);
+            }
         }
 
-
+        System.out.println("Was able to check " + count + " words");
         return res;
-    }
-
-    public void abort()
-    {
-        abort = true;
     }
 
     private class Cedict_importer extends SwingWorker<Integer, Integer>
@@ -272,7 +272,6 @@ public class CedictParser extends HanziDB
     {
         BufferedReader reader;
         int max_line = 0;
-        abort = false;
         Preferences my_preferences;
         String old_md5, new_md5;
 
@@ -417,12 +416,8 @@ public class CedictParser extends HanziDB
         }
     }
 
-    public static void main(String[] args)
-    {
-        //CedictParser parser = new CedictParser(this.getFrame(), "/host/HanziTrainer/usr/cedict_1_0_ts_utf-8_mdbg/cedict_ts.u8");
-    }
     private String cedict_file = "";
-    private Boolean abort = false;
+
     java.awt.Frame parent_frame;
     private ProgressMonitor progress_monitor;
 }
