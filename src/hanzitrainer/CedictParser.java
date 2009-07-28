@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -90,6 +89,49 @@ public class CedictParser extends HanziDB
         parent_frame = parent;
     }
 
+    public ArrayList<Integer> check_local_db(HanziDB db)
+    {
+        ArrayList<Integer> res = new ArrayList<Integer>();
+        int num_words_to_check = db.get_number_words();
+        int cword_id, cword_cedict_id;
+        ArrayList<String> word_details;
+        String chinese_word, pinyin, cedict_pinyin;
+
+        int count=0;
+
+
+        if (this.get_number_words() == 0)
+        {
+            return res;
+        }
+
+        for (int i=0; i<num_words_to_check; i++) {
+            cword_id = db.get_word_id(i);
+            word_details = db.get_word_details(cword_id);
+            chinese_word = word_details.get(0);
+            pinyin = word_details.get(1);
+
+            cword_cedict_id = this.get_word_id(chinese_word);
+            if (cword_cedict_id != -1)
+            {
+                // we found a match, let's check it...
+                count ++;
+                cedict_pinyin = this.get_word_details(cword_cedict_id).get(1);
+                if (!cedict_pinyin.equals(pinyin))
+                {
+                    System.out.println("word " + chinese_word + "does not match (" + pinyin + ", " + cedict_pinyin + ")");
+                    res.add(cword_id);
+                }
+
+            }
+            System.out.println("Was able to check " + count + " words");
+            return res;
+        }
+
+
+        return res;
+    }
+
     public void abort()
     {
         abort = true;
@@ -102,8 +144,9 @@ public class CedictParser extends HanziDB
         private ProgressMonitor progress_monitor;
         private String cedict_file;
         int status;
+        int max_line;
 
-        public Cedict_importer(String cedict_file_name, ProgressMonitor progress_monitor)
+        public Cedict_importer(String cedict_file_name, ProgressMonitor progress_monitor, int max)
         {
             try
             {
@@ -115,17 +158,25 @@ public class CedictParser extends HanziDB
             }
             this.cedict_file = cedict_file_name;
             this.progress_monitor = progress_monitor;
+            this.max_line = max;
         }
 
         @Override
         protected void done()
         {
-            Preferences my_preferences;
+            Preferences my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
             String md5;
 
-            // store file name used
-            my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
+            if (progress_monitor.isCanceled())
+            {
+                my_preferences.put("cedict file :", "");
+                my_preferences.put("cedict file md5 :", "");
+                return;
+            }
 
+            System.out.println("*** CEDICT IMPORT DONE ***");
+
+            // store file name used
             my_preferences.put("cedict file :", this.cedict_file);
             try
             {
@@ -154,16 +205,26 @@ public class CedictParser extends HanziDB
             String one_line;
             int line = 0;
             status = 0;
+            long start_time, current_time, remaining_time;
+            Runtime r = Runtime.getRuntime();
 
             try
             {
                 one_line = reader.readLine();
                 one_line = new String(one_line.getBytes(), "UTF-8");
 
+                start_time = System.currentTimeMillis();
+
                 while ((one_line != null) && (!progress_monitor.isCanceled()))
                 {
                     line++;
                     progress_monitor.setProgress(line);
+                    if ((line % 100 == 0) && (line != 0)) {
+                        current_time = System.currentTimeMillis();
+
+                        remaining_time = (((current_time - start_time) * (max_line - line) / line)) / (1000);
+                        progress_monitor.setNote("Cedict Parsing, " + remaining_time / 60 + "'" + remaining_time % 60 + "\" remaining...");
+                    }
 
                     System.out.println("parsing :" + one_line);
                     try
@@ -176,6 +237,10 @@ public class CedictParser extends HanziDB
                         status = -1;
                         return status;
                     }
+
+                    Thread.sleep(1);
+                    r.gc();
+
                     one_line = reader.readLine();
                     one_line = new String(one_line.getBytes(), "UTF-8");
                 }
@@ -223,18 +288,12 @@ public class CedictParser extends HanziDB
                 filename = my_preferences.get("cedict temp db :", "");
                 HanziDB_open(filename);
                 cedict_file = cedict_file_name;
-                try
+
+                if (this.get_number_words() != 0)
                 {
-                    if (this.check_for_empty_db() == false)
-                    {
-                        my_preferences.put("cedict file :", cedict_file);
-                        System.out.println("Opened temporary database for cedict, file %s" + filename);
-                        return 0;
-                    }
-                }
-                catch (SQLException ex)
-                {
-                    System.out.println("Cannot check for empty database, assume it failed\n");
+                    my_preferences.put("cedict file :", cedict_file);
+                    System.out.println("Opened temporary database for cedict, file " + filename);
+                    return 0;
                 }
             }
         }
@@ -269,7 +328,7 @@ public class CedictParser extends HanziDB
             progress_monitor = new ProgressMonitor(this.parent_frame, "Cedict Parsing", "", 0, max_line);
             progress_monitor.setMillisToDecideToPopup(2000);
 
-            Cedict_importer t = new Cedict_importer(cedict_file_name, progress_monitor);
+            Cedict_importer t = new Cedict_importer(cedict_file_name, progress_monitor,max_line);
             t.execute();
         }
         catch (IOException ex)
