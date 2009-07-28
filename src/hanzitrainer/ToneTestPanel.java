@@ -27,16 +27,19 @@
  */
 package hanzitrainer;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 /**
  *
  * @author matthieu
  */
-public class ToneTestPanel extends javax.swing.JPanel {
+public class ToneTestPanel extends javax.swing.JPanel
+{
 
     /** Creates new form ToneTestPanel */
-    public ToneTestPanel(HanziDBscore database, HanziApplicationUpdater updater) {
+    public ToneTestPanel(HanziDBscore database, HanziApplicationUpdater updater)
+    {
         initComponents();
         main_database = database;
         parent_app = updater;
@@ -48,23 +51,42 @@ public class ToneTestPanel extends javax.swing.JPanel {
 
     public void set_pinyin_test(String hanzi, String pinyin)
     {
+        old_character = current_character;
+        old_pinyin = current_pinyin;
+
+        Pinyin p = new Pinyin(old_pinyin);
+
         current_character = hanzi;
         current_pinyin = pinyin;
 
-        CharacterLabel.setText(hanzi);
+        OldCharacterLabel.setText(old_character);
+        OldPinyinLabel.setText(p.get_print_version());
+        if (success)
+        {
+            OldPinyinLabel.setForeground(Color.GREEN);
+        }
+        else
+        {
+            OldPinyinLabel.setForeground(Color.RED);
+        }
+
+
+
+        CharacterLabel.setText(current_character);
         PinyinLabel.setText(Pinyin.pinyin_base(pinyin));
         ToneTableFiller.set_filter(hanzi, pinyin);
         ToneTableFiller.fireTableDataChanged();
     }
 
-
-    private void set_new_random_pinyin() {
+    private void set_new_random_pinyin()
+    {
         int num_char = main_database.get_number_characters();
         int index;
         int char_id;
         String hanzi, pinyin;
 
-        if (num_char == 0) {
+        if (num_char == 0)
+        {
             return;
         }
 
@@ -77,7 +99,8 @@ public class ToneTestPanel extends javax.swing.JPanel {
         } while (character_history.contains(hanzi));
 
         character_history.add(hanzi);
-        if (character_history.size() > (num_char - 1) / 2) {
+        if (character_history.size() > (num_char - 1) / 2)
+        {
             character_history.remove(0);
         }
         ArrayList<String> pinyins = main_database.get_pinyin_for_character(hanzi);
@@ -91,7 +114,7 @@ public class ToneTestPanel extends javax.swing.JPanel {
             pinyin = pinyins.get(0);
         }
 
-        set_pinyin_test(hanzi,pinyin);
+        set_pinyin_test(hanzi, pinyin);
 
     }
 
@@ -114,8 +137,8 @@ public class ToneTestPanel extends javax.swing.JPanel {
         ThirdToneButton = new javax.swing.JButton();
         FourthToneButton = new javax.swing.JButton();
         PinyinLabel = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        OldCharacterLabel = new javax.swing.JLabel();
+        OldPinyinLabel = new javax.swing.JLabel();
 
         setName("Form"); // NOI18N
 
@@ -179,11 +202,12 @@ public class ToneTestPanel extends javax.swing.JPanel {
         PinyinLabel.setText(resourceMap.getString("PinyinLabel.text")); // NOI18N
         PinyinLabel.setName("PinyinLabel"); // NOI18N
 
-        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
-        jLabel1.setName("jLabel1"); // NOI18N
+        OldCharacterLabel.setFont(resourceMap.getFont("OldCharacterLabel.font")); // NOI18N
+        OldCharacterLabel.setText(resourceMap.getString("OldCharacterLabel.text")); // NOI18N
+        OldCharacterLabel.setName("OldCharacterLabel"); // NOI18N
 
-        jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
-        jLabel2.setName("jLabel2"); // NOI18N
+        OldPinyinLabel.setText(resourceMap.getString("OldPinyinLabel.text")); // NOI18N
+        OldPinyinLabel.setName("OldPinyinLabel"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -207,14 +231,14 @@ public class ToneTestPanel extends javax.swing.JPanel {
                 .addGap(12, 12, 12)
                 .addComponent(CharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                .addComponent(CharDBScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addGap(135, 135, 135)
-                .addComponent(jLabel1)
-                .addGap(45, 45, 45)
-                .addComponent(jLabel2)
-                .addContainerGap(146, Short.MAX_VALUE))
+                .addComponent(OldCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
+                .addComponent(OldPinyinLabel)
+                .addContainerGap(223, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -235,14 +259,15 @@ public class ToneTestPanel extends javax.swing.JPanel {
                     .addComponent(FourthToneButton))
                 .addGap(66, 66, 66)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(OldPinyinLabel)
+                    .addComponent(OldCharacterLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CharDBTableMouseClicked
-        if (evt.getClickCount() == 2) {
+        if (evt.getClickCount() == 2)
+        {
             int row = CharDBTable.getSelectedRow();
             String chinese_word;
             chinese_word = (String) ToneTableFiller.getValueAt(row, 0);
@@ -284,14 +309,13 @@ public class ToneTestPanel extends javax.swing.JPanel {
     {
         if (Pinyin.pinyin_tone(current_pinyin) == tone)
         {
-            //success
+            success = true;
         }
         else
         {
-            //failure
+            success = false;
         }
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane CharDBScroll;
     private javax.swing.JTable CharDBTable;
@@ -299,18 +323,19 @@ public class ToneTestPanel extends javax.swing.JPanel {
     private javax.swing.JButton FirstToneButton;
     private javax.swing.JButton FourthToneButton;
     private javax.swing.JButton NoToneButton;
+    private javax.swing.JLabel OldCharacterLabel;
+    private javax.swing.JLabel OldPinyinLabel;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JButton SecondToneButton;
     private javax.swing.JButton ThirdToneButton;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
     private ToneTestTableFiller ToneTableFiller;
     private ArrayList<String> character_history;
     private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
-
-    private String current_character;
-    private String current_pinyin;
-
+    private String current_character = "";
+    private String current_pinyin = "";
+    private String old_character = "";
+    private String old_pinyin = "";
+    private boolean success;
 }

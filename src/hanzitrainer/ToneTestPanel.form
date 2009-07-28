@@ -39,15 +39,15 @@
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               <Component id="CharacterLabel" min="-2" pref="157" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="CharDBScroll" pref="223" max="32767" attributes="1"/>
+              <Component id="CharDBScroll" pref="254" max="32767" attributes="1"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="135" max="-2" attributes="0"/>
-              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
-              <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="146" max="32767" attributes="0"/>
+              <Component id="OldCharacterLabel" min="-2" pref="50" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
+              <Component id="OldPinyinLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="223" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -73,8 +73,8 @@
               </Group>
               <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="3" min="-2" pref="52" max="-2" attributes="0"/>
+                  <Component id="OldPinyinLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="OldCharacterLabel" alignment="3" min="-2" pref="52" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -168,16 +168,17 @@
         <Property name="name" type="java.lang.String" value="PinyinLabel" noResource="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="OldCharacterLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="jLabel1.text"/>
-        <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
+        <Property name="font" type="java.awt.Font" resourceKey="OldCharacterLabel.font"/>
+        <Property name="text" type="java.lang.String" resourceKey="OldCharacterLabel.text"/>
+        <Property name="name" type="java.lang.String" value="OldCharacterLabel" noResource="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
+    <Component class="javax.swing.JLabel" name="OldPinyinLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="jLabel2.text"/>
-        <Property name="name" type="java.lang.String" value="jLabel2" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="OldPinyinLabel.text"/>
+        <Property name="name" type="java.lang.String" value="OldPinyinLabel" noResource="true"/>
       </Properties>
     </Component>
   </SubComponents>
