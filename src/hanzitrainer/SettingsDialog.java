@@ -5,7 +5,9 @@
  */
 package hanzitrainer;
 
+import java.awt.Frame;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 
@@ -15,10 +17,13 @@ import javax.swing.JFileChooser;
  */
 public class SettingsDialog extends javax.swing.JDialog
 {
+
     /** Creates new form SettingsDialog */
     public SettingsDialog(java.awt.Frame parent, CedictParser cedict, HanziDB hanzi, boolean modal)
     {
         super(parent, modal);
+
+        parent_frame = parent;
 
         Preferences my_preferences;
         int randomness;
@@ -257,11 +262,31 @@ private void ApplyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIR
     }
 }//GEN-LAST:event_ApplyButtonActionPerformed
 
-private void CheckDBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckDBButtonActionPerformed
-    // will check local database against cedict database
-    cedict_parser.check_local_db(main_database);
-}//GEN-LAST:event_CheckDBButtonActionPerformed
+    private class word_correcter implements CedictParser.checker_result
+    {
+        @Override
+        public void handle_results(ArrayList<Integer> wrong_ids)
+        {
+            System.out.println("Show me the bad ids...");
+            if (wrong_ids.size() != 0)
+            {
+                ArrayList<String> new_pinyins = new ArrayList<String>();
+                for (int i = 0; i < wrong_ids.size(); i++)
+                {
+                    String chinese = main_database.get_word_details(wrong_ids.get(i)).get(0);
+                    int cedict_id = cedict_parser.get_word_id(chinese);
+                    new_pinyins.add(cedict_parser.get_word_details(cedict_id).get(1));
+                }
 
+                CedictDBCorrection correction_dialog = new CedictDBCorrection(parent_frame, true, main_database, wrong_ids, new_pinyins);
+                correction_dialog.setVisible(true);
+            }
+        }
+    }
+
+private void CheckDBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckDBButtonActionPerformed
+    cedict_parser.check_local_db(main_database, new word_correcter());
+}//GEN-LAST:event_CheckDBButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ApplyButton;
     private javax.swing.JButton CancelButton;
@@ -275,10 +300,10 @@ private void CheckDBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JLabel RandomPickerValueLabel;
     private javax.swing.JLabel SettingsTitleLabel;
     // End of variables declaration//GEN-END:variables
-
     private javax.swing.JFileChooser CedictFileChooser;
     private CedictParser cedict_parser;
     private HanziDB main_database;
+    private Frame parent_frame;
 
     public static double random_low()
     {

@@ -129,6 +129,7 @@ public abstract class HanziDB
         {
             Statement st = conn.createStatement();
             //st.execute("SCRIPT TO '" + filename + "' CIPHER AES PASSWORD 'ILoveChinese'");
+            System.out.println("Saving to " + filename);
             st.execute("SCRIPT TO '" + filename + "'");
             st.close();
         }
@@ -180,19 +181,23 @@ public abstract class HanziDB
             st = conn.createStatement();
 
             DatabaseMetaData dbm = conn.getMetaData();
-            ResultSet rs = dbm.getTables(null, null, null, new String[] {"TABLE"});
-            if (rs.next()) {
+            ResultSet rs = dbm.getTables(null, null, null, new String[]
+                    {
+                        "TABLE"
+                    });
+            if (rs.next())
+            {
                 st.close();
                 return false;
             }
-            else {
+            else
+            {
                 st.close();
                 return true;
             }
         }
         catch (SQLException ex)
         {
-            
         }
         return true;
     }
@@ -328,7 +333,7 @@ public abstract class HanziDB
      * @param input character
      * @return True if the character seems Chinese
      */
-    protected Boolean is_chinese_char(String input)
+    public static Boolean is_chinese_char(String input)
     {
         int entry = input.codePointAt(0);
         if (((entry >= 0x4E00) && (entry <= 0x9fff)) // main CJK
@@ -419,11 +424,11 @@ public abstract class HanziDB
      * 
      * 
      */
-    public synchronized void add_translation(String english, ArrayList<String> pinyins, ArrayList<String> hanzi)
+    public synchronized int add_translation(String english, ArrayList<String> pinyins, ArrayList<String> hanzi)
     {
         if (!initialized)
         {
-            return;
+            return -1;
         }
         try
         {
@@ -437,9 +442,9 @@ public abstract class HanziDB
 
             if (pinyins.size() != hanzi.size())
             {
-                //System.out.println("add_translation : size of pinyins and hanzis need to be the same");
+                System.out.println("add_translation : size of pinyins and hanzis need to be the same");
                 st.close();
-                return;
+                return -1;
             }
 
             for (i = 0; i < hanzi.size(); i++)
@@ -462,24 +467,24 @@ public abstract class HanziDB
                 {
                     if (!Pinyin.verify_pinyin(pinyins.get(i)))
                     {
-                        //System.out.println("add_translation : pinyin " + pinyins.get(i) + " does not seem to be correct");
+                        System.out.println("add_translation : pinyin " + pinyins.get(i) + " does not seem to be correct");
                         st.close();
-                        return;
+                        return -1;
                     }
                 }
 
                 // First create a new Cword
-                st.executeUpdate("INSERT INTO cword(chinese) VALUES('"+chinese+"')");
-                rs = st.executeQuery("SELECT cword_id FROM  cword WHERE chinese='" + chinese +"'");
+                st.executeUpdate("INSERT INTO cword(chinese) VALUES('" + chinese + "')");
+                rs = st.executeQuery("SELECT cword_id FROM  cword WHERE chinese='" + chinese + "'");
                 if (!rs.next())
                 {
-                    //System.out.println("add_translation : seems like I was not able to insert a new cword ??");
+                    System.out.println("add_translation : seems like I was not able to insert a new cword ??");
                     st.close();
-                    return;
+                    return -1;
                 }
                 found_chinese_id = rs.getInt(1);
                 //System.out.println("Cword id is " + found_chinese_id);
-                st.executeUpdate("UPDATE cword SET chinese='" + chinese + "' WHERE cword_id="+found_chinese_id);
+                st.executeUpdate("UPDATE cword SET chinese='" + chinese + "' WHERE cword_id=" + found_chinese_id);
 
                 // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
@@ -500,29 +505,89 @@ public abstract class HanziDB
                     }
                 }
             }
-            {
-                english = english.substring(0, Math.min(249, english.length()));
-                english = english.replaceAll("'", "''");
 
-                //System.out.println("Add translation [" + english + "] to chinese " + found_chinese_id);
-
-                rs = st.executeQuery("SELECT eng_id FROM english " +
-                        " WHERE cword_id =" + found_chinese_id +
-                        " AND translation='" + english + "'");
-                if (!rs.next())
-                {
-                    st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + found_chinese_id + ",'" + english + "')");
-                }
-            }
+            add_translation(english, found_chinese_id);
 
             st.close();
             changed = true;
 
+            return found_chinese_id;
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+            return -1;
+        }
+
+    }
+
+    public synchronized void add_translation(String english, int id)
+    {
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            english = english.substring(0, Math.min(249, english.length()));
+            english = english.replaceAll("'", "''");
+
+            //System.out.println("Add translation [" + english + "] to chinese " + found_chinese_id);
+
+            rs = st.executeQuery("SELECT eng_id FROM english " +
+                    " WHERE cword_id =" + id +
+                    " AND translation='" + english + "'");
+            if (!rs.next())
+            {
+                st.executeUpdate("INSERT INTO english(cword_id, translation) VALUES(" + id + ",'" + english + "')");
+            }
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
         }
+    }
+
+    public synchronized void add_translation(ArrayList<String> english, ArrayList<String> pinyins, ArrayList<String> hanzi)
+    {
+        int id = add_translation(english.get(0), pinyins, hanzi);
+        if (id == -1)
+        {
+            System.out.println("something went wrong  !!!);");
+            return;
+        }
+
+        for (int i = 1; i < english.size(); i++)
+        {
+            add_translation(english.get(i), id);
+        }
+    }
+
+    protected synchronized void change_word_pinyin(int id, String pinyin)
+    {
+        ArrayList<String> translations = get_chinese_word_translation(get_word_details(id).get(0));
+        String chinese = get_word_details(id).get(0);
+        ArrayList<String> hanzi = new ArrayList<String>();
+        ArrayList<Pinyin> pinyins = PinyinParser.parse_string(pinyin);
+        ArrayList<String> pinyin_strings = new ArrayList<String>();
+
+        for (int i = 0; i < pinyins.size(); i++)
+        {
+            pinyin_strings.add(pinyins.get(i).get_lame_version());
+        }
+
+        for (int i = 0; i < chinese.codePointCount(0, chinese.length()); i++)
+        {
+            int from = chinese.offsetByCodePoints(0, i);
+            int to = chinese.offsetByCodePoints(0, i + 1);
+
+            hanzi.add(chinese.substring(from, to));
+        }
+
+        for (int i = 0; i < translations.size(); i++)
+        {
+            delete_translation(translations.get(i), hanzi);
+        }
+        add_translation(translations, pinyin_strings, hanzi);
     }
 
     /**
@@ -762,9 +827,9 @@ public abstract class HanziDB
             {
                 return;
 
-            // db writes out to files and performs clean shuts down
-            // otherwise there will be an unclean shutdown
-            // when program ends
+                // db writes out to files and performs clean shuts down
+                // otherwise there will be an unclean shutdown
+                // when program ends
             }
             st.execute("SHUTDOWN");
             conn.close();    // if there are no other open connection
@@ -873,6 +938,7 @@ public abstract class HanziDB
     protected boolean upgrade_database()
     {
         int version;
+        boolean updated = false;
 
         version = get_database_version();
 
@@ -888,20 +954,6 @@ public abstract class HanziDB
                 st.executeUpdate("UPDATE character_pinyin" +
                         " SET tone=0 WHERE tone IS NULL");
 
-                st.executeUpdate("DROP VIEW english_pinyin_chinese");
-                st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
-                        " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
-                        " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
-                        " FROM (SELECT cpb.cword_id," +
-                        " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
-                        " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
-                        " FROM cword AS cw" +
-                        " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
-                        " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                        " JOIN character AS ch ON ch.char_id=cp.char_id" +
-                        " GROUP BY cpb.cword_id) AS c_words" +
-                        " JOIN english AS e ON e.cword_id=c_words.cword_id " +
-                        " GROUP BY e.cword_id )");
                 st.executeUpdate("UPDATE database_info SET value='3' WHERE field='version'");
                 st.close();
             }
@@ -921,22 +973,9 @@ public abstract class HanziDB
                 Statement st = conn.createStatement();
 
                 // upgrade the size for translations
-                st.executeUpdate("DROP VIEW english_pinyin_chinese");
                 st.executeUpdate("ALTER TABLE english ALTER COLUMN translation VARCHAR(250)");
                 st.executeUpdate("UPDATE database_info SET value='4' WHERE field='version'");
-                st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
-                        " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
-                        " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
-                        " FROM (SELECT cpb.cword_id," +
-                        " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
-                        " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
-                        " FROM cword AS cw" +
-                        " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
-                        " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                        " JOIN character AS ch ON ch.char_id=cp.char_id" +
-                        " GROUP BY cpb.cword_id) AS c_words" +
-                        " JOIN english AS e ON e.cword_id=c_words.cword_id " +
-                        " GROUP BY e.cword_id )");
+
                 st.close();
             }
             catch (SQLException ex)
@@ -956,42 +995,57 @@ public abstract class HanziDB
                 ResultSet rs = null;
 
                 // Add the chinese word into the cword table
-                st.executeUpdate("DROP VIEW english_pinyin_chinese");
                 st.executeUpdate("ALTER TABLE cword ADD COLUMN chinese VARCHAR(30)");
                 st.executeUpdate("UPDATE database_info SET value='5' WHERE field='version'");
-                st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
-                        " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
-                        " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
-                        " FROM (SELECT cpb.cword_id," +
-                        " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
-                        " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
-                        " FROM cword AS cw" +
-                        " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
-                        " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                        " JOIN character AS ch ON ch.char_id=cp.char_id" +
-                        " GROUP BY cpb.cword_id) AS c_words" +
-                        " JOIN english AS e ON e.cword_id=c_words.cword_id " +
-                        " GROUP BY e.cword_id )");
-                
+
                 rs = st2.executeQuery("SELECT cword_id, hanzi FROM english_pinyin_chinese");
                 for (; rs.next();)
                 {
                     int id = rs.getInt(1);
                     String word = rs.getString(2);
-                    st.executeUpdate("UPDATE cword SET chinese='" + word + "' WHERE cword_id="+id);
+                    st.executeUpdate("UPDATE cword SET chinese='" + word + "' WHERE cword_id=" + id);
                 }
                 st.close();
                 st2.close();
 
-                // this one should always move to the latest version...
-                return true;
             }
             catch (SQLException ex)
             {
                 ex.printStackTrace();
             }
+            // this one should always be at the last update...
+            updated = true;
         }
-        return false;
+        // always recreate the view at the end...
+        try
+        {
+            Statement st = conn.createStatement();
+
+            // Add the chinese word into the cword table
+            st.executeUpdate("DROP VIEW IF EXISTS english_pinyin_chinese");
+            st.executeUpdate("CREATE VIEW english_pinyin_chinese AS" +
+                    " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
+                    " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
+                    " FROM (SELECT cpb.cword_id," +
+                    " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                    " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
+                    " FROM cword AS cw" +
+                    " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
+                    " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
+                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
+                    " GROUP BY cpb.cword_id) AS c_words" +
+                    " JOIN english AS e ON e.cword_id=c_words.cword_id " +
+                    " GROUP BY e.cword_id )");
+            st.close();
+
+            // this one should always move to the latest version...
+            return true;
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return updated;
     }
 
     /**
@@ -1220,7 +1274,7 @@ public abstract class HanziDB
      * 
      * @param index from 0 to the number of words - 1 
      * @see get_number_words()
-     * @return ArrayList with : Chinese word, pinyin, translations and score
+     * @return ArrayList with : Chinese word, pinyin, translations
      */
     public ArrayList<String> get_word_details(int index)
     {
@@ -1374,3 +1428,4 @@ public abstract class HanziDB
         return res;
     }
 }    // class Testdb
+

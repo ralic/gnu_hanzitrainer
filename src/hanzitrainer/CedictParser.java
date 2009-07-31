@@ -35,6 +35,9 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
@@ -61,7 +64,7 @@ public class CedictParser extends HanziDB
             long start_time = System.currentTimeMillis(), end_time;
             HanziDB_open(filename);
             end_time = System.currentTimeMillis();
-            System.out.println("Cedict parser init, opened db "+filename+" in " + (end_time - start_time)/1000 + " seconds");
+            System.out.println("Cedict parser init, opened db " + filename + " in " + (end_time - start_time) / 1000 + " seconds");
         }
     }
 
@@ -91,52 +94,48 @@ public class CedictParser extends HanziDB
         parent_frame = parent;
     }
 
-    public ArrayList<Integer> check_local_db(HanziDB db)
+    public void check_local_db(HanziDB db, checker_result handle)
     {
-        ArrayList<Integer> res = new ArrayList<Integer>();
-        int num_words_to_check = db.get_number_words();
-        int cword_id, cword_cedict_id;
-        ArrayList<String> word_details;
-        String chinese_word, pinyin, cedict_pinyin;
+        progress_monitor = new ProgressMonitor(this.parent_frame, "Checking your database...", "", 0, 0);
+        progress_monitor.setMillisToDecideToPopup(2000);
+        Cedict_checker c = new Cedict_checker(db, progress_monitor, handle);
+        c.execute();
+    }
 
-        int count=0;
+    public interface checker_result
+    {
+        void handle_results(ArrayList<Integer> wrong_ids);
+    }
 
-        if (this.get_number_words() == 0)
+    private boolean check_word(HanziDB db, int id)
+    {
+        ArrayList<String> word_details = db.get_word_details(id);
+        String chinese_word = word_details.get(0);
+        String pinyin = word_details.get(1);
+        String cedict_pinyin;
+        int cword_cedict_id;
+
+        cword_cedict_id = this.get_word_id(chinese_word);
+        if (cword_cedict_id != -1)
         {
-            return res;
-        }
-
-        for (int i=0; i<num_words_to_check; i++) {
-            cword_id = db.get_word_id(i);
-            word_details = db.get_word_details(cword_id);
-            chinese_word = word_details.get(0);
-            pinyin = word_details.get(1);
-
-            cword_cedict_id = this.get_word_id(chinese_word);
-            if (cword_cedict_id != -1)
+            // we found a match, let's check it...
+            cedict_pinyin = this.get_word_details(cword_cedict_id).get(1);
+            if (!cedict_pinyin.equals(pinyin))
             {
-                // we found a match, let's check it...
-                count ++;
-                cedict_pinyin = this.get_word_details(cword_cedict_id).get(1);
-                if (!cedict_pinyin.equals(pinyin))
-                {
-                    System.out.println("word " + chinese_word + "does not match (" + pinyin + ", " + cedict_pinyin + ")");
-                    res.add(cword_id);
-                }
-                else
-                {
-                    System.out.println("word " + chinese_word + " match");
-                }
-                Thread.yield();
+                System.out.println("word " + chinese_word + "does not match (" + pinyin + ", " + cedict_pinyin + ")");
+                return false;
             }
             else
             {
-                System.out.println("Could not find " + chinese_word);
+                System.out.println("word " + chinese_word + " match");
+                return true;
             }
         }
-
-        System.out.println("Was able to check " + count + " words");
-        return res;
+        else
+        {
+            System.out.println("Could not find " + chinese_word);
+        }
+        return true;
     }
 
     private class Cedict_importer extends SwingWorker<Integer, Integer>
@@ -221,7 +220,8 @@ public class CedictParser extends HanziDB
                 {
                     line++;
                     progress_monitor.setProgress(line);
-                    if ((line % 100 == 0) && (line != 0)) {
+                    if ((line % 100 == 0) && (line != 0))
+                    {
                         current_time = System.currentTimeMillis();
 
                         remaining_time = (((current_time - start_time) * (max_line - line) / line)) / (1000);
@@ -261,6 +261,68 @@ public class CedictParser extends HanziDB
             }
             return status;
         }
+    }
+
+    private class Cedict_checker extends SwingWorker<ArrayList<Integer>, Integer>
+    {
+
+        public Cedict_checker(HanziDB db, ProgressMonitor pm, checker_result handle)
+        {
+            main_database = db;
+            progress_monitor = pm;
+            progress_monitor.setMaximum(main_database.get_number_words());
+            res_handle = handle;
+        }
+
+        @Override
+        protected void done()
+        {
+            if (!progress_monitor.isCanceled())
+            {
+                try
+                {
+                    System.out.println("Done with checking, output results...");
+                    res_handle.handle_results(get());
+                }
+                catch (InterruptedException ex)
+                {
+                }
+                catch (ExecutionException ex)
+                {
+                }
+            }
+        }
+
+        @Override
+        protected ArrayList<Integer> doInBackground()
+        {
+            ArrayList<Integer> res = new ArrayList<Integer>();
+            int num_words_to_check = main_database.get_number_words();
+            int cword_id, count = 0;
+
+            for (int i = 0; i < num_words_to_check; i++)
+            {
+                cword_id = main_database.get_word_id(i);
+                if (!check_word(main_database, cword_id))
+                {
+                    res.add(cword_id);
+                }
+                count++;
+                progress_monitor.setProgress(count);
+                Thread.yield();
+                if (progress_monitor.isCanceled())
+                {
+                    return res;
+                }
+            }
+
+            System.out.println("Was able to check " + count + " words");
+
+            return res;
+        }
+        private ProgressMonitor progress_monitor;
+        private HanziDB main_database;
+        private checker_result res_handle;
     }
 
     /**
@@ -328,7 +390,7 @@ public class CedictParser extends HanziDB
             progress_monitor = new ProgressMonitor(this.parent_frame, "Cedict Parsing", "", 0, max_line);
             progress_monitor.setMillisToDecideToPopup(2000);
 
-            Cedict_importer t = new Cedict_importer(cedict_file_name, progress_monitor,max_line);
+            Cedict_importer t = new Cedict_importer(cedict_file_name, progress_monitor, max_line);
             t.execute();
         }
         catch (IOException ex)
@@ -387,6 +449,9 @@ public class CedictParser extends HanziDB
 
         // in pinyins : replace '5' with '0', replace 'u:' with 'v', change to lower case
         pinyins = pinyins.toLowerCase().replaceAll("u:", "v").replaceAll("5", "0");
+        // remove commas, dots
+        pinyins = pinyins.replaceAll(",", "").replaceAll("·", "");
+        chinese = chinese.replaceAll("，", "").replaceAll("・", "");
 
         System.out.println("CEDICT : Found chinese -" + chinese + "- pinyin -" + pinyins + "-");
 
@@ -397,6 +462,11 @@ public class CedictParser extends HanziDB
             int from = chinese.offsetByCodePoints(0, i);
             int to = chinese.offsetByCodePoints(0, i + 1);
             //System.out.println("Adding " + chinese.substring(from, to));
+            if (!HanziDB.is_chinese_char(chinese.substring(from, to)))
+            {
+                //System.out.println("Some non chinese characters in there...");
+                return;
+            }
             hanzi_list.add(chinese.substring(from, to));
         }
 
@@ -410,14 +480,9 @@ public class CedictParser extends HanziDB
             //System.out.println("Adding " + token);
         }
 
-        for (int i = 0; i < translations.size(); i++)
-        {
-            add_translation(translations.get(i), pinyin_list, hanzi_list);
-        }
+        add_translation(translations, pinyin_list, hanzi_list);
     }
-
     private String cedict_file = "";
-
     java.awt.Frame parent_frame;
     private ProgressMonitor progress_monitor;
 }
