@@ -80,7 +80,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         int i;
 
         // If there was nothing, then do not do anything...
-        if (current_character == "")
+        if (current_character.equals(""))
             return;
 
         // Move all current stuff to previous
@@ -187,7 +187,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         int num_char = main_database.get_number_characters();
 
         // If there was nothing, then do not do anything...
-        if (current_character == "")
+        if (current_character.equals(""))
             return;
 
         
@@ -581,16 +581,19 @@ private void PreviousCharacterLabelMouseClicked(java.awt.event.MouseEvent evt) {
     private ArrayList<Integer> chinese_word_list_state; // 0=good, 1=bad, 2=other
     private ArrayList<String> chinese_word_list_translation;
 
+    @Override
     public int getRowCount()
     {
         return chinese_word_list.size();
     }
 
+    @Override
     public int getColumnCount()
     {
         return 2;
     }
 
+    @Override
     public String getColumnName(int columnIndex)
     {
         switch (columnIndex)
@@ -603,16 +606,19 @@ private void PreviousCharacterLabelMouseClicked(java.awt.event.MouseEvent evt) {
         return "column " + columnIndex + " ??";
     }
 
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         return String.class;
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         return false;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         int state;
@@ -653,15 +659,18 @@ private void PreviousCharacterLabelMouseClicked(java.awt.event.MouseEvent evt) {
         return res;
     }
 
+    @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
     {
         return;
     }
 
+    @Override
     public void addTableModelListener(TableModelListener l)
     {
     }
 
+    @Override
     public void removeTableModelListener(TableModelListener l)
     {
     }
