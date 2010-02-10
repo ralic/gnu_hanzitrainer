@@ -36,6 +36,7 @@ import java.util.Locale;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+import java.awt.Font;
 
 /**
  *
@@ -196,7 +197,8 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         guess_pinyins.clear();
         for (String item : guessed_pinyins)
         {
-            guess_pinyins.add(item.trim());
+            Pinyin py = new Pinyin(item.trim());
+            guess_pinyins.add(py.get_lame_version());
         }
         
         // Sort out the pinyins between good, bad and others (not guessed)
@@ -313,7 +315,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             index = (int) (SettingsDialog.random_low() * num_char);
             System.out.println("random number got " + index + " over " + num_char);
             hanzi = main_database.get_character_details(
-                    main_database.get_character_id(index));
+                    main_database.get_character_id_low_score(index));
             System.out.println("getting index " + index);
         }
         while (character_history.contains(hanzi));
@@ -357,13 +359,13 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
 
         setName("Form"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(CharacterTestPanel.class);
-        CharacterLabel.setFont(resourceMap.getFont("CharacterLabel.font")); // NOI18N
+        CharacterLabel.setFont(Font.decode("MingLiU 80 56 12-Plain-24")); // NOI18N
+
         CharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         CharacterLabel.setName("CharacterLabel"); // NOI18N
 
-        DoneGuessCharacterButton.setText(resourceMap.getString("DoneGuessCharacterButton.text")); // NOI18N
+        DoneGuessCharacterButton.setText("Done"); // NOI18N
         DoneGuessCharacterButton.setName("DoneGuessCharacterButton"); // NOI18N
         DoneGuessCharacterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -371,13 +373,13 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             }
         });
 
-        PinyinsLabel.setText(resourceMap.getString("PinyinsLabel.text")); // NOI18N
+        PinyinsLabel.setText("Pinyin(s)"); // NOI18N
         PinyinsLabel.setName("PinyinsLabel"); // NOI18N
 
-        AsInLabel.setText(resourceMap.getString("AsInLabel.text")); // NOI18N
+        AsInLabel.setText("As in :"); // NOI18N
         AsInLabel.setName("AsInLabel"); // NOI18N
 
-        GuessPinyinTextField.setText(resourceMap.getString("GuessPinyinTextField.text")); // NOI18N
+        GuessPinyinTextField.setText(""); // NOI18N
         GuessPinyinTextField.setName("GuessPinyinTextField"); // NOI18N
         GuessPinyinTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -385,7 +387,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             }
         });
 
-        GuessChineseTextField.setText(resourceMap.getString("GuessChineseTextField.text")); // NOI18N
+        GuessChineseTextField.setText(""); // NOI18N
         GuessChineseTextField.setName("GuessChineseTextField"); // NOI18N
         GuessChineseTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -401,7 +403,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             }
         });
 
-        PreviousCharacterLabel.setFont(resourceMap.getFont("PreviousCharacterLabel.font")); // NOI18N
+        PreviousCharacterLabel.setFont(Font.decode("MingLiU 80 56 12-Plain-24")); // NOI18N
         PreviousCharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PreviousCharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         PreviousCharacterLabel.setName("PreviousCharacterLabel"); // NOI18N
@@ -411,10 +413,10 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             }
         });
 
-        PreviouslyLabel.setText(resourceMap.getString("PreviouslyLabel.text")); // NOI18N
+        PreviouslyLabel.setText("Previously :"); // NOI18N
         PreviouslyLabel.setName("PreviouslyLabel"); // NOI18N
 
-        GoodOrBadLabel.setText(resourceMap.getString("GoodOrBadLabel.text")); // NOI18N
+        GoodOrBadLabel.setText(""); // NOI18N
         GoodOrBadLabel.setName("GoodOrBadLabel"); // NOI18N
 
         PreviousCharDBScroll.setName("PreviousCharDBScroll"); // NOI18N
@@ -429,7 +431,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         });
         PreviousCharDBScroll.setViewportView(PreviousCharDBTable);
 
-        PreviousPinyinsLabel.setText(resourceMap.getString("PreviousPinyinsLabel.text")); // NOI18N
+        PreviousPinyinsLabel.setText(""); // NOI18N
         PreviousPinyinsLabel.setName("PreviousPinyinsLabel"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

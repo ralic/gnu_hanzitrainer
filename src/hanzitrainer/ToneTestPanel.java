@@ -28,6 +28,7 @@
 package hanzitrainer;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
 
 /**
@@ -142,8 +143,7 @@ public class ToneTestPanel extends javax.swing.JPanel
 
         setName("Form"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(ToneTestPanel.class);
-        CharacterLabel.setFont(resourceMap.getFont("CharacterLabel.font")); // NOI18N
+        CharacterLabel.setFont(Font.decode("SimSun-Plain-36")); // NOI18N
         CharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         CharacterLabel.setName("CharacterLabel"); // NOI18N
@@ -159,7 +159,7 @@ public class ToneTestPanel extends javax.swing.JPanel
         });
         CharDBScroll.setViewportView(CharDBTable);
 
-        NoToneButton.setText(resourceMap.getString("NoToneButton.text")); // NOI18N
+        NoToneButton.setText("No Tone"); // NOI18N
         NoToneButton.setName("NoToneButton"); // NOI18N
         NoToneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -167,7 +167,7 @@ public class ToneTestPanel extends javax.swing.JPanel
             }
         });
 
-        FirstToneButton.setText(resourceMap.getString("FirstToneButton.text")); // NOI18N
+        FirstToneButton.setText("First Tone"); // NOI18N
         FirstToneButton.setName("FirstToneButton"); // NOI18N
         FirstToneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -175,7 +175,7 @@ public class ToneTestPanel extends javax.swing.JPanel
             }
         });
 
-        SecondToneButton.setText(resourceMap.getString("SecondToneButton.text")); // NOI18N
+        SecondToneButton.setText("Second Tone"); // NOI18N
         SecondToneButton.setName("SecondToneButton"); // NOI18N
         SecondToneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -183,7 +183,7 @@ public class ToneTestPanel extends javax.swing.JPanel
             }
         });
 
-        ThirdToneButton.setText(resourceMap.getString("ThirdToneButton.text")); // NOI18N
+        ThirdToneButton.setText("Third Tone"); // NOI18N
         ThirdToneButton.setName("ThirdToneButton"); // NOI18N
         ThirdToneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -191,7 +191,7 @@ public class ToneTestPanel extends javax.swing.JPanel
             }
         });
 
-        FourthToneButton.setText(resourceMap.getString("FourthToneButton.text")); // NOI18N
+        FourthToneButton.setText("Fourth Tone"); // NOI18N
         FourthToneButton.setName("FourthToneButton"); // NOI18N
         FourthToneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -199,14 +199,14 @@ public class ToneTestPanel extends javax.swing.JPanel
             }
         });
 
-        PinyinLabel.setText(resourceMap.getString("PinyinLabel.text")); // NOI18N
+        PinyinLabel.setText(""); // NOI18N
         PinyinLabel.setName("PinyinLabel"); // NOI18N
 
-        OldCharacterLabel.setFont(resourceMap.getFont("OldCharacterLabel.font")); // NOI18N
-        OldCharacterLabel.setText(resourceMap.getString("OldCharacterLabel.text")); // NOI18N
+        OldCharacterLabel.setFont(Font.decode("SimSun-Plain-24")); // NOI18N
+        OldCharacterLabel.setText(""); // NOI18N
         OldCharacterLabel.setName("OldCharacterLabel"); // NOI18N
 
-        OldPinyinLabel.setText(resourceMap.getString("OldPinyinLabel.text")); // NOI18N
+        OldPinyinLabel.setText(""); // NOI18N
         OldPinyinLabel.setName("OldPinyinLabel"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

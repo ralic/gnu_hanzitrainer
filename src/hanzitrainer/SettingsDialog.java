@@ -67,11 +67,10 @@ public class SettingsDialog extends javax.swing.JDialog
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(SettingsDialog.class);
-        SettingsTitleLabel.setText(resourceMap.getString("SettingsTitleLabel.text")); // NOI18N
+        SettingsTitleLabel.setText("Settings :"); // NOI18N
         SettingsTitleLabel.setName("SettingsTitleLabel"); // NOI18N
 
-        RandomPickerLabel.setText(resourceMap.getString("RandomPickerLabel.text")); // NOI18N
+        RandomPickerLabel.setText("Random Pick bias :"); // NOI18N
         RandomPickerLabel.setName("RandomPickerLabel"); // NOI18N
 
         RandomPickerSlider.setMinimum(5);
@@ -82,13 +81,13 @@ public class SettingsDialog extends javax.swing.JDialog
             }
         });
 
-        RandomPickerValueLabel.setText(resourceMap.getString("RandomPickerValueLabel.text")); // NOI18N
+        RandomPickerValueLabel.setText(""); // NOI18N
         RandomPickerValueLabel.setName("RandomPickerValueLabel"); // NOI18N
 
-        CedictFileLabel.setText(resourceMap.getString("CedictFileLabel.text")); // NOI18N
+        CedictFileLabel.setText("Cedict file :"); // NOI18N
         CedictFileLabel.setName("CedictFileLabel"); // NOI18N
 
-        CedictFileField.setText(resourceMap.getString("CedictFileField.text")); // NOI18N
+        CedictFileField.setText(""); // NOI18N
         CedictFileField.setName("CedictFileField"); // NOI18N
         CedictFileField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -96,10 +95,10 @@ public class SettingsDialog extends javax.swing.JDialog
             }
         });
 
-        CedictFileBrowseButton.setText(resourceMap.getString("CedictFileBrowseButton.text")); // NOI18N
+        CedictFileBrowseButton.setText("Browse..."); // NOI18N
         CedictFileBrowseButton.setName("CedictFileBrowseButton"); // NOI18N
 
-        OKButton.setText(resourceMap.getString("OKButton.text")); // NOI18N
+        OKButton.setText("OK"); // NOI18N
         OKButton.setName("OKButton"); // NOI18N
         OKButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -107,7 +106,7 @@ public class SettingsDialog extends javax.swing.JDialog
             }
         });
 
-        CancelButton.setText(resourceMap.getString("CancelButton.text")); // NOI18N
+        CancelButton.setText("Cancel"); // NOI18N
         CancelButton.setName("CancelButton"); // NOI18N
         CancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -115,7 +114,7 @@ public class SettingsDialog extends javax.swing.JDialog
             }
         });
 
-        ApplyButton.setText(resourceMap.getString("ApplyButton.text")); // NOI18N
+        ApplyButton.setText("Apply"); // NOI18N
         ApplyButton.setName("ApplyButton"); // NOI18N
         ApplyButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -123,7 +122,7 @@ public class SettingsDialog extends javax.swing.JDialog
             }
         });
 
-        CheckDBButton.setText(resourceMap.getString("CheckDBButton.text")); // NOI18N
+        CheckDBButton.setText("Check DB"); // NOI18N
         CheckDBButton.setName("CheckDBButton"); // NOI18N
         if (cedict_parser.check_for_empty_db() == true)
         {

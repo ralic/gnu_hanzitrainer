@@ -82,8 +82,7 @@ public class CedictDBCorrection extends javax.swing.JDialog {
         CorrectionTable.setName("CorrectionTable"); // NOI18N
         CorrectionScroll.setViewportView(CorrectionTable);
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(CedictDBCorrection.class);
-        OKButton.setText(resourceMap.getString("OKButton.text")); // NOI18N
+        OKButton.setText("OK"); // NOI18N
         OKButton.setName("OKButton"); // NOI18N
         OKButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -91,7 +90,7 @@ public class CedictDBCorrection extends javax.swing.JDialog {
             }
         });
 
-        CancelButton.setText(resourceMap.getString("CancelButton.text")); // NOI18N
+        CancelButton.setText("Cancel"); // NOI18N
         CancelButton.setName("CancelButton"); // NOI18N
         CancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

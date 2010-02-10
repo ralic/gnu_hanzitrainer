@@ -176,12 +176,11 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
             .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
         );
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(HanziTrainerView.class);
-        Tabs.getAccessibleContext().setAccessibleName(resourceMap.getString("jTabbedPane1.AccessibleContext.accessibleName")); // NOI18N
+        Tabs.getAccessibleContext().setAccessibleName("Vocabulary Builder"); // NOI18N
 
         menuBar.setName("menuBar"); // NOI18N
 
-        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
+        fileMenu.setText("File"); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
         fileMenu.addMenuListener(new javax.swing.event.MenuListener() {
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
@@ -195,7 +194,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
 
         OpenDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         OpenDBMenuItem.setMnemonic('O');
-        OpenDBMenuItem.setText(resourceMap.getString("OpenDBMenuItem.text")); // NOI18N
+        OpenDBMenuItem.setText("Open Database..."); // NOI18N
         OpenDBMenuItem.setName("OpenDBMenuItem"); // NOI18N
         OpenDBMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -203,10 +202,10 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
             }
         });
         fileMenu.add(OpenDBMenuItem);
-        OpenDBMenuItem.getAccessibleContext().setAccessibleDescription(resourceMap.getString("OpenDBItem1.AccessibleContext.accessibleDescription")); // NOI18N
+        OpenDBMenuItem.getAccessibleContext().setAccessibleDescription("Open an existing database"); // NOI18N
 
         CloseDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.CTRL_MASK));
-        CloseDBMenuItem.setText(resourceMap.getString("CloseDBMenuItem.text")); // NOI18N
+        CloseDBMenuItem.setText("Close Database"); // NOI18N
         CloseDBMenuItem.setName("CloseDBMenuItem"); // NOI18N
         CloseDBMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -216,7 +215,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         fileMenu.add(CloseDBMenuItem);
 
         SaveDBMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
-        SaveDBMenuItem.setText(resourceMap.getString("SaveDBMenuItem.text")); // NOI18N
+        SaveDBMenuItem.setText("Save Database"); // NOI18N
         SaveDBMenuItem.setName("SaveDBMenuItem"); // NOI18N
         SaveDBMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -224,10 +223,10 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
             }
         });
         fileMenu.add(SaveDBMenuItem);
-        SaveDBMenuItem.getAccessibleContext().setAccessibleDescription(resourceMap.getString("SaveDBMenuItem.AccessibleContext.accessibleDescription")); // NOI18N
+        SaveDBMenuItem.getAccessibleContext().setAccessibleDescription("Save the database"); // NOI18N
 
         SaveDBAsMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F12, java.awt.event.InputEvent.CTRL_MASK));
-        SaveDBAsMenuItem.setText(resourceMap.getString("SaveDBAsMenuItem.text")); // NOI18N
+        SaveDBAsMenuItem.setText("Save Database as..."); // NOI18N
         SaveDBAsMenuItem.setName("SaveDBAsMenuItem"); // NOI18N
         SaveDBAsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -243,10 +242,10 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
 
         menuBar.add(fileMenu);
 
-        helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
+        helpMenu.setText("Help"); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
 
-        OptionsMenuItem.setText(resourceMap.getString("OptionsMenuItem.text")); // NOI18N
+        OptionsMenuItem.setText("Options..."); // NOI18N
         OptionsMenuItem.setName("OptionsMenuItem"); // NOI18N
         OptionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

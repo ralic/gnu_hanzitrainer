@@ -156,14 +156,13 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
 
         setName("Form"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(ChineseWordTestPanel.class);
-        EnglishLabel.setText(resourceMap.getString("EnglishLabel.text")); // NOI18N
+        EnglishLabel.setText("English translation :"); // NOI18N
         EnglishLabel.setName("EnglishLabel"); // NOI18N
 
-        ChineseGuessLabel.setText(resourceMap.getString("ChineseGuessLabel.text")); // NOI18N
+        ChineseGuessLabel.setText("Chinese guess :"); // NOI18N
         ChineseGuessLabel.setName("ChineseGuessLabel"); // NOI18N
 
-        ChineseGuessTextField.setText(resourceMap.getString("ChineseGuessTextField.text")); // NOI18N
+        ChineseGuessTextField.setText(""); // NOI18N
         ChineseGuessTextField.setName("ChineseGuessTextField"); // NOI18N
         ChineseGuessTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -179,10 +178,10 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
             }
         });
 
-        TranslationLabel.setText(resourceMap.getString("TranslationLabel.text")); // NOI18N
+        TranslationLabel.setText(""); // NOI18N
         TranslationLabel.setName("TranslationLabel"); // NOI18N
 
-        DoneButton.setText(resourceMap.getString("DoneButton.text")); // NOI18N
+        DoneButton.setText("Done"); // NOI18N
         DoneButton.setName("DoneButton"); // NOI18N
         DoneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -190,37 +189,37 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
             }
         });
 
-        PreviousLabel.setText(resourceMap.getString("PreviousLabel.text")); // NOI18N
+        PreviousLabel.setText("Previous :"); // NOI18N
         PreviousLabel.setName("PreviousLabel"); // NOI18N
 
-        PreviousTranslationLabel.setText(resourceMap.getString("PreviousTranslationLabel.text")); // NOI18N
+        PreviousTranslationLabel.setText(""); // NOI18N
         PreviousTranslationLabel.setName("PreviousTranslationLabel"); // NOI18N
 
-        CorrectChineseLabel.setText(resourceMap.getString("CorrectChineseLabel.text")); // NOI18N
+        CorrectChineseLabel.setText("Correct chinese :"); // NOI18N
         CorrectChineseLabel.setName("CorrectChineseLabel"); // NOI18N
 
-        PreviousChineseLabel.setText(resourceMap.getString("PreviousChineseLabel.text")); // NOI18N
+        PreviousChineseLabel.setText(""); // NOI18N
         PreviousChineseLabel.setName("PreviousChineseLabel"); // NOI18N
 
-        YourguessLabel.setText(resourceMap.getString("YourguessLabel.text")); // NOI18N
+        YourguessLabel.setText("Your guess :"); // NOI18N
         YourguessLabel.setName("YourguessLabel"); // NOI18N
 
-        GuessLabel.setText(resourceMap.getString("GuessLabel.text")); // NOI18N
+        GuessLabel.setText(""); // NOI18N
         GuessLabel.setName("GuessLabel"); // NOI18N
 
-        MeaningLabel.setText(resourceMap.getString("MeaningLabel.text")); // NOI18N
+        MeaningLabel.setText(""); // NOI18N
         MeaningLabel.setName("MeaningLabel"); // NOI18N
 
-        PreviousMeaningLabel.setText(resourceMap.getString("PreviousMeaningLabel.text")); // NOI18N
+        PreviousMeaningLabel.setText(""); // NOI18N
         PreviousMeaningLabel.setName("PreviousMeaningLabel"); // NOI18N
 
-        PinyinLabel.setText(resourceMap.getString("PinyinLabel.text")); // NOI18N
+        PinyinLabel.setText("Pinyin :"); // NOI18N
         PinyinLabel.setName("PinyinLabel"); // NOI18N
 
-        PreviouspinyinLabel.setText(resourceMap.getString("PreviouspinyinLabel.text")); // NOI18N
+        PreviouspinyinLabel.setText(""); // NOI18N
         PreviouspinyinLabel.setName("PreviouspinyinLabel"); // NOI18N
 
-        EditPreviousWordButton.setText(resourceMap.getString("EditPreviousWordButton.text")); // NOI18N
+        EditPreviousWordButton.setText("Edit previous word"); // NOI18N
         EditPreviousWordButton.setName("EditPreviousWordButton"); // NOI18N
         EditPreviousWordButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -228,7 +227,7 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
             }
         });
 
-        EditGuess.setText(resourceMap.getString("EditGuess.text")); // NOI18N
+        EditGuess.setText("Edit my guess"); // NOI18N
         EditGuess.setName("EditGuess"); // NOI18N
         EditGuess.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

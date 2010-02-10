@@ -71,14 +71,13 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
 
         setName("Form"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(VocabularyBuilderPanel.class);
-        ChineseLabel.setText(resourceMap.getString("ChineseLabel.text")); // NOI18N
+        ChineseLabel.setText("Chinese"); // NOI18N
         ChineseLabel.setName("ChineseLabel"); // NOI18N
 
-        PinyinLabel.setText(resourceMap.getString("PinyinLabel.text")); // NOI18N
+        PinyinLabel.setText("Pinyin"); // NOI18N
         PinyinLabel.setName("PinyinLabel"); // NOI18N
 
-        EnglishLabel.setText(resourceMap.getString("EnglishLabel.text")); // NOI18N
+        EnglishLabel.setText("English"); // NOI18N
         EnglishLabel.setName("EnglishLabel"); // NOI18N
 
         ChineseTextField.setName("ChineseTextField"); // NOI18N
@@ -110,7 +109,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             }
         });
 
-        SaveButton.setText(resourceMap.getString("SaveButton.text")); // NOI18N
+        SaveButton.setText("Save"); // NOI18N
         SaveButton.setName("SaveButton"); // NOI18N
         SaveButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -118,7 +117,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             }
         });
 
-        ResetButton.setText(resourceMap.getString("ResetButton.text")); // NOI18N
+        ResetButton.setText("Reset"); // NOI18N
         ResetButton.setDefaultCapable(false);
         ResetButton.setName("ResetButton"); // NOI18N
         ResetButton.addActionListener(new java.awt.event.ActionListener() {

@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import java.sql.DriverManager;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 
@@ -58,15 +59,51 @@ public class CedictParser extends HanziDB
 
         Preferences my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
         init_other_components(parent);
-        filename = my_preferences.get("cedict temp db :", "");
-        if (!filename.equals(""))
+        cedict_temp_filename = my_preferences.get("cedict temp db :", "");
+        if (!cedict_temp_filename.equals(""))
         {
             long start_time = System.currentTimeMillis(), end_time;
-            HanziDB_open(filename);
+            database_cedict_init(cedict_temp_filename);
             end_time = System.currentTimeMillis();
-            System.out.println("Cedict parser init, opened db " + filename + " in " + (end_time - start_time) / 1000 + " seconds");
+            System.out.println("Cedict parser init, opened db " + cedict_temp_filename + " in " + (end_time - start_time) / 1000 + " seconds");
         }
+        else
+        {
+            try
+            {
+                File temp_db = File.createTempFile("hanzitrainer", "cedict");
+                cedict_temp_filename = temp_db.getAbsolutePath();
+                my_preferences.put("cedict temp db :", cedict_temp_filename);
+                create_database();
+            }
+            catch (IOException ex)
+            {
+                System.out.println("Cannot store Cedict data into temp database\n" + ex);
+            }
+        }
+
     }
+
+    protected void database_cedict_init(String file)
+    {
+        try
+        {
+
+            Class.forName("org.h2.Driver");
+
+            conn = DriverManager.getConnection("jdbc:h2:" + file, // filenames
+                    "sa", // username
+                    "");                      // password
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        System.out.println("database_cedict_init : Done with database initialization from "+file);
+        initialized=true;
+    }
+
 
     /**
      * Instantiate a new database from a Cedict file
@@ -181,13 +218,8 @@ public class CedictParser extends HanziDB
             my_preferences.put("cedict file :", this.cedict_file);
             try
             {
-                // save in a temporary database
-                File temp_db = File.createTempFile("hanzitrainer", "cedict");
-                HanziDB_set_filename(temp_db.getAbsolutePath());
-                HanziDB_save();
-
                 // save temporary database name
-                my_preferences.put("cedict temp db :", filename);
+                my_preferences.put("cedict temp db :", cedict_temp_filename);
 
                 // compute and store md5 checksum
                 md5 = hanzitrainer.md5.MD5.asHex(hanzitrainer.md5.MD5.getHash(new File(this.cedict_file)));
@@ -347,14 +379,14 @@ public class CedictParser extends HanziDB
             if (old_md5.equals(new_md5))
             {
                 // load from the temporary database
-                filename = my_preferences.get("cedict temp db :", "");
-                HanziDB_open(filename);
+                cedict_temp_filename = my_preferences.get("cedict temp db :", "");
+                database_cedict_init(cedict_temp_filename);
                 cedict_file = cedict_file_name;
 
                 if (this.get_number_words() != 0)
                 {
                     my_preferences.put("cedict file :", cedict_file);
-                    System.out.println("Opened temporary database for cedict, file " + filename);
+                    System.out.println("Opened temporary database for cedict, file " + cedict_temp_filename);
                     return 0;
                 }
             }
@@ -364,9 +396,18 @@ public class CedictParser extends HanziDB
             System.out.println("Cannot calculate new MD5 for some reason...\n");
         }
 
-
-        // reinitialize everything
-        this.HanziDB_close();
+        // reinitialize everything, set a new temp database
+        try
+        {
+            File temp_db = File.createTempFile("hanzitrainer", "cedict");
+            cedict_temp_filename = temp_db.getAbsolutePath();
+            database_cedict_init(cedict_temp_filename);
+            create_database();
+        }
+        catch (IOException ex)
+        {
+            System.out.println("Cannot store Cedict data into temp database\n" + ex);
+        }
 
         try
         {
@@ -485,4 +526,5 @@ public class CedictParser extends HanziDB
     private String cedict_file = "";
     java.awt.Frame parent_frame;
     private ProgressMonitor progress_monitor;
+    private String cedict_temp_filename;
 }

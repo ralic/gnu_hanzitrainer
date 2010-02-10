@@ -402,6 +402,36 @@ public class HanziDBscore extends HanziDB
     }
 
     /**
+     *
+     * Get the id of an indexed character
+     *
+     * @param index from 0 to the number of words - 1
+     * @return id of the character
+     */
+    public int get_character_id_low_score(int index)
+    {
+        int res = -1;
+        if (!initialized)
+        {
+            return res;
+        }
+        try
+        {
+            Statement st = conn.createStatement();
+            ResultSet rs = null;
+
+            rs = st.executeQuery("SELECT ch.char_id FROM character AS ch JOIN character_score AS ch_s ON ch.char_id=ch_s.char_id ORDER BY score,hanzi");
+            rs.relative(index + 1);
+            res = rs.getInt(1);
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        return res;
+    }
+
+    /**
      * 
      * Get the average score for all characters
      * 
