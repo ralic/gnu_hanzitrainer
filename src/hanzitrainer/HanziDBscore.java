@@ -171,16 +171,13 @@ public class HanziDBscore extends HanziDB
     }
 
     @Override
-    protected synchronized void add_character(String character) throws SQLException
+    protected synchronized int add_character(String character) throws SQLException
     {
-        super.add_character(character);
-        int char_id;
+        int char_id =super.add_character(character);
 
         try
         {
             Statement st = conn.createStatement();
-
-            char_id = get_character_id(character);
 
             st.executeUpdate("INSERT INTO character_score(char_id, score) VALUES(" + char_id + "," + reset_score + ")");
             st.close();
@@ -189,6 +186,7 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
+        return char_id;
     }
 
     @Override

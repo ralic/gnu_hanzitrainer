@@ -287,6 +287,34 @@ public abstract class HanziDB
         return res;
     }
 
+    protected int find_existing_pinyin_character(int char_id, String pinyin) throws SQLException
+    {
+        Statement st = conn.createStatement();
+        ResultSet rs = null;
+        int tone;
+        String radical = "";
+        int res = -1;
+
+        // tone that we want to store
+        tone = Pinyin.pinyin_tone(pinyin);
+        radical = Pinyin.pinyin_base(pinyin);
+
+        rs = st.executeQuery("SELECT cp.character_pinyin_id FROM character_pinyin AS cp" +
+                " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + radical + "' AND cp.tone=" + tone);
+        if (rs.next())
+        {
+            res = rs.getInt(1);
+            //System.out.println("find_existing_pinyin_character : combination of pinyin/character exists (same tone) " + res);
+        }
+        else
+        {
+            //System.out.println("find_existing_pinyin_character : Cannot find " + char_id + " " + radical + " " + tone + "!!");
+        }
+
+        st.close();
+        return res;
+    }
+
     protected int find_existing_pinyin_character(String character, String pinyin) throws SQLException
     {
         Statement st = conn.createStatement();
@@ -349,28 +377,35 @@ public abstract class HanziDB
         }
     }
 
-    protected synchronized void add_character(String character) throws SQLException
+    protected synchronized int add_character(String character) throws SQLException
     {
         Statement st = conn.createStatement();
         ResultSet rs = null;
+        int res;
 
         //System.out.println("Adding character " + character);
 
         if (!is_chinese_char(character))
         {
             st.close();
-            return;
+            return 0;
         }
         rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
         if (rs.next())
         {
+            res = rs.getInt(1);
             st.close();
-            return;
+            return res;
         }
         st.executeUpdate("INSERT INTO character(hanzi) VALUES('" + character + "')");
 
+        rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
+        rs.next();
+        res = rs.getInt(1);
         st.close();
+
         changed = true;
+        return res;
     }
 
     protected synchronized void add_pinyin(String character, String pinyin) throws SQLException
@@ -419,6 +454,35 @@ public abstract class HanziDB
         changed = true;
     }
 
+    protected synchronized void add_pinyin(int char_id, String pinyin) throws SQLException
+    {
+        Statement st = conn.createStatement();
+        ResultSet rs = null;
+        int res;
+        int tone;
+        String radical = "";
+
+        //System.out.println("Adding pinyin " + pinyin + " for character " + character);
+
+        // look if this character/pinyin is already there
+        res = find_existing_pinyin_character(char_id, pinyin);
+        if (res != -1)
+        {
+            st.close();
+            return;
+        }
+
+        // tone that we want to store
+        tone = Pinyin.pinyin_tone(pinyin);
+        radical = Pinyin.pinyin_base(pinyin);
+
+        //System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + radical + ", tone " + tone);
+        st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + radical + "'," + tone + ")");
+
+        st.close();
+        changed = true;
+    }
+
     /*
      * adds a new chinese word with its translation
      * 
@@ -435,6 +499,7 @@ public abstract class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
             int char_pinyin_id = 0;
+            int char_id = 0;
             int i;
             String chinese = "", pinyin = "";
             int found_chinese_id;
@@ -489,9 +554,9 @@ public abstract class HanziDB
                 // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
                 {
-                    add_character(hanzi.get(i));
-                    add_pinyin(hanzi.get(i), pinyins.get(i));
-                    char_pinyin_id = find_existing_pinyin_character(hanzi.get(i), pinyins.get(i));
+                    char_id = add_character(hanzi.get(i));
+                    add_pinyin(char_id, pinyins.get(i));
+                    char_pinyin_id = find_existing_pinyin_character(char_id, pinyins.get(i));
                     tone = Pinyin.pinyin_tone(pinyins.get(i));
 
                     //System.out.println("add_translation : adding chinese:" + found_chinese_id + ", char_pinyin:" + char_pinyin_id + " at " + i);
