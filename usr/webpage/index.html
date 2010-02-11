@@ -1,0 +1,137 @@
+<HTML>
+<HEAD>
+<TITLE>
+HanziTrainer - Study your mandarin !
+</TITLE>
+</HEAD>
+<BODY>
+<H1>
+<CENTER>
+    Hanzi Trainer
+</CENTER>
+</H1>
+<H2>
+    Introduction / Story
+</H2>
+While I was living in Beijing and studying my Chinese, I tried many different methods to study my mandarin, but could not find one that just would suit me. I also got a few books and dictionaries, each having its own specific purpose. And I got a big box of flash cards.<br>
+The latter help quite a bit, but as I was learning more, I got frustrated of not finding in my box some of the characters I just have learnt and wanted to study. The ones I had, I needed to sort them out of the box and then I had my stacks of flash cards : the ones I am fully familiar with (I could write them), the ones I know well (I can recognize without any problem), the ones I still need to study and finally the ones I don't know at all.<br>
+With all that frustration and also some free time during the cold Beijing winter, I started to write my own Java program to help my study, make it a little more fun and try different kinds of exercizes.<br>
+It is still under development, I work on it when I have some free time and I feel like it, so I am not sure it will ever become a "finished" program. But I try to keep it 'stable' as much as possible and just keep adding what I feel would make it more efficient and friendly.<br>
+If you try using it, if you like it (or if you don't), if you have some suggestion or even better if you want to help, do not hesitate to drop me a note.<br>
+I have tested it and been using it on both Linux and Windows XP platforms without any problem (provided the machine is already setup to be able to enter Chinese characters).<br>
+
+<H2>
+    Manual
+</H2>
+The application is divided into separate screens
+<H3>
+    Vocabulary builder
+</H3>
+<center><IMG SRC="screenshots/voc_builder.png"></center><br>
+Let's you enter new vocabulary.<br>
+Enter the Chinese expression in the first field.<br>
+The second field will automatically create the number of fields required for you to enter the pinyins. If the characters have already been used, it will give you a choice with the known pinyin (but you can still edit if needed).<br>
+In the last field, you have a choice to enter the new translation, edit a known one or delete an existing one.<br>
+
+<H3>
+    Word Database
+</H3>
+<center><IMG SRC="screenshots/word_db.png"></center><br>
+This screen shows you a table of all the known words in the database
+
+<H3>
+    Character Database
+</H3>
+<center><IMG SRC="screenshots/char_db.png"></center><br>
+This screen shows you a table of all the known characters in the database
+
+<H3>
+    Character Review
+</H3>
+<center><IMG SRC="screenshots/char_review.png"></center><br>
+This screen let you browse or search for known character and give you information about those.
+
+<H3>
+    Character Test
+</H3>
+<center><IMG SRC="screenshots/char_test.png"></center><br>
+This screen is to test your knowledge about characters. You are asked to enter the pinyin(s) for a particular character and then enter as many words as you can remember that contain that character.
+
+<H3>
+    Chinese Test
+</H3>
+<center><IMG SRC="screenshots/chinese_test.png"></center><br>
+This screen asks you to translate an English word into Chinese.
+
+<H2>
+    For Developpers, ideas
+</H2>
+Any help is welcome.<br>
+If you think there is anything you would like to contribute, please contact me. I am using NetBeans to do the development on this project. I try to share all the files necessary for somebody to be able to setup another environment, but I did not check myself.<br>
+There are a lot of things that could be done, some probably should, some others are more crazy ideas :
+<ul>
+    <li>
+    Setup more 'tests' (next one on my list is specific to tones).
+    </li>
+    <li>
+    Make the interface more intuitive, more friendly looking...
+    </li>
+    <li>
+    Use <A HREF="http://cc-cedict.org/wiki/">CEDICT</A> to automatically find the pinyins (and maybe translation) for a new expression/word.
+    </li>
+    <li>
+    Find the characters that are often confused for each other or that look alike. Maybe make a MCQ test with that
+    </li>
+    <li>
+    Link to outside websites/application (zhongwen.com, import/export vocabulary lists compatible with other programs)
+    </li>
+    <li>
+    Adapt the program to work with Japanese Kanjis, Traditional characters (different romanization), Korean (?)...
+    </li>
+</ul>
+<br>
+If you want to know more about how the application and database system is design, please follow <A HREF="dev.html">this link</A>.
+<br>
+
+<H2>
+    Acknoledgments
+</H2>
+I am using third party tools or libraries. I do my best to not violate any licensing (please let me know if you ever think I might, I am not a lawyer and have not wrongful intentions...). At least I would like to give back credit to :
+* <A HREF="http://www.netbeans.org/">NetBeans</A> I use for editing, running and debugging this code and desiging the GUI.
+* <A HREF="http://www.h2database.com/html/main.html">H2</A>, this is the database system I use in the background, it has always been running very reliably and fast.
+* In most recent versions, I am also using <A HREF="http://www.twmacinta.com/myjava/fast_md5.php">a fast MD5 implementation</A>
+
+<H2>
+    Some notes
+</H2>
+I am running HanziTrainer both on Linux (Ubuntu 9.04) and Windows. I also develop on both those platforms using NetBeans.<br>
+On Linux, I recently had a problem with fonts both with the SUN JDK and the OpenJDK. For the Sun JDK, here is how I fixed it :
+<ul>
+    <li>
+    I copied my Windows SimSun font to /usr/share/fonts/truetype/ttf-zh_cn/
+    </li>
+    <li>
+    Go to that directory and run 'sudo mkfontscale' and 'sudo mkfontdir'
+    </li>
+    <li>
+    Edit /usr/lib/jvm/java-6-sun/jre/lib/fontconfig.properties to add this font. As an example, here is <A HREF="fontconfig.properties">my version</A> of this file.
+    </li>
+    <li>
+    If you have (like me) several jdk installed and you want to change, run 'sudo update-java-alternatives -s java-6-sun'
+    </li>
+    <li>
+    To change the jdk netbeans will use, edit /etc/netbeans.conf
+    </li>
+</ul>
+
+
+<H2>
+    Contact
+</H2>
+You can contact me at : matthieu[dot]jeanson[at]gmail[dot]com
+<br>
+<br>
+
+<SMALL><CENTER>Matthieu Jeanson - May 29, 2009 - Designed and written with vim</CENTER></SMALL>
+</BODY>
+</HTML>

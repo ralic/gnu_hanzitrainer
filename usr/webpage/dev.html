@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<TITLE>
+HanziTrainer - Study your mandarin !
+</TITLE>
+</HEAD>
+<BODY>
+<H1>
+<CENTER>
+    Hanzi Trainer - Internals
+</CENTER>
+</H1>
+<H2>
+    The database
+</H2>
+I wanted a database system that would fulfill some requirements :
+<ul>
+    <li>
+    Can store all information about the vocabulary I study
+    </li>
+    <li>
+    Can possibly be extended to store more information...
+    </li>
+    <li>
+    Can be flexible enough so that different tests can query different parts of the database
+    </li>
+    <li>
+    Can fit the weirdness of the Chinese language (same character, different pronunciations; one character, a lot of different words; one chinese word, multiple interpretations....
+    </li>
+</ul>
+
+Here is a representation of the design I put together :<br>
+<center><img src="screenshots/db_model.png"></center><br>
+
+
+<H2>
+The classes
+</H2>
+<H3>
+Panels
+</H3>
+Each different panels in the application is a different class.
+<H3>
+DB System
+</H3>
+HanziDB is a master class that defines the database structure exposed above (without the scores).<br>
+From this one, other database systems inherits this structure and can add more functionalities or expose different capabilities.<br>
+The HanziDBscore is the one currently used by the application to store the user content and keep track of the scores.<br>
+Currently in development is the CedictDB which will also use the same infrastructure, but get the data from the CEDICT database.<br>
+It is possible to have more inherited class for data coming for other places (internet, other open databases, import from other programs...etc...).<br>
