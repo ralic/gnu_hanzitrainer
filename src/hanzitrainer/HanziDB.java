@@ -308,7 +308,7 @@ public abstract class HanziDB
         radical = Pinyin.pinyin_base(pinyin);
 
         rs = st.executeQuery("SELECT cp.character_pinyin_id FROM character_pinyin AS cp" +
-                " WHERE cp.hanzi=" + character + " AND cp.pinyin='" + radical + "' AND cp.tone=" + tone);
+                " WHERE cp.hanzi='" + character + "' AND cp.pinyin='" + radical + "' AND cp.tone=" + tone);
         if (rs.next())
         {
             res = rs.getInt(1);
@@ -371,7 +371,7 @@ public abstract class HanziDB
         radical = Pinyin.pinyin_base(pinyin);
 
         //System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + radical + ", tone " + tone);
-        st.executeUpdate("INSERT INTO character_pinyin(hanzi, pinyin,tone) VALUES(" + character + ",'" + radical + "'," + tone + ")");
+        st.executeUpdate("INSERT INTO character_pinyin(hanzi, pinyin,tone) VALUES('" + character + "','" + radical + "'," + tone + ")");
 
         st.close();
         changed = true;
