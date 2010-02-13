@@ -83,7 +83,6 @@ public class ToneTestPanel extends javax.swing.JPanel
     {
         int num_char = main_database.get_number_characters();
         int index;
-        int char_id;
         String hanzi, pinyin;
 
         if (num_char == 0)
@@ -94,8 +93,7 @@ public class ToneTestPanel extends javax.swing.JPanel
         do
         {
             index = (int) (Math.random() * num_char);
-            char_id = main_database.get_character_id(index);
-            hanzi = main_database.get_character_details(char_id);
+            hanzi = main_database.get_character(index);
             System.out.println("getting index " + index + " character :" + hanzi);
         } while (character_history.contains(hanzi));
 
