@@ -366,6 +366,9 @@ public class HanziDBscore extends HanziDB
                     " hanzi VARCHAR(2) NOT NULL," +
                     " score INT)");
 
+
+            st.executeUpdate("INSERT INTO database_info(field,value) VALUES('score_db_version', '3')");
+
             // create a new view
             st.executeUpdate("CREATE VIEW english_pinyin_chinese_score AS" +
                     " (SELECT cword_score.cword_id, hanzi, pinyin, translations, score" +
