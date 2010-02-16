@@ -73,35 +73,42 @@ public abstract class HanziDB
 
             st = conn.createStatement();
             st.execute("RUNSCRIPT FROM '" + db_file_name + "'");
-            if (check_for_empty_db())
-            {
-                // try the old DB with password...
-                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
-                if (check_for_empty_db())
-                {
-                    System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
-                    create_database();
-                    st.close();
-
-                    return;
-                }
-            }
-
-            if (get_database_version() > database_ver)
-            {
-                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
-                shutdown();
-                database_init();
-                create_database();
-                st.close();
-
-                return;
-            }
-            st.close();
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
+        }
+
+        if (check_for_empty_db() || get_database_version() == 0)
+        {
+            // try the old DB with password...
+            try
+            {
+                Statement st;
+                st = conn.createStatement();
+                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+                st.close();
+            }
+            catch (SQLException e)
+            {
+            }
+
+            if (check_for_empty_db() || get_database_version() == 0)
+            {
+                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
+                create_database();
+
+                return;
+            }
+        }
+
+        if (get_database_version() > database_ver)
+        {
+            System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
+            shutdown();
+            database_init();
+            create_database();
+
+            return;
         }
 
         if (upgrade_database() == true)
@@ -112,6 +119,7 @@ public abstract class HanziDB
 
         System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
         filename = db_file_name;
+        initialized = true;
     }
 
     /**
@@ -185,16 +193,23 @@ public abstract class HanziDB
                     {
                         "TABLE"
                     });
-            if (rs.next())
-            {
-                st.close();
-                return false;
-            }
-            else
+            if (!rs.next())
             {
                 st.close();
                 return true;
             }
+
+            st.executeQuery("SELECT * FROM database_info WHERE field='version'");
+            if (!rs.next())
+            {
+                st.close();
+                return true;
+            }
+
+            // test for some basic structure in the database
+
+            st.close();
+            return false;
         }
         catch (SQLException ex)
         {
@@ -341,10 +356,10 @@ public abstract class HanziDB
     }
 
 
-    protected synchronized void add_pinyin(String character, String pinyin) throws SQLException
+    protected synchronized int add_pinyin(String character, String pinyin) throws SQLException
     {
         Statement st = conn.createStatement();
-        int res;
+        int res = -1;
         int tone;
         String radical = "";
 
@@ -355,7 +370,7 @@ public abstract class HanziDB
         if (!is_chinese_char(character))
         {
             st.close();
-            return;
+            return res;
         }
 
         // look if this character/pinyin is already there
@@ -363,18 +378,20 @@ public abstract class HanziDB
         if (res != -1)
         {
             st.close();
-            return;
+            return res;
         }
 
         // tone that we want to store
         tone = Pinyin.pinyin_tone(pinyin);
         radical = Pinyin.pinyin_base(pinyin);
 
-        //System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + radical + ", tone " + tone);
+        //System.out.println("add_pinyin : Adding char " + character + ", pinyin " + radical + ", tone " + tone);
         st.executeUpdate("INSERT INTO character_pinyin(hanzi, pinyin,tone) VALUES('" + character + "','" + radical + "'," + tone + ")");
 
         st.close();
+        res = find_existing_pinyin_character(character, pinyin);
         changed = true;
+        return res;
     }
 
 
@@ -449,8 +466,7 @@ public abstract class HanziDB
                 // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
                 {
-                    add_pinyin(hanzi.get(i), pinyins.get(i));
-                    char_pinyin_id = find_existing_pinyin_character(hanzi.get(i), pinyins.get(i));
+                    char_pinyin_id = add_pinyin(hanzi.get(i), pinyins.get(i));
                     tone = Pinyin.pinyin_tone(pinyins.get(i));
 
                     //System.out.println("add_translation : adding chinese:" + found_chinese_id + ", char_pinyin:" + char_pinyin_id + " at " + i);
@@ -772,8 +788,6 @@ public abstract class HanziDB
         {
             e.printStackTrace();
         }
-        System.out.println("HanziDB : Done with database initialization");
-        initialized = true;
     }
 
     /**
@@ -826,11 +840,14 @@ public abstract class HanziDB
             st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
 
             st.close();
+
+            System.out.println("database created !");
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
         }
+        initialized = true;
 
     }
 
@@ -944,6 +961,7 @@ public abstract class HanziDB
                     st.executeUpdate("UPDATE character_pinyin SET hanzi='" + character + "' WHERE char_id=" + id);
                 }
 
+                // Remove all constraints on char_id
                 rs2 = st3.executeQuery("SELECT constraint_name FROM INFORMATION_SCHEMA.CONSTRAINTS WHERE table_name='CHARACTER_PINYIN'");
                 for (;rs2.next();)
                 {
@@ -1301,15 +1319,15 @@ public abstract class HanziDB
 
             rs = st.executeQuery("SELECT value FROM database_info AS di" +
                     " WHERE field='version'");
-            rs.next();
-
-            res = Integer.parseInt(rs.getString(1));
-
-            System.out.println("Database version " + res);
+            if (rs.next())
+            {
+                res = Integer.parseInt(rs.getString(1));
+                System.out.println("Database version " + res);
+            }
         }
         catch (SQLException ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         return res;
     }

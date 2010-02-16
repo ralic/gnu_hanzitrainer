@@ -85,6 +85,7 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
+        System.out.println("Score database version " +  res);
         return res;
     }
 
@@ -100,6 +101,8 @@ public class HanziDBscore extends HanziDB
     protected boolean upgrade_score_database()
     {
         boolean upgrade_change = false;
+
+        System.out.println("Upgrade score database");
 
         if (get_score_database_version() <= 0)
         {
@@ -240,9 +243,10 @@ public class HanziDBscore extends HanziDB
     }
 
     @Override
-    protected synchronized void add_pinyin(String character, String pinyin) throws SQLException
+    protected synchronized int add_pinyin(String character, String pinyin) throws SQLException
     {
-        super.add_pinyin(character, pinyin);
+        int res;
+        res = super.add_pinyin(character, pinyin);
         String try_character;
 
         try
@@ -263,7 +267,7 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
-        return;
+        return res;
     }
 
     @Override
@@ -634,7 +638,7 @@ public class HanziDBscore extends HanziDB
 
             st.executeUpdate("UPDATE character_score AS ch" +
                     " SET score=" + score +
-                    " WHERE ch.character=" + character);
+                    " WHERE ch.hanzi='" + character + "'");
             st.close();
         }
         catch (SQLException ex)
