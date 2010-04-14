@@ -77,8 +77,7 @@ public class CDBTableFiller extends AbstractTableModel
 
     public Object getValueAt(int row, int column)
     {
-        int i;
-        String character;
+        int id, i;
         String pinyin_list = "";
         String cword_list = "";
 
@@ -89,13 +88,13 @@ public class CDBTableFiller extends AbstractTableModel
             return "";
         }
         
-        character = db.get_character(row);
+        id = db.get_character_id(row);
         switch (column)
         {
             case 0:
-                return character;
+                return db.get_character_details(id);
             case 1:
-                pinyins = db.get_pinyin_for_character(character);
+                pinyins = db.get_pinyin_for_character(db.get_character_details(id));
                 pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
                 for (i = 1; i < pinyins.size(); i++)
                 {
@@ -103,7 +102,7 @@ public class CDBTableFiller extends AbstractTableModel
                 }
                 return pinyin_list;
             case 2:
-                cwords = db.get_words_with_character(character);
+                cwords = db.get_words_with_character(db.get_character_details(id));
                 cword_details = db.get_word_details(cwords.get(0));
                 cword_list += cword_details.get(0);
                 for (i = 1; i < cwords.size(); i++)
@@ -113,7 +112,7 @@ public class CDBTableFiller extends AbstractTableModel
                 }
                 return cword_list;
             case 3:
-                return db.get_character_score(character);
+                return db.get_character_score(id);
             default:
                 return "(" + row + "," + column + ") ?";
         }

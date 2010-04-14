@@ -226,7 +226,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         for (String item : good_pinyins)
         {
             main_database.change_character_score(
-                    current_character, 
+                    main_database.get_character_id(current_character), 
                     true, 1);
         }
         // for each bad pinyin, if it is just a bad tone, do not change
@@ -241,7 +241,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             }
             if (!found_similar_radical)
                 main_database.change_character_score(
-                        current_character, 
+                        main_database.get_character_id(current_character), 
                         false, 1);
             found_similar_radical=false;
         }
@@ -257,7 +257,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
             }
             if (!found_similar_radical)
                 main_database.change_character_score(
-                        current_character, 
+                        main_database.get_character_id(current_character), 
                         false, 2);
             found_similar_radical=false;
         }
@@ -314,7 +314,8 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         {
             index = (int) (SettingsDialog.random_low() * num_char);
             System.out.println("random number got " + index + " over " + num_char);
-            hanzi = main_database.get_character_low_score(index);
+            hanzi = main_database.get_character_details(
+                    main_database.get_character_id_low_score(index));
             System.out.println("getting index " + index);
         }
         while (character_history.contains(hanzi));

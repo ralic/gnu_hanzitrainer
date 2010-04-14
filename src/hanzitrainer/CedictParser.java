@@ -381,10 +381,10 @@ public class CedictParser extends HanziDB
                 // load from the temporary database
                 cedict_temp_filename = my_preferences.get("cedict temp db :", "");
                 database_cedict_init(cedict_temp_filename);
+                cedict_file = cedict_file_name;
 
                 if (this.get_number_words() != 0)
                 {
-                    cedict_file = cedict_file_name;
                     my_preferences.put("cedict file :", cedict_file);
                     System.out.println("Opened temporary database for cedict, file " + cedict_temp_filename);
                     return 0;
