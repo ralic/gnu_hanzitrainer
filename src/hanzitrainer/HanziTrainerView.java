@@ -106,7 +106,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
             Object[] options =
             {
                 "Save",
-                "Do no save"
+                "Do not save"
             };
             if (ChoicePane.showOptionDialog(this.getFrame(),
                     "You did not save the database, do you want to save now ?", "Save?",
