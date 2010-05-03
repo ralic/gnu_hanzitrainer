@@ -89,7 +89,7 @@ public abstract class HanziDB
 
             if (get_database_version() > database_ver)
             {
-                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
+                System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high (" + get_database_version() + " vs. " + database_ver + "), creating a new empty one");
                 shutdown();
                 database_init();
                 create_database();

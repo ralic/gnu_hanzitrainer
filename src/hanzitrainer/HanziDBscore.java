@@ -288,6 +288,8 @@ public class HanziDBscore extends HanziDB
                     " (SELECT cword_score.cword_id, hanzi, pinyin, translations, score" +
                     " FROM english_pinyin_chinese" +
                     " JOIN cword_score ON cword_score.cword_id = english_pinyin_chinese.cword_id)");
+
+            st.executeUpdate("INSERT INTO database_info(field,value) VALUES('score_db_version', '2')");
             st.close();
         }
         catch (SQLException ex)
