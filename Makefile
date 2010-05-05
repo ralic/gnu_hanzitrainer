@@ -26,10 +26,16 @@ dirs :
 	mkdir -p rel/ 
 	mkdir -p obj/
 
+.PHONY : docs
+docs :
+	mkdir -p docs/
+	javadoc -d docs -public -sourcepath src -subpackages hanzitrainer
+
 .PHONY : clean
 clean : 
 	rm -Rf rel/
 	rm -Rf obj/
+	rm -Rf docs/
 
 .PHONY : print
 print :
