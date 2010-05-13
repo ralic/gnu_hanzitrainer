@@ -85,12 +85,24 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
+        System.out.println("Score database version " +  res);
         return res;
+    }
+
+    @Override
+    protected boolean upgrade_database()
+    {
+        upgrade_score_database();
+
+        return super.upgrade_database();
+
     }
 
     protected boolean upgrade_score_database()
     {
         boolean upgrade_change = false;
+
+        System.out.println("Upgrade score database");
 
         if (get_score_database_version() <= 0)
         {
@@ -148,6 +160,67 @@ public class HanziDBscore extends HanziDB
 
             upgrade_change = true;
         }
+        if (get_score_database_version() <= 2)
+        {
+            System.out.println("Upgrade score database to version 3");
+            try
+            {
+                Statement st = conn.createStatement();
+                Statement st2 = conn.createStatement();
+                Statement st3 = conn.createStatement();
+                Statement st4 = conn.createStatement();
+                ResultSet rs = null;
+                ResultSet rs2 = null;
+                ResultSet rs3 = null;
+               
+                // some duplicates in the score database... need to fix that first
+                rs = st2.executeQuery("SELECT char_id FROM character_score GROUP BY char_id HAVING COUNT(char_id)>1");
+                for (;rs.next();)
+                {
+                    int id = rs.getInt(1);
+                    st.executeUpdate("DELETE FROM character_score WHERE char_id="+id);
+                    st.executeUpdate("INSERT INTO character_score (char_id, score) VALUES("+id+","+reset_score+")");
+                }
+                st2.close();
+
+                // Move character scores to a separate table
+                st.executeUpdate("ALTER TABLE character_score ADD hanzi VARCHAR(2)");
+
+                rs2 = st3.executeQuery("SELECT char_id, hanzi FROM character");
+                for (;rs2.next();)
+                {
+                    int id = rs2.getInt(1);
+                    String character = rs2.getString(2);
+                    st.executeUpdate("UPDATE character_score SET hanzi='"+character+"' WHERE char_id="+id);
+                }
+                st3.close();
+
+                // Remove constraints on the char_id column
+                rs3 = st4.executeQuery("SELECT constraint_name FROM INFORMATION_SCHEMA.CONSTRAINTS WHERE table_name='CHARACTER_SCORE'");
+                for (;rs3.next();)
+                {
+                    String constraint_name = rs3.getString(1);
+                    st.executeUpdate("ALTER TABLE CHARACTER_SCORE DROP CONSTRAINT " + constraint_name);
+                }
+                st4.close();
+
+                st.executeUpdate("ALTER TABLE character_score DROP COLUMN char_id");
+                st.executeUpdate("ALTER TABLE character_score ALTER COLUMN hanzi VARCHAR(2) NOT NULL");
+                st.executeUpdate("CREATE PRIMARY KEY ON character_score(hanzi)");
+
+                // update the version
+                st.executeUpdate("UPDATE database_info" +
+                        " SET value='3' WHERE field='score_db_version'");
+
+                st.close();
+            }
+            catch (SQLException ex)
+            {
+                ex.printStackTrace();
+            }
+
+            upgrade_change = true;
+        }
         
         // always refresh the view if it was changed in the master class...
         try
@@ -166,39 +239,55 @@ public class HanziDBscore extends HanziDB
             ex.printStackTrace();
         }
 
-
         return upgrade_change;
     }
 
     @Override
-    protected synchronized void add_character(String character) throws SQLException
+    protected synchronized int add_pinyin(String character, String pinyin) throws SQLException
     {
-        super.add_character(character);
-        int char_id;
+        int res;
+        res = super.add_pinyin(character, pinyin);
+        String try_character;
 
         try
         {
             Statement st = conn.createStatement();
+            ResultSet rs = null;
 
-            char_id = get_character_id(character);
+            rs = st.executeQuery("SELECT hanzi FROM character_score WHERE hanzi NOT IN (SELECT character_pinyin GROUP BY hanzi)");
+            for (;rs.next();)
+            {
+                try_character = rs.getString(1);
 
-            st.executeUpdate("INSERT INTO character_score(char_id, score) VALUES(" + char_id + "," + reset_score + ")");
+                st.executeUpdate("INSERT INTO character_score(hanzi, score) VALUES(" + try_character + "," + reset_score + ")");
+            }
             st.close();
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
         }
+        return res;
     }
 
     @Override
-    protected synchronized void delete_character(int char_id)
+    protected synchronized void delete_char_pinyin(int char_pinyin_id)
     {
+        super.delete_char_pinyin(char_pinyin_id);
+
         try
         {
             Statement st = conn.createStatement();
+            ResultSet rs = null;
+            String character;
 
-            st.executeUpdate("DELETE FROM character_score WHERE char_id=" + char_id);
+            st.executeQuery("SELECT hanzi FROM character_score WHERE hanzi NOT IN" +
+                    " (SELECT hanzi FROM character_pinyin GROUP BY hanzi)");
+            for (;rs.next();)
+            {
+                character = rs.getString(1);
+                st.executeUpdate("DELETE FROM character_score WHERE hanzi=" + character);
+            }
 
             st.close();
         }
@@ -206,7 +295,6 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
-        super.delete_character(char_id);
     }
 
     @Override
@@ -220,7 +308,7 @@ public class HanziDBscore extends HanziDB
         }
 
         int cword_id = get_word_id(full_chinese_word);
-        System.out.println("add_translation found cword_if " + cword_id + " for word " + full_chinese_word);
+        System.out.println("add_translation found cword_id " + cword_id + " for word " + full_chinese_word);
         try
         {
             Statement st = conn.createStatement();
@@ -279,9 +367,11 @@ public class HanziDBscore extends HanziDB
 
             // Move character scores to a separate table
             st.executeUpdate("CREATE TABLE character_score (" +
-                    " char_id INT NOT NULL," +
-                    " score INT," +
-                    " FOREIGN KEY (char_id) REFERENCES character(char_id));");
+                    " hanzi VARCHAR(2) NOT NULL," +
+                    " score INT)");
+
+
+            st.executeUpdate("INSERT INTO database_info(field,value) VALUES('score_db_version', '3')");
 
             // create a new view
             st.executeUpdate("CREATE VIEW english_pinyin_chinese_score AS" +
@@ -296,7 +386,6 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
-
     }
 
     /**
@@ -339,47 +428,12 @@ public class HanziDBscore extends HanziDB
 
     /**
      * 
-     * Get the character from its id
-     * 
-     * @param id id of the character
-     * @return a string that only contains that character
-     */
-    @Override
-    public String get_character_details(int id)
-    {
-        String res = "";
-        if (!initialized)
-        {
-            return res;
-        }
-        try
-        {
-            Statement st = conn.createStatement();
-            ResultSet rs = null;
-
-            rs = st.executeQuery("SELECT hanzi FROM character WHERE char_id=" + id);
-            if (!rs.next())
-            {
-                return res;
-            }
-            res = rs.getString(1);
-            st.close();
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
-    /**
-     * 
      * Get the score for a character from its id
      * 
      * @param id id of the character
      * @return the score value for that character
      */
-    public int get_character_score(int id)
+    public int get_character_score(String character)
     {
         int res = 0;
 
@@ -389,7 +443,7 @@ public class HanziDBscore extends HanziDB
             ResultSet rs = null;
 
             rs = st.executeQuery("SELECT score FROM character_score AS ch" +
-                    " WHERE ch.char_id=" + id);
+                    " WHERE ch.hanzi='" + character + "'");
             if (rs.next())
             {
                 res = rs.getInt(1);
@@ -410,9 +464,9 @@ public class HanziDBscore extends HanziDB
      * @param index from 0 to the number of words - 1
      * @return id of the character
      */
-    public int get_character_id_low_score(int index)
+    public String get_character_low_score(int index)
     {
-        int res = -1;
+        String res = "";
         if (!initialized)
         {
             return res;
@@ -422,9 +476,9 @@ public class HanziDBscore extends HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT ch.char_id FROM character AS ch JOIN character_score AS ch_s ON ch.char_id=ch_s.char_id ORDER BY score,hanzi");
+            rs = st.executeQuery("SELECT hanzi FROM character_score ORDER BY score,hanzi");
             rs.relative(index + 1);
-            res = rs.getInt(1);
+            res = rs.getString(1);
         }
         catch (SQLException ex)
         {
@@ -569,9 +623,9 @@ public class HanziDBscore extends HanziDB
      * @param mode whether to increase (true) or decrease (false)
      * @param weight how much weight the current score would have
      */
-    public void change_character_score(int id, boolean mode, int weight)
+    public void change_character_score(String character, boolean mode, int weight)
     {
-        int score = get_character_score(id);
+        int score = get_character_score(character);
         if (mode)
         { // increase
             score = ((weight * score) + maximum_score) / (1 + weight);
@@ -586,7 +640,7 @@ public class HanziDBscore extends HanziDB
 
             st.executeUpdate("UPDATE character_score AS ch" +
                     " SET score=" + score +
-                    " WHERE ch.char_id=" + id);
+                    " WHERE ch.hanzi='" + character + "'");
             st.close();
         }
         catch (SQLException ex)

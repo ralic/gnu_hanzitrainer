@@ -42,7 +42,7 @@ public abstract class HanziDB
     protected Connection conn;
     protected boolean initialized = false;
     protected boolean changed = false;
-    protected static final int database_ver = 5;
+    protected static final int database_ver = 6;
 
     public HanziDB()
     {
@@ -73,35 +73,44 @@ public abstract class HanziDB
 
             st = conn.createStatement();
             st.execute("RUNSCRIPT FROM '" + db_file_name + "'");
-            if (check_for_empty_db())
-            {
-                // try the old DB with password...
-                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
-                if (check_for_empty_db())
-                {
-                    System.out.println("HanziDB_open : reading file " + db_file_name + " failed, creating a new empty one");
-                    create_database();
-                    st.close();
+        }
+        catch (SQLException e)
+        {
+        }
 
-                    return;
-                }
+        if (check_for_empty_db() || get_database_version() == 0)
+        {
+            // try the old DB with password...
+            try
+            {
+                Statement st;
+                st = conn.createStatement();
+                st.execute("RUNSCRIPT FROM '" + db_file_name + "' CIPHER AES PASSWORD 'ILoveChinese'");
+                st.close();
+            }
+            catch (SQLException e)
+            {
             }
 
-            if (get_database_version() > database_ver)
+            if (check_for_empty_db() || get_database_version() == 0)
             {
                 System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high (" + get_database_version() + " vs. " + database_ver + "), creating a new empty one");
                 shutdown();
                 database_init();
                 create_database();
-                st.close();
 
                 return;
             }
-            st.close();
         }
-        catch (SQLException e)
+
+        if (get_database_version() > database_ver)
         {
-            e.printStackTrace();
+            System.out.println("HanziDB_open : reading file " + db_file_name + " failed, database version too high, creating a new empty one");
+            shutdown();
+            database_init();
+            create_database();
+
+            return;
         }
 
         if (upgrade_database() == true)
@@ -112,6 +121,7 @@ public abstract class HanziDB
 
         System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
         filename = db_file_name;
+        initialized = true;
     }
 
     /**
@@ -185,16 +195,23 @@ public abstract class HanziDB
                     {
                         "TABLE"
                     });
-            if (rs.next())
-            {
-                st.close();
-                return false;
-            }
-            else
+            if (!rs.next())
             {
                 st.close();
                 return true;
             }
+
+            st.executeQuery("SELECT * FROM database_info WHERE field='version'");
+            if (!rs.next())
+            {
+                st.close();
+                return true;
+            }
+
+            // test for some basic structure in the database
+
+            st.close();
+            return false;
         }
         catch (SQLException ex)
         {
@@ -269,9 +286,9 @@ public abstract class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT CONCAT(cp.pinyin,cp.tone) FROM character AS c" +
-                    " JOIN character_pinyin AS cp ON c.char_id=cp.char_id" +
-                    " WHERE c.hanzi='" + character + "'");
+            rs = st.executeQuery("SELECT CONCAT(cp.pinyin,cp.tone) " +
+                    " FROM character_pinyin AS cp" +
+                    " WHERE cp.hanzi='" + character + "'");
 
             for (; rs.next();)
             {
@@ -291,7 +308,6 @@ public abstract class HanziDB
     {
         Statement st = conn.createStatement();
         ResultSet rs = null;
-        int char_id;
         int tone;
         String radical = "";
         int res = -1;
@@ -304,23 +320,15 @@ public abstract class HanziDB
             return res;
         }
 
-        // find the character
-        char_id = get_character_id(character);
-
         // tone that we want to store
         tone = Pinyin.pinyin_tone(pinyin);
         radical = Pinyin.pinyin_base(pinyin);
 
         rs = st.executeQuery("SELECT cp.character_pinyin_id FROM character_pinyin AS cp" +
-                " WHERE cp.char_id=" + char_id + " AND cp.pinyin='" + radical + "' AND cp.tone=" + tone);
+                " WHERE cp.hanzi='" + character + "' AND cp.pinyin='" + radical + "' AND cp.tone=" + tone);
         if (rs.next())
         {
             res = rs.getInt(1);
-            //System.out.println("find_existing_pinyin_character : combination of pinyin/character exists (same tone) " + res);
-        }
-        else
-        {
-            //System.out.println("find_existing_pinyin_character : Cannot find " + char_id + " " + radical + " " + tone + "!!");
         }
 
         st.close();
@@ -349,35 +357,11 @@ public abstract class HanziDB
         }
     }
 
-    protected synchronized void add_character(String character) throws SQLException
+
+    protected synchronized int add_pinyin(String character, String pinyin) throws SQLException
     {
         Statement st = conn.createStatement();
-        ResultSet rs = null;
-
-        //System.out.println("Adding character " + character);
-
-        if (!is_chinese_char(character))
-        {
-            st.close();
-            return;
-        }
-        rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
-        if (rs.next())
-        {
-            st.close();
-            return;
-        }
-        st.executeUpdate("INSERT INTO character(hanzi) VALUES('" + character + "')");
-
-        st.close();
-        changed = true;
-    }
-
-    protected synchronized void add_pinyin(String character, String pinyin) throws SQLException
-    {
-        Statement st = conn.createStatement();
-        ResultSet rs = null;
-        int char_id, res;
+        int res = -1;
         int tone;
         String radical = "";
 
@@ -388,7 +372,7 @@ public abstract class HanziDB
         if (!is_chinese_char(character))
         {
             st.close();
-            return;
+            return res;
         }
 
         // look if this character/pinyin is already there
@@ -396,28 +380,22 @@ public abstract class HanziDB
         if (res != -1)
         {
             st.close();
-            return;
+            return res;
         }
-
-        // find the character
-        rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
-        if (!rs.next())
-        {
-            st.close();
-            return;
-        }
-        char_id = rs.getInt(1);
 
         // tone that we want to store
         tone = Pinyin.pinyin_tone(pinyin);
         radical = Pinyin.pinyin_base(pinyin);
 
-        //System.out.println("add_pinyin : Adding char " + char_id + ", pinyin " + radical + ", tone " + tone);
-        st.executeUpdate("INSERT INTO character_pinyin(char_id, pinyin,tone) VALUES(" + char_id + ",'" + radical + "'," + tone + ")");
+        //System.out.println("add_pinyin : Adding char " + character + ", pinyin " + radical + ", tone " + tone);
+        st.executeUpdate("INSERT INTO character_pinyin(hanzi, pinyin,tone) VALUES('" + character + "','" + radical + "'," + tone + ")");
 
         st.close();
+        res = find_existing_pinyin_character(character, pinyin);
         changed = true;
+        return res;
     }
+
 
     /*
      * adds a new chinese word with its translation
@@ -435,6 +413,7 @@ public abstract class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
             int char_pinyin_id = 0;
+            int char_id = 0;
             int i;
             String chinese = "", pinyin = "";
             int found_chinese_id;
@@ -489,9 +468,7 @@ public abstract class HanziDB
                 // Now add all characters and associated pinyins
                 for (i = 0; i < pinyins.size(); i++)
                 {
-                    add_character(hanzi.get(i));
-                    add_pinyin(hanzi.get(i), pinyins.get(i));
-                    char_pinyin_id = find_existing_pinyin_character(hanzi.get(i), pinyins.get(i));
+                    char_pinyin_id = add_pinyin(hanzi.get(i), pinyins.get(i));
                     tone = Pinyin.pinyin_tone(pinyins.get(i));
 
                     //System.out.println("add_translation : adding chinese:" + found_chinese_id + ", char_pinyin:" + char_pinyin_id + " at " + i);
@@ -590,54 +567,6 @@ public abstract class HanziDB
         add_translation(translations, pinyin_strings, hanzi);
     }
 
-    /**
-     * Deletes a character not used anymore
-     *
-     * @param char_id the ID of the character to delete
-     */
-    protected synchronized void delete_character(int char_id)
-    {
-        try
-        {
-            Statement st = conn.createStatement();
-
-            System.out.println("delete_translation : removing that character");
-            st.executeUpdate("DELETE FROM character " +
-                    " WHERE char_id=" + char_id);
-            st.close();
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Check for a potential character that does not link anywhere anymore
-     *
-     * @param char_id the ID of the character to potentially remove
-     */
-    protected synchronized void check_for_isolated_character(int char_id)
-    {
-        ResultSet rs = null;
-
-        try
-        {
-            Statement st = conn.createStatement();
-
-            rs = st.executeQuery("SELECT character_pinyin_id FROM character_pinyin" +
-                    " WHERE char_id=" + char_id);
-            if (!rs.next())
-            {
-                delete_character(char_id);
-            }
-            st.close();
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
 
     /**
      * Deletes a character/pinyin not used anymore
@@ -646,7 +575,7 @@ public abstract class HanziDB
      */
     protected synchronized void delete_char_pinyin(int char_pinyin_id)
     {
-        int char_id;
+        String character;
         ResultSet rs = null;
 
         try
@@ -654,14 +583,13 @@ public abstract class HanziDB
             Statement st = conn.createStatement();
             System.out.println("delete_translation : remove that character_pinyin");
 
-            rs = st.executeQuery("SELECT char_id FROM character_pinyin" +
+            rs = st.executeQuery("SELECT hanzi FROM character_pinyin" +
                     " WHERE character_pinyin_id=" + char_pinyin_id);
             rs.next();
-            char_id = rs.getInt(1);
+            character = rs.getString(1);
 
             st.executeUpdate("DELETE FROM character_pinyin" +
                     " WHERE character_pinyin_id=" + char_pinyin_id);
-            check_for_isolated_character(char_id);
 
             st.close();
         }
@@ -862,8 +790,6 @@ public abstract class HanziDB
         {
             e.printStackTrace();
         }
-        System.out.println("HanziDB : Done with database initialization");
-        initialized = true;
     }
 
     /**
@@ -879,15 +805,11 @@ public abstract class HanziDB
 
             st.executeUpdate("CREATE TABLE database_info (" +
                     " field VARCHAR(50), value VARCHAR(50))");
-            st.executeUpdate("CREATE TABLE character (" +
-                    " char_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                    " hanzi VARCHAR(2))");
             st.executeUpdate("CREATE TABLE character_pinyin (" +
                     " character_pinyin_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-                    " char_id INTEGER," +
+                    " hanzi VARCHAR(2)," +
                     " pinyin VARCHAR(10)," +
-                    " tone INTEGER," +
-                    " FOREIGN KEY (char_id) REFERENCES character(char_id))");
+                    " tone INTEGER)");
             st.executeUpdate("CREATE TABLE cword (" +
                     " cword_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY," +
                     " chinese VARCHAR(30))");
@@ -907,12 +829,11 @@ public abstract class HanziDB
                     " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
                     " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
                     " FROM (SELECT cpb.cword_id," +
-                    " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                    " GROUP_CONCAT(cp.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
                     " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
                     " FROM cword AS cw" +
                     " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
                     " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
                     " GROUP BY cpb.cword_id) AS c_words" +
                     " JOIN english AS e ON e.cword_id=c_words.cword_id " +
                     " GROUP BY e.cword_id )");
@@ -921,11 +842,14 @@ public abstract class HanziDB
             st.executeUpdate("INSERT INTO database_info(field, value) VALUES('minimum_prog_version', '0.0')");
 
             st.close();
+
+            System.out.println("database created !");
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
         }
+        initialized = true;
 
     }
 
@@ -1016,6 +940,53 @@ public abstract class HanziDB
             // this one should always be at the last update...
             updated = true;
         }
+
+        if (version <= 5)
+        {
+            System.out.println("Upgrading master database to version 6");
+
+            try
+            {
+                Statement st = conn.createStatement();
+                Statement st2 = conn.createStatement();
+                Statement st3 = conn.createStatement();
+                ResultSet rs = null, rs2 = null;
+
+                // Add the chinese word into the cword table
+                st.executeUpdate("ALTER TABLE character_pinyin ADD COLUMN hanzi VARCHAR(2)");
+
+                rs = st2.executeQuery("SELECT char_id, hanzi FROM character");
+                for (; rs.next();)
+                {
+                    int id = rs.getInt(1);
+                    String character = rs.getString(2);
+                    st.executeUpdate("UPDATE character_pinyin SET hanzi='" + character + "' WHERE char_id=" + id);
+                }
+
+                // Remove all constraints on char_id
+                rs2 = st3.executeQuery("SELECT constraint_name FROM INFORMATION_SCHEMA.CONSTRAINTS WHERE table_name='CHARACTER_PINYIN'");
+                for (;rs2.next();)
+                {
+                    String constraint_name = rs2.getString(1);
+                    st.executeUpdate("ALTER TABLE CHARACTER_PINYIN DROP CONSTRAINT " + constraint_name);
+                }
+                st3.close();
+                st.executeUpdate("ALTER TABLE character_pinyin DROP COLUMN char_id");
+                st.executeUpdate("DROP TABLE character");
+                st.executeUpdate("UPDATE database_info SET value='6' WHERE field='version'");
+
+                st.close();
+                st2.close();
+
+            }
+            catch (SQLException ex)
+            {
+                ex.printStackTrace();
+            }
+            // this one should always be at the last update...
+            updated = true;
+        }
+
         // always recreate the view at the end...
         try
         {
@@ -1027,12 +998,11 @@ public abstract class HanziDB
                     " (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin," +
                     " GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations" +
                     " FROM (SELECT cpb.cword_id," +
-                    " GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
+                    " GROUP_CONCAT(cp.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi," +
                     " GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin" +
                     " FROM cword AS cw" +
                     " JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id" +
                     " JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                    " JOIN character AS ch ON ch.char_id=cp.char_id" +
                     " GROUP BY cpb.cword_id) AS c_words" +
                     " JOIN english AS e ON e.cword_id=c_words.cword_id " +
                     " GROUP BY e.cword_id )");
@@ -1097,7 +1067,9 @@ public abstract class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT COUNT(char_id) FROM character GROUP BY TRUE");
+            rs = st.executeQuery("SELECT COUNT(hanzi) FROM " +
+                    " (SELECT hanzi FROM character_pinyin GROUP BY hanzi) " +
+                    " GROUP BY TRUE");
             if (!rs.next())
             {
                 return 0;
@@ -1139,14 +1111,12 @@ public abstract class HanziDB
 
             rs = st.executeQuery("SELECT epc.cword_id FROM " +
                     " (SELECT cword_id FROM" +
-                    " character AS ch" +
-                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
+                    " character_pinyin AS cp " +
                     " JOIN cword_pinyin_bridge AS cpb ON cp.character_pinyin_id=cpb.character_pinyin_id" +
                     " WHERE cp.character_pinyin_id = " +
                     " (SELECT character_pinyin_id FROM " +
-                    " character AS ch" +
-                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
-                    " WHERE ch.hanzi='" + hanzi + "'" +
+                    " character_pinyin AS cp " +
+                    " WHERE cp.hanzi='" + hanzi + "'" +
                     " AND cp.pinyin='" + pinyin_base + "'" +
                     " AND cp.tone=" + tone + ")" +
                     " GROUP BY cpb.cword_id) AS selected_words" +
@@ -1184,10 +1154,9 @@ public abstract class HanziDB
 
             rs = st.executeQuery("SELECT epc.cword_id FROM " +
                     " (SELECT cword_id FROM" +
-                    " character AS ch" +
-                    " JOIN character_pinyin AS cp ON ch.char_id=cp.char_id" +
+                    " character_pinyin AS cp " +
                     " JOIN cword_pinyin_bridge AS cpb ON cp.character_pinyin_id=cpb.character_pinyin_id" +
-                    " WHERE ch.hanzi='" + hanzi + "'" +
+                    " WHERE cp.hanzi='" + hanzi + "'" +
                     " GROUP BY cpb.cword_id) AS selected_words" +
                     " JOIN english_pinyin_chinese AS epc ON epc.cword_id=selected_words.cword_id" +
                     " ORDER BY epc.pinyin");
@@ -1304,38 +1273,6 @@ public abstract class HanziDB
         return res;
     }
 
-    /**
-     * 
-     * Get the id of a character
-     * 
-     * @param character Chinese character
-     * @return id of the character
-     */
-    public int get_character_id(String character)
-    {
-        int res = -1;
-        if (!initialized)
-        {
-            return res;
-        }
-        try
-        {
-            Statement st = conn.createStatement();
-            ResultSet rs = null;
-
-            rs = st.executeQuery("SELECT char_id FROM character WHERE hanzi='" + character + "'");
-            if (!rs.next())
-            {
-                return res;
-            }
-            res = rs.getInt(1);
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-        return res;
-    }
 
     /**
      * 
@@ -1344,37 +1281,7 @@ public abstract class HanziDB
      * @param index from 0 to the number of words - 1 
      * @return id of the character
      */
-    public int get_character_id(int index)
-    {
-        int res = -1;
-        if (!initialized)
-        {
-            return res;
-        }
-        try
-        {
-            Statement st = conn.createStatement();
-            ResultSet rs = null;
-
-            rs = st.executeQuery("SELECT char_id FROM character ORDER BY hanzi");
-            rs.relative(index + 1);
-            res = rs.getInt(1);
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-        return res;
-    }
-
-    /**
-     * 
-     * Get the character from its id
-     * 
-     * @param id id of the character
-     * @return a string that only contains that character
-     */
-    public String get_character_details(int id)
+    public String get_character(int index)
     {
         String res = "";
         if (!initialized)
@@ -1386,11 +1293,10 @@ public abstract class HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT hanzi FROM character WHERE char_id=" + id);
-            if (!rs.next())
-            {
-                return res;
-            }
+            rs = st.executeQuery("SELECT hanzi FROM " +
+                    " (SELECT hanzi FROM character_pinyin GROUP BY hanzi) " +
+                    " ORDER BY hanzi");
+            rs.relative(index + 1);
             res = rs.getString(1);
         }
         catch (SQLException ex)
@@ -1415,15 +1321,15 @@ public abstract class HanziDB
 
             rs = st.executeQuery("SELECT value FROM database_info AS di" +
                     " WHERE field='version'");
-            rs.next();
-
-            res = Integer.parseInt(rs.getString(1));
-
-            System.out.println("Database version " + res);
+            if (rs.next())
+            {
+                res = Integer.parseInt(rs.getString(1));
+                System.out.println("Database version " + res);
+            }
         }
         catch (SQLException ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         return res;
     }

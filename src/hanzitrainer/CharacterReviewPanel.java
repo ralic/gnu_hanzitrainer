@@ -219,7 +219,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
     {
         ArrayList<String> pinyins = main_database.get_pinyin_for_character(hanzi);
         String pinyin_list = "";
-        int score = main_database.get_character_score(main_database.get_character_id(hanzi));
+        int score = main_database.get_character_score(hanzi);
         int i, j;
 
         if (pinyins.size() != 0)
@@ -267,7 +267,6 @@ public class CharacterReviewPanel extends javax.swing.JPanel
     private void set_new_random_character() {
         int num_char = main_database.get_number_characters();
         int index;
-        int char_id;
         String hanzi;
 
         if (num_char == 0) {
@@ -275,8 +274,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         }
         do {
             index = (int) (Math.random() * num_char);
-            char_id = main_database.get_character_id(index);
-            hanzi = main_database.get_character_details(char_id);
+            hanzi = main_database.get_character(index);
             System.out.println("getting index " + index + " character :" + hanzi);
         } while (character_history.contains(hanzi));
         character_history.add(hanzi);
