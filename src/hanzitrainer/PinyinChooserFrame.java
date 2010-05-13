@@ -140,7 +140,7 @@ public class PinyinChooserFrame extends JPanel
         if (is_chinese_char(entry))
         {
             ArrayList<String> possibilities = database.get_pinyin_for_character(entry);
-            if (cedict_database == null)
+            if (cedict_database.check_for_empty_db())
             {
                 add_combo_box(index, possibilities);
             }

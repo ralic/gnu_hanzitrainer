@@ -183,7 +183,7 @@ public abstract class HanziDB
      * 
      * @return True if the database is empty
      */
-    protected Boolean check_for_empty_db()
+    public Boolean check_for_empty_db()
     {
         Statement st;
         try
