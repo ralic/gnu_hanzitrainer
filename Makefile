@@ -7,7 +7,7 @@ classes = $(foreach dir, $(packages), $(wildcard src/$(dir)/*.java))
 objects = $(patsubst src/%,obj/%,$(patsubst %.java,%.class,$(classes)))
 
 .PHONY : all
-all : $(target_jar) libs
+all : dirs $(target_jar) libs
 
 .PHONY : libs
 libs : 
