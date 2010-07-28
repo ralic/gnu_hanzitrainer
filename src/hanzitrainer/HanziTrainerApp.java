@@ -51,17 +51,6 @@ public class HanziTrainerApp extends SingleFrameApplication
     protected void shutdown()
     {
         my_view.HanziTrainerViewKill();
-    
-    }
-
-    /**
-     * This method is to initialize the specified window by injecting resources.
-     * Windows shown in our application come fully initialized from the GUI
-     * builder, so this additional configuration is not needed.
-     */
-    @Override
-    protected void configureWindow(java.awt.Window root)
-    {
     }
 
     /**

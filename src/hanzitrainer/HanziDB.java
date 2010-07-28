@@ -56,13 +56,12 @@ public abstract class HanziDB
     }
 
     /**
-     *  Open a database file
-     * 
-     * @param db_file_name filename
+     *  Open a database but do not try to upgrade yet
+     *
+     *  @param dv_file_name filename
      */
-    public void HanziDB_open(String db_file_name)
+    protected void HanziDB_open_no_upgrade(String db_file_name)
     {
-
         shutdown();
         database_init();
         changed = false;
@@ -112,16 +111,25 @@ public abstract class HanziDB
 
             return;
         }
+        System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
+        filename = db_file_name;
+        initialized = true;
+    }
 
+    /**
+     *  Open a database file
+     * 
+     * @param db_file_name filename
+     */
+    public void HanziDB_open(String db_file_name)
+    {
+        HanziDB_open_no_upgrade(db_file_name);
         if (upgrade_database() == true)
         {
             filename = db_file_name;
             HanziDB_save();
         }
 
-        System.out.println("HanziDB_open : I think I got it right from file " + db_file_name);
-        filename = db_file_name;
-        initialized = true;
     }
 
     /**

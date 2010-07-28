@@ -53,13 +53,13 @@ public class HanziDBscore extends HanziDB
     @Override
     public void HanziDB_open(String db_file_name)
     {
-        super.HanziDB_open(db_file_name);
-        if (upgrade_score_database() == true)
+        super.HanziDB_open_no_upgrade(db_file_name);
+
+        if (upgrade_database() == true)
         {
             filename = db_file_name;
             HanziDB_save();
         }
-
     }
 
     protected int get_score_database_version()
@@ -92,10 +92,15 @@ public class HanziDBscore extends HanziDB
     @Override
     protected boolean upgrade_database()
     {
-        upgrade_score_database();
+        boolean res = false;
 
-        return super.upgrade_database();
+        res |= upgrade_score_database();
 
+        res |= super.upgrade_database();
+
+        finish_score_database_upgrade();
+
+        return res;
     }
 
     protected boolean upgrade_score_database()
@@ -122,6 +127,7 @@ public class HanziDBscore extends HanziDB
         if (get_score_database_version() <= 1)
         {
             System.out.println("Upgrade score database to version 2");
+            // that means separating the scores from the original tables and create a cword_score and a character_score tables
             try
             {
                 Statement st = conn.createStatement();
@@ -163,6 +169,7 @@ public class HanziDBscore extends HanziDB
         if (get_score_database_version() <= 2)
         {
             System.out.println("Upgrade score database to version 3");
+            // getting rid of the character table
             try
             {
                 Statement st = conn.createStatement();
@@ -221,7 +228,12 @@ public class HanziDBscore extends HanziDB
 
             upgrade_change = true;
         }
-        
+
+        return upgrade_change;
+    }
+
+    protected void finish_score_database_upgrade()
+    {
         // always refresh the view if it was changed in the master class...
         try
         {
@@ -238,8 +250,6 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
-
-        return upgrade_change;
     }
 
     @Override

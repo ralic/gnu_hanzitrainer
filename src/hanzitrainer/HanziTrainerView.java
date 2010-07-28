@@ -57,7 +57,6 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         super(app);
         String database_file;
 
-        //my_preferences = Preferences.userRoot();
         my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
 
         main_database = new HanziDBscore();

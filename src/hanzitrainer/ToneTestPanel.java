@@ -50,7 +50,7 @@ public class ToneTestPanel extends javax.swing.JPanel
         set_new_random_pinyin();
     }
 
-    public void set_pinyin_test(String hanzi, String pinyin)
+    private void set_pinyin_test(String hanzi, String pinyin)
     {
         old_character = current_character;
         old_pinyin = current_pinyin;
@@ -70,8 +70,6 @@ public class ToneTestPanel extends javax.swing.JPanel
         {
             OldPinyinLabel.setForeground(Color.RED);
         }
-
-
 
         CharacterLabel.setText(current_character);
         PinyinLabel.setText(Pinyin.pinyin_base(pinyin));
