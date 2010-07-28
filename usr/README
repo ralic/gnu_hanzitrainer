@@ -1,3 +1,14 @@
 Debugging with h2 :
 java -cp lib/h2.jar org.h2.tools.Server
 Then open the web browser to http://localhost:8082/ (if it does not open automatically)
+
+A couple of links...
+* Preventing SQL injection :
+http://bobby-tables.com/java.html
+
+* Leitner system :
+http://en.wikipedia.org/wiki/Leitner_system
+http://flashcarddb.com/leitner
+
+* Font chooser :
+http://www.java2s.com/Code/Java/Swing-Components/Wordlikespecialfontchooser.htm
