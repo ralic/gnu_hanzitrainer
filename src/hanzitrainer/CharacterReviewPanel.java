@@ -34,6 +34,7 @@ package hanzitrainer;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.awt.Font;
 
 /**
  *
@@ -81,13 +82,12 @@ public class CharacterReviewPanel extends javax.swing.JPanel
 
         setName("Form"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(hanzitrainer.HanziTrainerApp.class).getContext().getResourceMap(CharacterReviewPanel.class);
-        CharacterLabel.setFont(resourceMap.getFont("CharacterLabel.font")); // NOI18N
+        CharacterLabel.setFont(Font.decode("SimSun-Plain-36")); // NOI18N
         CharacterLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CharacterLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         CharacterLabel.setName("CharacterLabel"); // NOI18N
 
-        NextCharacterButton.setText(resourceMap.getString("NextCharacterButton.text")); // NOI18N
+        NextCharacterButton.setText("Random"); // NOI18N
         NextCharacterButton.setName("NextCharacterButton"); // NOI18N
         NextCharacterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -110,7 +110,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
             }
         });
 
-        CharSearchButton.setText(resourceMap.getString("CharSearchButton.text")); // NOI18N
+        CharSearchButton.setText("Search"); // NOI18N
         CharSearchButton.setName("CharSearchButton"); // NOI18N
         CharSearchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -118,7 +118,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
             }
         });
 
-        CharPreviousButton.setText(resourceMap.getString("CharPreviousButton.text")); // NOI18N
+        CharPreviousButton.setText("Previous"); // NOI18N
         CharPreviousButton.setName("CharPreviousButton"); // NOI18N
         CharPreviousButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -140,13 +140,13 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         PinyinsTextfield.setEditable(false);
         PinyinsTextfield.setName("PinyinsTextfield"); // NOI18N
 
-        PinyinsLabel.setText(resourceMap.getString("PinyinsLabel.text")); // NOI18N
+        PinyinsLabel.setText("Pinyin(s)"); // NOI18N
         PinyinsLabel.setName("PinyinsLabel"); // NOI18N
 
-        WordListLabel.setText(resourceMap.getString("WordListLabel.text")); // NOI18N
+        WordListLabel.setText("As in :"); // NOI18N
         WordListLabel.setName("WordListLabel"); // NOI18N
 
-        ScoreLabel.setText(resourceMap.getString("ScoreLabel.text")); // NOI18N
+        ScoreLabel.setText("Score :"); // NOI18N
         ScoreLabel.setName("ScoreLabel"); // NOI18N
 
         ScoreTextfield.setEditable(false);
