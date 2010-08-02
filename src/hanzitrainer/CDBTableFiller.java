@@ -37,10 +37,13 @@ import java.util.ArrayList;
 public class CDBTableFiller extends AbstractTableModel
 {
     HanziDBscore db;
+    ArrayList<ArrayList<String>> cache_table;
  
     public CDBTableFiller(HanziDBscore database)
     {
         db = database;
+        cache_table = new ArrayList<ArrayList<String>>();
+        fill_character_table();
     }
 
     @Override
@@ -75,48 +78,63 @@ public class CDBTableFiller extends AbstractTableModel
         return 4;
     }
 
-    public Object getValueAt(int row, int column)
+    private void fill_character_table()
     {
-        int i;
+        int i, j, character_count;
         String character;
-        String pinyin_list = "";
-        String cword_list = "";
+        ArrayList<String> temp;
 
         ArrayList<String> pinyins;
+        String pinyin_list = "";
+
         ArrayList<Integer> cwords;
         ArrayList<String> cword_details;
-        if (getRowCount() == 0) {
-            return "";
-        }
-        
-        character = db.get_character(row);
-        switch (column)
-        {
-            case 0:
-                return character;
-            case 1:
-                pinyins = db.get_pinyin_for_character(character);
-                pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
-                for (i = 1; i < pinyins.size(); i++)
-                {
-                    pinyin_list += ", " + PinyinParser.convert_to_printed_version(pinyins.get(i));
-                }
-                return pinyin_list;
-            case 2:
-                cwords = db.get_words_with_character(character);
-                cword_details = db.get_word_details(cwords.get(0));
-                cword_list += cword_details.get(0);
-                for (i = 1; i < cwords.size(); i++)
-                {
-                    cword_details = db.get_word_details(cwords.get(i));
-                    cword_list += ", " + cword_details.get(0);
-                }
-                return cword_list;
-            case 3:
-                return db.get_character_score(character);
-            default:
-                return "(" + row + "," + column + ") ?";
-        }
+        String cword_list = "";
 
+        cache_table.clear();
+
+        character_count = db.get_number_characters();
+        for (i=0; i<character_count; i++)
+        {
+            character = db.get_character(i);
+            temp = new ArrayList<String>();
+
+            // the character comes first
+            temp.add(character);
+
+            // the pinyins next
+            pinyins = db.get_pinyin_for_character(character);
+            pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
+            for (j = 1; j < pinyins.size(); j++)
+            {
+                pinyin_list += ", " + PinyinParser.convert_to_printed_version(pinyins.get(j));
+            }
+            temp.add(pinyin_list);
+
+            // the chinese words
+            cwords = db.get_words_with_character(character);
+            cword_details = db.get_word_details(cwords.get(0));
+            cword_list = cword_details.get(0);
+            for (j = 1; j < cwords.size(); j++)
+            {
+                cword_details = db.get_word_details(cwords.get(j));
+                cword_list += ", " + cword_details.get(0);
+            }
+            temp.add(cword_list);
+
+            // the score
+            temp.add("" +db.get_character_score(character));
+
+            cache_table.add(temp);
+        }
+    }
+
+    public Object getValueAt(int row, int column)
+    {
+        ArrayList<String> temp;
+
+        temp = cache_table.get(row);
+
+        return temp.get(column);
     }
 }

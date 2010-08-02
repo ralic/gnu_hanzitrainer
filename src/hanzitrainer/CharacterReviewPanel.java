@@ -48,7 +48,6 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         main_database = database;
         parent_app = updater;
         initComponents();
-        CharTableFiller.set_filter("");
         character_history = new ArrayList<String>();
         set_new_random_character();
     }
@@ -73,7 +72,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         CharPreviousButton = new javax.swing.JButton();
         CharDBScroll = new javax.swing.JScrollPane();
         CharDBTable = new javax.swing.JTable();
-        CharTableFiller = new DBTableFiller(main_database);
+        CharTableFiller = new DBTableFiller(main_database, "");
         PinyinsTextfield = new javax.swing.JTextField();
         PinyinsLabel = new javax.swing.JLabel();
         WordListLabel = new javax.swing.JLabel();
