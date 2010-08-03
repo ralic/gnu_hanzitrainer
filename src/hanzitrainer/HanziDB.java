@@ -1332,7 +1332,7 @@ public abstract class HanziDB
             if (rs.next())
             {
                 res = Integer.parseInt(rs.getString(1));
-                System.out.println("Database version " + res);
+                //System.out.println("Database version " + res);
             }
         }
         catch (SQLException ex)

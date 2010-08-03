@@ -85,7 +85,7 @@ public class HanziDBscore extends HanziDB
         {
             ex.printStackTrace();
         }
-        System.out.println("Score database version " +  res);
+        //System.out.println("Score database version " +  res);
         return res;
     }
 
