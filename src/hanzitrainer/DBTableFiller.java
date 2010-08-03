@@ -64,7 +64,13 @@ public class DBTableFiller extends AbstractTableModel
         set_filter(hanzi);
     }
 
-    public void fill_word_table()
+    public void database_updated()
+    {
+        fill_word_table();
+        this.fireTableDataChanged();
+    }
+
+    private void fill_word_table()
     {
         int word_count, i;
         ArrayList<Integer> words;
@@ -104,8 +110,7 @@ public class DBTableFiller extends AbstractTableModel
         this.hanzi = hanzi;
         table_mode = table_mode_t.TMODE_CHARACTER;
 
-        fill_word_table();
-
+        database_updated();
     }
 
     public String getColumnName(int column)

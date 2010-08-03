@@ -48,7 +48,7 @@ public class WordDatabasePanel extends javax.swing.JPanel
     public void WordDatabaseUpdateDB()
     {
         int res;
-        TableFiller.fireTableDataChanged();
+        TableFiller.database_updated();
 
         res = main_database.get_number_words();
         numWordLabel.setText("Number of words : " + res);
@@ -108,17 +108,17 @@ public class WordDatabasePanel extends javax.swing.JPanel
                 .addComponent(DBScroll));
     }
 
-private void DBTableMouseClicked(java.awt.event.MouseEvent evt) {
-    if (evt.getClickCount() == 2)
-    {
-        int row = DBTable.getSelectedRow();
-        String chinese_word;
-        chinese_word = (String) TableFiller.getValueAt(row, 0);
+    private void DBTableMouseClicked(java.awt.event.MouseEvent evt) {
+        if (evt.getClickCount() == 2)
+        {
+            int row = DBTable.getSelectedRow();
+            String chinese_word;
+            chinese_word = (String) TableFiller.getValueAt(row, 0);
 
-        parent_app.edit_word(chinese_word);
+            parent_app.edit_word(chinese_word);
+        }
     }
-}
-    
+
     private javax.swing.JScrollPane DBScroll;
     private javax.swing.JTable DBTable;
     private javax.swing.JLabel avgWordScoreLabel;

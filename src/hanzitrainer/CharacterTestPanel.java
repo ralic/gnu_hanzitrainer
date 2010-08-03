@@ -352,7 +352,7 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         GoodOrBadLabel = new javax.swing.JLabel();
         PreviousCharDBScroll = new javax.swing.JScrollPane();
         PreviousCharDBTable = new javax.swing.JTable();
-        char_table_filler = new DBTableFiller(main_database);
+        //char_table_filler = new DBTableFiller(main_database);
         PreviousPinyinsLabel = new javax.swing.JLabel();
 
         setName("Form"); // NOI18N
@@ -560,7 +560,7 @@ private void PreviousCharacterLabelMouseClicked(java.awt.event.MouseEvent evt) {
     private javax.swing.JLabel PreviousPinyinsLabel;
     private javax.swing.JLabel PreviouslyLabel;
     // End of variables declaration//GEN-END:variables
-    private DBTableFiller char_table_filler;
+    //private DBTableFiller char_table_filler;
     private ArrayList<String> character_history;
     private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;

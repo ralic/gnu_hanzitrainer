@@ -78,6 +78,12 @@ public class CDBTableFiller extends AbstractTableModel
         return 4;
     }
 
+    public void database_updated()
+    {
+        fill_character_table();
+        this.fireTableDataChanged();
+    }
+
     private void fill_character_table()
     {
         int i, j, character_count;

@@ -54,7 +54,7 @@ public class CharacterReviewPanel extends javax.swing.JPanel
 
     public void CharacterReviewUpdateDB()
     {
-        CharTableFiller.fireTableDataChanged();
+        CharTableFiller.database_updated();
     }
     
     /** This method is called from within the constructor to
@@ -260,9 +260,8 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         ScoreTextfield.setText("" +score);
         CharacterLabel.setText(hanzi);
         CharTableFiller.set_filter(hanzi);
-        CharTableFiller.fireTableDataChanged();
     }
-    
+
     private void set_new_random_character() {
         int num_char = main_database.get_number_characters();
         int index;
@@ -284,73 +283,73 @@ public class CharacterReviewPanel extends javax.swing.JPanel
 
     }
 
-private void NextCharacterButtonrandom_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NextCharacterButtonrandom_character_action
-    set_new_random_character();
-}//GEN-LAST:event_NextCharacterButtonrandom_character_action
+    private void NextCharacterButtonrandom_character_action(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NextCharacterButtonrandom_character_action
+        set_new_random_character();
+    }//GEN-LAST:event_NextCharacterButtonrandom_character_action
 
-private void CharsearchentryTextFieldCharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldCharSearchButtonAction
-    String char_to_search = CharsearchentryTextField.getText();
-    int num_char = main_database.get_number_characters();
+    private void CharsearchentryTextFieldCharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldCharSearchButtonAction
+        String char_to_search = CharsearchentryTextField.getText();
+        int num_char = main_database.get_number_characters();
 
-    if (char_to_search.codePointCount(0, char_to_search.length()) != 1)
-    {
-        return;
-    }
-    character_history.add(char_to_search);
-    if (character_history.size() > (num_char - 1) / 2)
-    {
-        character_history.remove(0);
-    }
-    set_character_review(char_to_search);
-}//GEN-LAST:event_CharsearchentryTextFieldCharSearchButtonAction
+        if (char_to_search.codePointCount(0, char_to_search.length()) != 1)
+        {
+            return;
+        }
+        character_history.add(char_to_search);
+        if (character_history.size() > (num_char - 1) / 2)
+        {
+            character_history.remove(0);
+        }
+        set_character_review(char_to_search);
+    }//GEN-LAST:event_CharsearchentryTextFieldCharSearchButtonAction
 
-private void CharsearchentryTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusGained
-    CharsearchentryTextField.getInputContext().selectInputMethod(Locale.CHINA);
-}//GEN-LAST:event_CharsearchentryTextFieldFocusGained
+    private void CharsearchentryTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusGained
+        CharsearchentryTextField.getInputContext().selectInputMethod(Locale.CHINA);
+    }//GEN-LAST:event_CharsearchentryTextFieldFocusGained
 
-private void CharsearchentryTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusLost
-    CharsearchentryTextField.getInputContext().selectInputMethod(Locale.getDefault());
-}//GEN-LAST:event_CharsearchentryTextFieldFocusLost
+    private void CharsearchentryTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CharsearchentryTextFieldFocusLost
+        CharsearchentryTextField.getInputContext().selectInputMethod(Locale.getDefault());
+    }//GEN-LAST:event_CharsearchentryTextFieldFocusLost
 
-private void CharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharSearchButtonAction
-    String char_to_search = CharsearchentryTextField.getText();
-    int num_char = main_database.get_number_characters();
+    private void CharSearchButtonAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharSearchButtonAction
+        String char_to_search = CharsearchentryTextField.getText();
+        int num_char = main_database.get_number_characters();
 
-    if (char_to_search.codePointCount(0, char_to_search.length()) != 1)
-    {
-        return;
-    }
-    character_history.add(char_to_search);
-    if (character_history.size() > (num_char - 1) / 2)
-    {
-        character_history.remove(0);
-    }
-    set_character_review(char_to_search);
-}//GEN-LAST:event_CharSearchButtonAction
+        if (char_to_search.codePointCount(0, char_to_search.length()) != 1)
+        {
+            return;
+        }
+        character_history.add(char_to_search);
+        if (character_history.size() > (num_char - 1) / 2)
+        {
+            character_history.remove(0);
+        }
+        set_character_review(char_to_search);
+    }//GEN-LAST:event_CharSearchButtonAction
 
-private void CharPreviousButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharPreviousButtonActionPerformed
-    String hanzi;
+    private void CharPreviousButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CharPreviousButtonActionPerformed
+        String hanzi;
 
-    if (character_history.size() <= 1)
-    {
-        return;
-    }
-    hanzi = character_history.get(character_history.size() - 2);
-    character_history.remove(character_history.size() - 1);
+        if (character_history.size() <= 1)
+        {
+            return;
+        }
+        hanzi = character_history.get(character_history.size() - 2);
+        character_history.remove(character_history.size() - 1);
 
-    set_character_review(hanzi);
-}//GEN-LAST:event_CharPreviousButtonActionPerformed
+        set_character_review(hanzi);
+    }//GEN-LAST:event_CharPreviousButtonActionPerformed
 
-private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CharDBTableMouseClicked
-    if (evt.getClickCount() == 2)
-    {
-        int row = CharDBTable.getSelectedRow();
-        String chinese_word;
-        chinese_word = (String) CharTableFiller.getValueAt(row, 0);
-        
-        parent_app.edit_word(chinese_word);
-    }
-}//GEN-LAST:event_CharDBTableMouseClicked
+    private void CharDBTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CharDBTableMouseClicked
+        if (evt.getClickCount() == 2)
+        {
+            int row = CharDBTable.getSelectedRow();
+            String chinese_word;
+            chinese_word = (String) CharTableFiller.getValueAt(row, 0);
+
+            parent_app.edit_word(chinese_word);
+        }
+    }//GEN-LAST:event_CharDBTableMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane CharDBScroll;
     private javax.swing.JTable CharDBTable;

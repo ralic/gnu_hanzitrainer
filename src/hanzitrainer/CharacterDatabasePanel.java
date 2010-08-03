@@ -54,7 +54,7 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
     public void CharDatabaseUpdateDB()
     {
         int res;
-        CTableFiller.fireTableDataChanged();
+        CTableFiller.database_updated();
 
         res = main_database.get_number_characters();
         numCharLabel.setText("Number of characters : " + res);
