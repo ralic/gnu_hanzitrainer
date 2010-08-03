@@ -264,7 +264,7 @@ public class HanziDBscore extends HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT hanzi FROM character_score WHERE hanzi NOT IN (SELECT character_pinyin GROUP BY hanzi)");
+            rs = st.executeQuery("SELECT hanzi FROM character_score WHERE hanzi NOT IN (SELECT hanzi FROM character_pinyin GROUP BY hanzi)");
             for (;rs.next();)
             {
                 try_character = rs.getString(1);
