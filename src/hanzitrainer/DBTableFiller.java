@@ -156,7 +156,7 @@ public class DBTableFiller extends AbstractTableModel
 
             if (maximum_index > last_index_published)
             {
-                System.out.println("Reporting rows from " + last_index_published + " to " + maximum_index + "inserted");
+                //System.out.println("Reporting rows from " + last_index_published + " to " + maximum_index + "inserted");
                 table.fireTableRowsInserted(last_index_published, maximum_index);
                 last_index_published = maximum_index;
             }

@@ -61,8 +61,6 @@ public class CDBTableFiller extends AbstractTableModel
             return "Pinyin";
         case 2:
             return "Chinese words";
-        case 3:
-            return "Score";
         default:
             return "column " + column + "???";
         }
@@ -75,7 +73,7 @@ public class CDBTableFiller extends AbstractTableModel
 
     public int getColumnCount()
     {
-        return 4;
+        return 3;
     }
 
     public void database_updated()
