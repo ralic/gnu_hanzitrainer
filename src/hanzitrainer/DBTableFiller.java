@@ -71,7 +71,6 @@ public class DBTableFiller extends AbstractTableModel
     public void database_updated()
     {
         fill_word_table();
-        this.fireTableDataChanged();
     }
 
     private class filler_worker extends SwingWorker<Integer, Integer>
@@ -105,12 +104,13 @@ public class DBTableFiller extends AbstractTableModel
 
                     if ((i>0) && (i%100 == 0))
                     {
-                        publish(i);
+                        publish(cache_table.size()-1);
                     }
 
                     if (isCancelled())
                         return i;
                 }
+                publish(cache_table.size()-1);
                 return word_count;
             }
             else
@@ -126,18 +126,19 @@ public class DBTableFiller extends AbstractTableModel
 
                     if ((i>0) && (i%100 == 0))
                     {
-                        publish(i);
+                        publish(cache_table.size()-1);
                     }
                     if (isCancelled())
-                        return i;
+                        return cache_table.size();
                 }
+                publish(cache_table.size()-1);
 
                 return words.size();
             }
         }
 
         @Override
-        public void done()
+        protected void done()
         {
             table.fireTableDataChanged();
         }
@@ -152,8 +153,10 @@ public class DBTableFiller extends AbstractTableModel
                 if (chunks.get(i) > maximum_index)
                     maximum_index = chunks.get(i);
             }
+
             if (maximum_index > last_index_published)
             {
+                System.out.println("Reporting rows from " + last_index_published + " to " + maximum_index + "inserted");
                 table.fireTableRowsInserted(last_index_published, maximum_index);
                 last_index_published = maximum_index;
             }
@@ -173,7 +176,6 @@ public class DBTableFiller extends AbstractTableModel
 
     public void set_filter(String hanzi)
     {
-        int i;
         this.hanzi = hanzi;
         table_mode = table_mode_t.TMODE_CHARACTER;
 
@@ -190,8 +192,6 @@ public class DBTableFiller extends AbstractTableModel
             return "Pinyin";
         case 2:
             return "Translation";
-        case 3:
-            return "Score";
         default:
             return "column " + column + "???";
         }
@@ -204,41 +204,11 @@ public class DBTableFiller extends AbstractTableModel
 
     public int getColumnCount()
     {
-        return 4;
+        return 3;
     }
 
     public Object getValueAt(int row, int column)
     {
-        int id;
-        if (table_mode == table_mode_t.TMODE_ALL)
-        {
-            ArrayList<String> word_details;
-            if (getRowCount() == 0)
-            {
-                return "";
-            }
-            id = db.get_word_id(row,0);
-            word_details = db.get_word_details(id);
-            switch (column)
-            {
-            case 0:
-                return word_details.get(0);
-            case 1:
-                return PinyinParser.convert_to_printed_version(word_details.get(1));
-            case 2:
-                return word_details.get(2);
-            case 3:
-                return word_details.get(3);
-            default:
-                return "(" + row + "," + column + ") ?";
-            }
-        }
-        else
-        {
-            String result = cache_table.get(row).get(column);
-            if (column==1)
-                result = PinyinParser.convert_to_printed_version(result);
-            return result;
-        }
+        return cache_table.get(row).get(column);
     }
 }
