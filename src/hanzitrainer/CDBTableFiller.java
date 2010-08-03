@@ -29,6 +29,9 @@ package hanzitrainer;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
+import java.util.List;
+import java.lang.Integer;
+import javax.swing.SwingWorker;
 
 /**
  *
@@ -38,6 +41,7 @@ public class CDBTableFiller extends AbstractTableModel
 {
     HanziDBscore db;
     ArrayList<ArrayList<String>> cache_table;
+    filler_worker filler=null;
  
     public CDBTableFiller(HanziDBscore database)
     {
@@ -66,11 +70,7 @@ public class CDBTableFiller extends AbstractTableModel
 
     public int getRowCount()
     {
-        int res;
-
-        res = db.get_number_characters();
-
-        return res;
+        return cache_table.size();
     }
 
     public int getColumnCount()
@@ -84,55 +84,110 @@ public class CDBTableFiller extends AbstractTableModel
         this.fireTableDataChanged();
     }
 
+    private class filler_worker extends SwingWorker<Integer, Integer>
+    {
+        private int last_index_published = 0;
+        private AbstractTableModel table;
+
+        public filler_worker(AbstractTableModel table)
+        {
+            this.table=table;
+        }
+
+        @Override
+        protected Integer doInBackground()
+        {
+            int i, j, character_count;
+            String character;
+            ArrayList<String> temp;
+
+            ArrayList<String> pinyins;
+            String pinyin_list = "";
+
+            ArrayList<Integer> cwords;
+            ArrayList<String> cword_details;
+            String cword_list = "";
+
+            cache_table.clear();
+            table.fireTableDataChanged();
+
+            character_count = db.get_number_characters();
+            for (i=0; i<character_count; i++)
+            {
+                character = db.get_character(i);
+                temp = new ArrayList<String>();
+
+                // the character comes first
+                temp.add(character);
+
+                // the pinyins next
+                pinyins = db.get_pinyin_for_character(character);
+                pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
+                for (j = 1; j < pinyins.size(); j++)
+                {
+                    pinyin_list += ", " + PinyinParser.convert_to_printed_version(pinyins.get(j));
+                }
+                temp.add(pinyin_list);
+
+                // the chinese words
+                cwords = db.get_words_with_character(character);
+                cword_details = db.get_word_details(cwords.get(0));
+                cword_list = cword_details.get(0);
+                for (j = 1; j < cwords.size(); j++)
+                {
+                    cword_details = db.get_word_details(cwords.get(j));
+                    cword_list += ", " + cword_details.get(0);
+                }
+                temp.add(cword_list);
+
+                // the score
+                temp.add("" +db.get_character_score(character));
+
+                cache_table.add(temp);
+
+                if ((i>0) && (i%100 == 0))
+                {
+                    publish(i);
+                }
+
+                if (isCancelled())
+                    return i;
+            }
+            return character_count;
+        }
+        @Override
+        public void done()
+        {
+            table.fireTableDataChanged();
+        }
+
+        @Override
+        protected void process(List<Integer> chunks)
+        {
+            int maximum_index = 0, i;
+
+            for (i=0; i<chunks.size(); i++)
+            {
+                if (chunks.get(i) > maximum_index)
+                    maximum_index = chunks.get(i);
+            }
+            if (maximum_index > last_index_published)
+            {
+                table.fireTableRowsInserted(last_index_published, maximum_index);
+                last_index_published = maximum_index;
+            }
+        }
+
+    }
+
     private void fill_character_table()
     {
-        int i, j, character_count;
-        String character;
-        ArrayList<String> temp;
-
-        ArrayList<String> pinyins;
-        String pinyin_list = "";
-
-        ArrayList<Integer> cwords;
-        ArrayList<String> cword_details;
-        String cword_list = "";
-
-        cache_table.clear();
-
-        character_count = db.get_number_characters();
-        for (i=0; i<character_count; i++)
+        if ((filler != null) && (!filler.isDone()))
         {
-            character = db.get_character(i);
-            temp = new ArrayList<String>();
-
-            // the character comes first
-            temp.add(character);
-
-            // the pinyins next
-            pinyins = db.get_pinyin_for_character(character);
-            pinyin_list = PinyinParser.convert_to_printed_version(pinyins.get(0));
-            for (j = 1; j < pinyins.size(); j++)
-            {
-                pinyin_list += ", " + PinyinParser.convert_to_printed_version(pinyins.get(j));
-            }
-            temp.add(pinyin_list);
-
-            // the chinese words
-            cwords = db.get_words_with_character(character);
-            cword_details = db.get_word_details(cwords.get(0));
-            cword_list = cword_details.get(0);
-            for (j = 1; j < cwords.size(); j++)
-            {
-                cword_details = db.get_word_details(cwords.get(j));
-                cword_list += ", " + cword_details.get(0);
-            }
-            temp.add(cword_list);
-
-            // the score
-            temp.add("" +db.get_character_score(character));
-
-            cache_table.add(temp);
+            filler.cancel(true);
         }
+        filler = new filler_worker(this);
+        filler.execute();
     }
 
     public Object getValueAt(int row, int column)

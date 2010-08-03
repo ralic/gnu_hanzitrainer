@@ -29,6 +29,9 @@ package hanzitrainer;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
+import java.util.List;
+import java.lang.Integer;
+import javax.swing.SwingWorker;
 
 
 /**
@@ -47,6 +50,7 @@ public class DBTableFiller extends AbstractTableModel
     String hanzi;
     ArrayList<ArrayList<String>> cache_table;
     table_mode_t table_mode = table_mode_t.TMODE_ALL;
+    filler_worker filler=null;
 
     public DBTableFiller(HanziDBscore database)
     {
@@ -70,38 +74,101 @@ public class DBTableFiller extends AbstractTableModel
         this.fireTableDataChanged();
     }
 
+    private class filler_worker extends SwingWorker<Integer, Integer>
+    {
+        private int last_index_published = 0;
+        private AbstractTableModel table;
+
+        public filler_worker(AbstractTableModel table)
+        {
+            this.table=table;
+        }
+
+        @Override
+        protected Integer doInBackground()
+        {
+            int word_count, i;
+            ArrayList<Integer> words;
+            ArrayList<String> temp;
+
+            cache_table.clear();
+            table.fireTableDataChanged();
+
+            if (table_mode == table_mode_t.TMODE_ALL)
+            {
+                word_count = db.get_number_words();
+                for (i=0; i<word_count; i++)
+                {
+                    temp = db.get_word_details(db.get_word_id(i));
+                    temp.set(1, PinyinParser.convert_to_printed_version(temp.get(1)));
+                    cache_table.add(temp);
+
+                    if ((i>0) && (i%100 == 0))
+                    {
+                        publish(i);
+                    }
+
+                    if (isCancelled())
+                        return i;
+                }
+                return word_count;
+            }
+            else
+            {
+                if (hanzi.equals(""))
+                    return 0;
+
+                words = db.get_words_with_character(hanzi);
+                for (i = 0; i < words.size(); i++) {
+                    temp = db.get_word_details(words.get(i));
+                    temp.set(1, PinyinParser.convert_to_printed_version(temp.get(1)));
+                    cache_table.add(temp);
+
+                    if ((i>0) && (i%100 == 0))
+                    {
+                        publish(i);
+                    }
+                    if (isCancelled())
+                        return i;
+                }
+
+                return words.size();
+            }
+        }
+
+        @Override
+        public void done()
+        {
+            table.fireTableDataChanged();
+        }
+
+        @Override
+        protected void process(List<Integer> chunks)
+        {
+            int maximum_index = 0, i;
+
+            for (i=0; i<chunks.size(); i++)
+            {
+                if (chunks.get(i) > maximum_index)
+                    maximum_index = chunks.get(i);
+            }
+            if (maximum_index > last_index_published)
+            {
+                table.fireTableRowsInserted(last_index_published, maximum_index);
+                last_index_published = maximum_index;
+            }
+        }
+
+    }
+
     private void fill_word_table()
     {
-        int word_count, i;
-        ArrayList<Integer> words;
-        ArrayList<String> temp;
-
-        cache_table.clear();
-
-        if (table_mode == table_mode_t.TMODE_ALL)
+        if ((filler != null) && (!filler.isDone()))
         {
-            word_count = db.get_number_words();
-            for (i=0; i<word_count; i++)
-            {
-                temp = db.get_word_details(db.get_word_id(i));
-                temp.set(1, PinyinParser.convert_to_printed_version(temp.get(1)));
-                cache_table.add(temp);
-            }
+            filler.cancel(true);
         }
-        else
-        {
-            if (hanzi.equals(""))
-                return;
-
-            words = db.get_words_with_character(hanzi);
-            for (i = 0; i < words.size(); i++) {
-                temp = db.get_word_details(words.get(i));
-                temp.set(1, PinyinParser.convert_to_printed_version(temp.get(1)));
-                cache_table.add(temp);
-            }
-            if (cache_table.size()==0)
-                System.out.println("No DBTableFiller.set_character : no word for this char");
-        }
+        filler = new filler_worker(this);
+        filler.execute();
     }
 
     public void set_filter(String hanzi)
