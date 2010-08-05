@@ -43,15 +43,14 @@ public class SettingsDialog extends javax.swing.JDialog
 {
 
     /** Creates new form SettingsDialog */
-    public SettingsDialog(java.awt.Frame parent, CedictParser cedict, HanziDB hanzi, boolean modal)
+    public SettingsDialog(java.awt.Frame parent, CedictParser cedict, HanziDB hanzi)
     {
-        super(parent, modal);
+        super(parent, false);
 
         parent_frame = parent;
 
         cedict_parser = cedict;
         main_database = hanzi;
-
 
         initComponents();
 

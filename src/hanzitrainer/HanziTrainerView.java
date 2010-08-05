@@ -89,7 +89,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         Tabs.addTab("Tone Test", tone_test);
         update_panel_databases();
 
-        Settings = new SettingsDialog(this.getFrame(), cedict_parser, main_database, true);
+        Settings = new SettingsDialog(this.getFrame(), cedict_parser, main_database);
 
     }
 
