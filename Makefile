@@ -2,7 +2,7 @@
 
 target_jar = rel/hanzitrainer.jar
 
-packages = hanzitrainer hanzitrainer/md5
+packages = hanzitrainer hanzitrainer/md5 hanzitrainer/settings
 classes = $(foreach dir, $(packages), $(wildcard src/$(dir)/*.java))
 objects = $(patsubst src/%,obj/%,$(patsubst %.java,%.class,$(classes)))
 
@@ -14,6 +14,7 @@ libs :
 	cp -Rf lib/ rel/lib
 
 $(target_jar) : src/MANIFEST.MF $(objects)
+	cp -Rf resources/* obj/
 	jar cfm $@ src/MANIFEST.MF -C obj . 
 
 $(objects) : obj/%.class : src/%.java 

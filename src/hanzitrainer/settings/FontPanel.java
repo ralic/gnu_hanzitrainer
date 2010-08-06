@@ -31,20 +31,18 @@
 package hanzitrainer.settings;
 
 import java.awt.Font;
+import java.util.prefs.*;
 
 public class FontPanel extends javax.swing.JPanel
 {
 
     public FontPanel()
     {
+        my_preferences = Preferences.userNodeForPackage(hanzitrainer.HanziTrainerApp.class);
+
         initComponents();
     }
 
-    public Font get_chosen_font()
-    {
-        return null;
-    }
-    
     private void initComponents() {
         CharacterFontButton = new javax.swing.JButton();
         ChineseTextFontButton = new javax.swing.JButton();
@@ -53,7 +51,9 @@ public class FontPanel extends javax.swing.JPanel
         ChineseTextField = new javax.swing.JTextField();
 
         character_font_chooser = new hanzitrainer.settings.JFontChooser();
+        character_font_chooser.setSelectedFont(Font.decode(my_preferences.get("character_font", "Default")));
         chinese_text_font_chooser = new hanzitrainer.settings.JFontChooser();
+        chinese_text_font_chooser.setSelectedFont(Font.decode(my_preferences.get("chinese_font", "Default")));
 
         setName("FontPanel");
 
@@ -74,10 +74,12 @@ public class FontPanel extends javax.swing.JPanel
         CharacterTextField.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CharacterTextField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0,0,0)));
         CharacterTextField.setText("水");
+        CharacterTextField.setFont(Font.decode(my_preferences.get("character_font", "Default")));
 
         ChineseTextField.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         ChineseTextField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0,0,0)));
         ChineseTextField.setText("水静流深");
+        ChineseTextField.setFont(Font.decode(my_preferences.get("chinese_font", "Default")));
         
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -107,6 +109,31 @@ public class FontPanel extends javax.swing.JPanel
         int result = character_font_chooser.showDialog(this);
         if (result == hanzitrainer.settings.JFontChooser.OK_OPTION)
         {
+            Font font = character_font_chooser.getSelectedFont();
+            String font_name = new String(font.getFamily()+"-");
+            if (font.isPlain())
+            {
+                font_name += "PLAIN";
+            }
+            else if (font.isBold() && font.isItalic())
+            {
+                font_name += "BOLDITALIC";
+            }
+            else if (font.isBold())
+            {
+                font_name += "BOLD";
+            }
+            else if (font.isItalic())
+            {
+                font_name += "ITALIC";
+            }
+            else
+            {
+                font_name += "PLAIN";
+            }
+            font_name += "-"+font.getSize();
+            my_preferences.put("character_font", font_name);
+            CharacterTextField.setFont(font);
         }
     }
 
@@ -115,14 +142,41 @@ public class FontPanel extends javax.swing.JPanel
         int result = chinese_text_font_chooser.showDialog(this);
         if (result == hanzitrainer.settings.JFontChooser.OK_OPTION)
         {
+            Font font = chinese_text_font_chooser.getSelectedFont();
+            String font_name = new String(font.getFamily()+"-");
+            if (font.isPlain())
+            {
+                font_name += "PLAIN";
+            }
+            else if (font.isBold() && font.isItalic())
+            {
+                font_name += "BOLDITALIC";
+            }
+            else if (font.isBold())
+            {
+                font_name += "BOLD";
+            }
+            else if (font.isItalic())
+            {
+                font_name += "ITALIC";
+            }
+            else
+            {
+                font_name += "PLAIN";
+            }
+            font_name += "-"+font.getSize();
+            my_preferences.put("chinese_font", font_name);
+            ChineseTextField.setFont(font);
         }
     }
 
-    javax.swing.JButton CharacterFontButton;
-    javax.swing.JButton ChineseTextFontButton;
-    javax.swing.JTextField CharacterTextField;
-    javax.swing.JTextField ChineseTextField;
+    private javax.swing.JButton CharacterFontButton;
+    private javax.swing.JButton ChineseTextFontButton;
+    private javax.swing.JTextField CharacterTextField;
+    private javax.swing.JTextField ChineseTextField;
 
-    hanzitrainer.settings.JFontChooser character_font_chooser;
-    hanzitrainer.settings.JFontChooser chinese_text_font_chooser;
+    private Preferences my_preferences;
+
+    private hanzitrainer.settings.JFontChooser character_font_chooser;
+    private hanzitrainer.settings.JFontChooser chinese_text_font_chooser;
 }
