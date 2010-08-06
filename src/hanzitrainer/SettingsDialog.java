@@ -43,20 +43,20 @@ public class SettingsDialog extends javax.swing.JDialog
 {
 
     /** Creates new form SettingsDialog */
-    public SettingsDialog(java.awt.Frame parent, CedictParser cedict, HanziDB hanzi, boolean modal)
+    public SettingsDialog(java.awt.Frame parent, CedictParser cedict, HanziDB hanzi)
     {
-        super(parent, modal);
+        super(parent, false);
 
         parent_frame = parent;
 
-        cedict_parser = cedict;
         main_database = hanzi;
-
 
         initComponents();
 
         font_panel = new hanzitrainer.settings.FontPanel();
         tabs.addTab("Fonts", font_panel);
+        cedict_panel = new hanzitrainer.settings.CedictPanel(cedict);
+        tabs.addTab("Cedict", cedict_panel);
 
         pack();
     }
@@ -88,12 +88,12 @@ public class SettingsDialog extends javax.swing.JDialog
         pack();
     }
 
-    private CedictParser cedict_parser;
     private HanziDB main_database;
     private Frame parent_frame;
 
     private javax.swing.JTabbedPane tabs;
     private hanzitrainer.settings.FontPanel font_panel;
+    private hanzitrainer.settings.CedictPanel cedict_panel;
 
     public static double random_low()
     {
