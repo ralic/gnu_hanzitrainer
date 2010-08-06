@@ -41,6 +41,7 @@ import java.awt.Font;
  * @author  Administrator
  */
 public class CharacterReviewPanel extends javax.swing.JPanel
+    implements hanzitrainer.internals.HanziTab
 {
     /** Creates new form CharacterReviewPanel */
     public CharacterReviewPanel(HanziDBscore database, HanziApplicationUpdater updater)
@@ -52,10 +53,17 @@ public class CharacterReviewPanel extends javax.swing.JPanel
         set_new_random_character();
     }
 
-    public void CharacterReviewUpdateDB()
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font)
+    {
+        CharacterLabel.setFont(character_font);
+        CharsearchentryTextField.setFont(chinese_font);
+        CharDBTable.setFont(chinese_font);
+    }
+    public void DatabaseChanged()
     {
         CharTableFiller.database_updated();
     }
+    public void CedictDatabaseChanged() {}
     
     /** This method is called from within the constructor to
      * initialize the form.

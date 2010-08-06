@@ -40,6 +40,7 @@ import java.util.Locale;
  * @author  Administrator
  */
 public class ChineseWordTestPanel extends javax.swing.JPanel
+    implements hanzitrainer.internals.HanziTab
 {
 
     /** Creates new form ChineseWordTestPanel */
@@ -52,10 +53,14 @@ public class ChineseWordTestPanel extends javax.swing.JPanel
         set_new_word_guess();
     }
 
-    public void ChineseWordTestUpdateDB()
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font)
+    {
+    }
+    public void DatabaseChanged()
     {
         set_new_word_guess();
     }
+    public void CedictDatabaseChanged() {}
 
     private void set_new_word_guess()
     {

@@ -30,9 +30,9 @@
 
 package hanzitrainer.internals;
 
-public abstract class HanziTab extends javax.swing.JDialog implements hanzitrainer.internals.PreferenceListener
+public interface HanziTab
 {
-    public void PreferenceChanged(hanzitrainer.internals.PreferenceListener.preference_list_t pref)
-    {
-    }
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font);
+    public void DatabaseChanged();
+    public void CedictDatabaseChanged();
 }

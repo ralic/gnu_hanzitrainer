@@ -125,12 +125,12 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
 
     private void update_panel_databases()
     {
-        vocabulary_builder.VocabularyBuilderUpdateDB();
-        word_database.WordDatabaseUpdateDB();
-        char_database.CharDatabaseUpdateDB();
-        char_review.CharacterReviewUpdateDB();
-        char_test.CharacterTestUpdateDB();
-        chinese_test.ChineseWordTestUpdateDB();
+        vocabulary_builder.DatabaseChanged();
+        word_database.DatabaseChanged();
+        char_database.DatabaseChanged();
+        char_review.DatabaseChanged();
+        char_test.DatabaseChanged();
+        chinese_test.DatabaseChanged();
     }
 
     /** This method is called from within the constructor to
