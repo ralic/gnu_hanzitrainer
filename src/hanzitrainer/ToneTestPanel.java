@@ -36,6 +36,7 @@ import java.util.ArrayList;
  * @author matthieu
  */
 public class ToneTestPanel extends javax.swing.JPanel
+    implements hanzitrainer.internals.HanziTab
 {
 
     /** Creates new form ToneTestPanel */
@@ -49,6 +50,10 @@ public class ToneTestPanel extends javax.swing.JPanel
         character_history = new ArrayList<String>();
         set_new_random_pinyin();
     }
+
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font) {}
+    public void DatabaseChanged() {}
+    public void CedictDatabaseChanged() {}
 
     private void set_pinyin_test(String hanzi, String pinyin)
     {

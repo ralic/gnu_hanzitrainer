@@ -36,9 +36,10 @@ import java.util.prefs.*;
 public class FontPanel extends javax.swing.JPanel
 {
 
-    public FontPanel()
+    public FontPanel(hanzitrainer.HanziApplicationUpdater to_update)
     {
         my_preferences = Preferences.userNodeForPackage(hanzitrainer.HanziTrainerApp.class);
+        updater = to_update;
 
         initComponents();
     }
@@ -134,6 +135,7 @@ public class FontPanel extends javax.swing.JPanel
             font_name += "-"+font.getSize();
             my_preferences.put("character_font", font_name);
             CharacterTextField.setFont(font);
+            updater.update_font_setting(character_font_chooser.getSelectedFont(), chinese_text_font_chooser.getSelectedFont());
         }
     }
 
@@ -167,6 +169,7 @@ public class FontPanel extends javax.swing.JPanel
             font_name += "-"+font.getSize();
             my_preferences.put("chinese_font", font_name);
             ChineseTextField.setFont(font);
+            updater.update_font_setting(character_font_chooser.getSelectedFont(), chinese_text_font_chooser.getSelectedFont());
         }
     }
 
@@ -176,6 +179,7 @@ public class FontPanel extends javax.swing.JPanel
     private javax.swing.JTextField ChineseTextField;
 
     private Preferences my_preferences;
+    private hanzitrainer.HanziApplicationUpdater updater;
 
     private hanzitrainer.settings.JFontChooser character_font_chooser;
     private hanzitrainer.settings.JFontChooser chinese_text_font_chooser;
