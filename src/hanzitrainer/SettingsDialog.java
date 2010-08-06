@@ -49,14 +49,13 @@ public class SettingsDialog extends javax.swing.JDialog
 
         parent_frame = parent;
 
-        cedict_parser = cedict;
         main_database = hanzi;
 
         initComponents();
 
         font_panel = new hanzitrainer.settings.FontPanel();
         tabs.addTab("Fonts", font_panel);
-        cedict_panel = new hanzitrainer.settings.CedictPanel();
+        cedict_panel = new hanzitrainer.settings.CedictPanel(cedict);
         tabs.addTab("Cedict", cedict_panel);
 
         pack();
@@ -89,7 +88,6 @@ public class SettingsDialog extends javax.swing.JDialog
         pack();
     }
 
-    private CedictParser cedict_parser;
     private HanziDB main_database;
     private Frame parent_frame;
 
