@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package hanzitrainer;
+package hanzitrainer.settings;
 
 
 public class CedictPanel extends javax.swing.JPanel
@@ -41,7 +41,65 @@ public class CedictPanel extends javax.swing.JPanel
     }
 
     private void initComponents() {
+        CedictFileBrowseButton = new javax.swing.JButton();
+        CedictApplyButton = new javax.swing.JButton();
+        CedictFileField = new javax.swing.JTextField();
+        CedictFileLabel = new javax.swing.JLabel();
+        CedictStatusLabel = new javax.swing.JLabel();
 
+        CedictFileLabel.setText("Cedict file :");
+
+        CedictFileField.setText("");
+        CedictFileField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CedictFileFieldActionPerformed(evt);
+            }
+        });
+
+        CedictFileBrowseButton.setText("Browse...");
+
+        CedictApplyButton.setText("Apply");
+        CedictApplyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CedictApplyButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(CedictFileLabel)
+                    .addComponent(CedictFileField)
+                    .addComponent(CedictFileBrowseButton))
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(CedictStatusLabel)
+                    .addComponent(CedictApplyButton))
+                );
+        layout.setVerticalGroup(
+                layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(CedictFileLabel)
+                    .addComponent(CedictFileField)
+                    .addComponent(CedictFileBrowseButton))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(CedictStatusLabel)
+                    .addComponent(CedictApplyButton))
+                );
     }
+    private void CedictFileFieldActionPerformed(java.awt.event.ActionEvent evt)
+    {
+    }
+    private void CedictApplyButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {
+    }
+
+    private javax.swing.JButton CedictFileBrowseButton;
+    private javax.swing.JButton CedictApplyButton;
+    private javax.swing.JTextField CedictFileField;
+    private javax.swing.JFileChooser CedictFileChooser;
+    private javax.swing.JLabel CedictStatusLabel;
+    private javax.swing.JLabel CedictFileLabel;
 }
 

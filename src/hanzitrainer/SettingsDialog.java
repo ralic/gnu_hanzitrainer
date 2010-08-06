@@ -56,6 +56,8 @@ public class SettingsDialog extends javax.swing.JDialog
 
         font_panel = new hanzitrainer.settings.FontPanel();
         tabs.addTab("Fonts", font_panel);
+        cedict_panel = new hanzitrainer.settings.CedictPanel();
+        tabs.addTab("Cedict", cedict_panel);
 
         pack();
     }
@@ -93,6 +95,7 @@ public class SettingsDialog extends javax.swing.JDialog
 
     private javax.swing.JTabbedPane tabs;
     private hanzitrainer.settings.FontPanel font_panel;
+    private hanzitrainer.settings.CedictPanel cedict_panel;
 
     public static double random_low()
     {
