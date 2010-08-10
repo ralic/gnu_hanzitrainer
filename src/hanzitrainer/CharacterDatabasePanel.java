@@ -34,8 +34,9 @@ package hanzitrainer;
  *
  * @author  matthieu
  */
-public class CharacterDatabasePanel extends javax.swing.JPanel {
-
+public class CharacterDatabasePanel extends javax.swing.JPanel
+    implements hanzitrainer.internals.HanziTab
+{
     /** Creates new form CharacterDatabasePanel
      * @param database The database to get the information from
      * @param updater The top level application which can link to the character review panel (if any)
@@ -45,13 +46,18 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
         main_database = database;
         parent_app = updater;
         initComponents();
-        CharDatabaseUpdateDB();
+        DatabaseChanged();
     }
 
     /**
      *
      */
-    public void CharDatabaseUpdateDB()
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font)
+    {
+        CharDBTable.setFont(chinese_font);
+    }
+
+    public void DatabaseChanged()
     {
         int res;
         CTableFiller.database_updated();
@@ -62,6 +68,7 @@ public class CharacterDatabasePanel extends javax.swing.JPanel {
         avgCharScoreLabel.setText("Average score : " + res);
     }
 
+    public void CedictDatabaseChanged() {}
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

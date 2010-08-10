@@ -34,6 +34,7 @@ package hanzitrainer;
  * @author  Administrator
  */
 public class WordDatabasePanel extends javax.swing.JPanel
+    implements hanzitrainer.internals.HanziTab
 {
 
     /** Creates new form WordDatabasePanel */
@@ -42,10 +43,14 @@ public class WordDatabasePanel extends javax.swing.JPanel
         main_database = database;
         parent_app = updater;
         initComponents();
-        WordDatabaseUpdateDB();
+        DatabaseChanged();
     }
 
-    public void WordDatabaseUpdateDB()
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font)
+    {
+        DBTable.setFont(chinese_font);
+    }
+    public void DatabaseChanged()
     {
         int res;
         TableFiller.database_updated();
@@ -56,6 +61,7 @@ public class WordDatabasePanel extends javax.swing.JPanel
         res = main_database.get_average_word_score();
         avgWordScoreLabel.setText("Average score : " + res);
     }
+    public void CedictDatabaseChanged() {}
 
     /** This method is called from within the constructor to
      * initialize the form.

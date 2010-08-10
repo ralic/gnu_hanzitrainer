@@ -42,7 +42,8 @@ import java.awt.Font;
  *
  * @author  Administrator
  */
-public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
+public class CharacterTestPanel extends javax.swing.JPanel 
+    implements TableModel, hanzitrainer.internals.HanziTab
 {
 
     /** Creates new form CharacterTest */
@@ -63,10 +64,18 @@ public class CharacterTestPanel extends javax.swing.JPanel implements TableModel
         set_new_character_to_guess();
     }
 
-    public void CharacterTestUpdateDB()
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font)
+    {
+        CharacterLabel.setFont(character_font);
+        GuessChineseTextField.setFont(chinese_font);
+        PreviousCharDBTable.setFont(chinese_font);
+        PreviousCharacterLabel.setFont(chinese_font);
+    }
+    public void DatabaseChanged()
     {
         set_new_character_to_guess();
     }
+    public void CedictDatabaseChanged() {}
 
     private void check_old_data()
     {

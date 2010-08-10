@@ -31,7 +31,7 @@ public class VocabularyBuilderPanelUpdater implements javax.swing.event.Document
         cedict_database = cedict;
     }
 
-    private void dataChanged()
+    public void dataChanged()
     {
         String chinese_text = parent_app.getChineseTextField();
         ArrayList<String> translations = main_database.get_chinese_word_translation(chinese_text);

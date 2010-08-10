@@ -34,21 +34,23 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
 import java.io.File;
 import java.util.prefs.*;
+import java.util.ArrayList;
 
 /**
  * The application's main frame.
  */
 public class HanziTrainerView extends FrameView implements HanziApplicationUpdater
 {
-    HanziDBscore main_database;
+    private HanziDBscore main_database;
     private Preferences my_preferences;
-    CharacterReviewPanel char_review;
-    WordDatabasePanel word_database;
-    CharacterTestPanel char_test;
-    ChineseWordTestPanel chinese_test;
-    CharacterDatabasePanel char_database;
-    VocabularyBuilderPanel vocabulary_builder;
-    ToneTestPanel tone_test;
+    private CharacterReviewPanel char_review;
+    private WordDatabasePanel word_database;
+    private CharacterTestPanel char_test;
+    private ChineseWordTestPanel chinese_test;
+    private CharacterDatabasePanel char_database;
+    private VocabularyBuilderPanel vocabulary_builder;
+    private ToneTestPanel tone_test;
+    private ArrayList<hanzitrainer.internals.HanziTab> tabs_to_update;
 
     CedictParser cedict_parser;
 
@@ -56,6 +58,8 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
     {
         super(app);
         String database_file;
+
+        tabs_to_update = new ArrayList<hanzitrainer.internals.HanziTab>();
 
         my_preferences = Preferences.userNodeForPackage(HanziTrainerApp.class);
 
@@ -75,21 +79,28 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         initComponents();
         vocabulary_builder = new VocabularyBuilderPanel(main_database, cedict_parser, this);
         Tabs.addTab("Vocabulary Builder", vocabulary_builder);
+        tabs_to_update.add(vocabulary_builder);
         word_database = new WordDatabasePanel(main_database, this);
         Tabs.addTab("Word Database", word_database);
+        tabs_to_update.add(word_database);
         char_database = new CharacterDatabasePanel(main_database, this);
         Tabs.addTab("Character Database", char_database);
+        tabs_to_update.add(char_database);
         char_review = new CharacterReviewPanel(main_database, this);
         Tabs.addTab("Character Review", char_review);
+        tabs_to_update.add(char_review);
         char_test = new CharacterTestPanel(main_database, this);
         Tabs.addTab("Character Test", char_test);
+        tabs_to_update.add(char_test);
         chinese_test = new ChineseWordTestPanel(main_database, this);
         Tabs.addTab("Chinese Test", chinese_test);
+        tabs_to_update.add(chinese_test);
         tone_test = new ToneTestPanel(main_database, this);
         Tabs.addTab("Tone Test", tone_test);
         update_panel_databases();
+        tabs_to_update.add(tone_test);
 
-        Settings = new SettingsDialog(this.getFrame(), cedict_parser, main_database);
+        Settings = new SettingsDialog(this.getFrame(), this, cedict_parser);
 
     }
 
@@ -125,12 +136,10 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
 
     private void update_panel_databases()
     {
-        vocabulary_builder.VocabularyBuilderUpdateDB();
-        word_database.WordDatabaseUpdateDB();
-        char_database.CharDatabaseUpdateDB();
-        char_review.CharacterReviewUpdateDB();
-        char_test.CharacterTestUpdateDB();
-        chinese_test.ChineseWordTestUpdateDB();
+        int i;
+
+        for (i=0; i<tabs_to_update.size(); i++)
+            tabs_to_update.get(i).DatabaseChanged();
     }
 
     /** This method is called from within the constructor to
@@ -362,6 +371,23 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
     {
         update_panel_databases();
     }
+
+    public void update_font_setting(java.awt.Font character_font, java.awt.Font chinese_font)
+    {
+        int i;
+
+        for (i=0; i<tabs_to_update.size(); i++)
+            tabs_to_update.get(i).FontPreferenceChanged(character_font, chinese_font);
+    }
+
+    public void update_cedict_database()
+    {
+        int i;
+
+        for (i=0; i<tabs_to_update.size(); i++)
+            tabs_to_update.get(i).CedictDatabaseChanged();
+    }
+
     public void review_character(String hanzi)
     {
         char_review.set_character_review(hanzi);

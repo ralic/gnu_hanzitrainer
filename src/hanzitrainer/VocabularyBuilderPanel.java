@@ -23,7 +23,7 @@ import javax.swing.event.ListSelectionListener;
  * @author  matthieu
  */
 public class VocabularyBuilderPanel extends javax.swing.JPanel
-    implements ListSelectionListener
+    implements ListSelectionListener, hanzitrainer.internals.HanziTab
 {
 
     /** Creates new form VocabularyBuilderPanel */
@@ -43,8 +43,19 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         initComponents();
     }
 
-    public void VocabularyBuilderUpdateDB()
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font)
     {
+        ChineseTextField.setFont(chinese_font);
+    }
+
+    public void DatabaseChanged()
+    {
+        VocabularyBuilderUpdater.dataChanged();
+    }
+
+    public void CedictDatabaseChanged()
+    {
+        VocabularyBuilderUpdater.dataChanged();
     }
 
     /** This method is called from within the constructor to

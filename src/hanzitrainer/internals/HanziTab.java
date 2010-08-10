@@ -1,4 +1,6 @@
 /*
+ * HanziTab.java
+ *
  * HanziTrainer to help you learn Mandarin
  * Copyright (c) 2008, Matthieu Jeanson ( matthieu.jeanson[at]gmail.com )
  * All rights reserved.
@@ -26,17 +28,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package hanzitrainer;
+package hanzitrainer.internals;
 
-/**
- *
- * @author Administrator
- */
-public interface HanziApplicationUpdater {
-    public void update_database();
-    public void update_font_setting(java.awt.Font character_font, java.awt.Font chinese_font);
-    public void update_cedict_database();
-
-    public void edit_word(String to_edit);
-    public void review_character(String hanzi);
+public interface HanziTab
+{
+    public void FontPreferenceChanged(java.awt.Font character_font, java.awt.Font chinese_font);
+    public void DatabaseChanged();
+    public void CedictDatabaseChanged();
 }
