@@ -21,3 +21,10 @@ http://flashcarddb.com/leitner
 
 * Font chooser :
 http://www.java2s.com/Code/Java/Swing-Components/Wordlikespecialfontchooser.htm
+
+Ideas :
+- Cedict panel - import still in settings menu, the rest (check / list in a tabbed panel)
+    * Importer and Checker as separate classes
+    * List and search content of Cedict database (by Chinese character/substring, by English word)
+- Add Lessons for characters and words
+- Implement Leitner system
