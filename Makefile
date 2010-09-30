@@ -19,7 +19,7 @@ $(target_jar) : src/MANIFEST.MF $(objects)
 
 $(objects) : obj/%.class : src/%.java 
 	@echo javac: $<
-	@javac $< -d obj/ -classpath obj/:lib/:lib/bsaf-1.9RC4.jar -sourcepath src/
+	@javac $< -d obj/ -classpath obj/:lib/:lib/appframework-1.0.3.jar -sourcepath src/
 
 
 .PHONY : dirs
