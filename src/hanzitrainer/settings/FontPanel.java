@@ -42,6 +42,9 @@ public class FontPanel extends javax.swing.JPanel
         updater = to_update;
 
         initComponents();
+
+        updater.update_font_setting(Font.decode(my_preferences.get("character_font", "Default")),
+                Font.decode(my_preferences.get("chinese_font", "Default")));
     }
 
     private void initComponents() {

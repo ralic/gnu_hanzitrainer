@@ -30,11 +30,11 @@
 package hanzitrainer;
 
 import java.awt.Dialog;
-import org.jdesktop.application.SingleFrameApplication;
-import org.jdesktop.application.FrameView;
 import java.io.File;
 import java.util.prefs.*;
 import java.util.ArrayList;
+import org.jdesktop.application.SingleFrameApplication;
+import org.jdesktop.application.FrameView;
 
 /**
  * The application's main frame.
