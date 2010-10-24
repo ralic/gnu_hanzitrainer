@@ -67,7 +67,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         PinyinLabel = new javax.swing.JLabel();
         EnglishLabel = new javax.swing.JLabel();
         ChineseTextField = new javax.swing.JTextField();
-        EnglishTextField = new javax.swing.JTextField();
         AddButton = new javax.swing.JButton();
         ResetButton = new javax.swing.JButton();
         PinyinScroll = new javax.swing.JScrollPane();
@@ -105,13 +104,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 ChineseTextFieldFocusLost(evt);
-            }
-        });
-
-        EnglishTextField.setName("EnglishTextField");
-        EnglishTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                EnglishTextFieldSaveButtonActionPerformed(evt);
             }
         });
 
@@ -156,7 +148,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                     .addComponent(ChineseTextField)
                     .addComponent(PinyinScroll)
                     .addComponent(EnglishTranslationsScroll)
-                    .addComponent(EnglishTextField)
                     .addGroup(javax.swing.GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
                         .addComponent(ResetButton)
                         .addComponent(AddButton)))
@@ -172,7 +163,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(EnglishTranslationsScroll)
-                        .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(ResetButton)
                             .addComponent(AddButton)))
@@ -193,21 +183,32 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
 
         private String word;
         private origin_t origin;
+        private Boolean enabled;
+        private Boolean modified;
 
-        public EnglishTranslationItem(String w, origin_t o)
+        public EnglishTranslationItem(String w, origin_t o, Boolean e)
         {
-            this.word = w;
-            this.origin = o;
+            word = w;
+            origin = o;
+            enabled = e;
+            modified = false;
         }
 
         public void set_word(String w)
         {
-            this.word = w;
+            if ((origin == origin_t.DB_WORD) && (!word.equals(w)))
+                modified = true;
+            word = w;
         }
 
         public void set_origin(origin_t o)
         {
-            this.origin = o;
+            origin = o;
+        }
+
+        public void set_enabled(Boolean e)
+        {
+            enabled = e;
         }
 
         public String get_word()
@@ -218,6 +219,16 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         public origin_t get_origin()
         {
             return origin;
+        }
+        
+        public Boolean get_enabled()
+        {
+            return enabled;
+        }
+
+        public Boolean get_modified()
+        {
+            return modified;
         }
 
         @Override
@@ -231,7 +242,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
     {
         private ArrayList<String> db_words;
         private ArrayList<String> cedict_words;
-        private ArrayList<String> new_words;
         private ArrayList<EnglishTranslationItem> words_list;
 
         public EnglishTranslationModel()
@@ -239,8 +249,8 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             super();
             db_words = new ArrayList<String>();
             cedict_words = new ArrayList<String>();
-            new_words = new ArrayList<String>();
             words_list = new ArrayList<EnglishTranslationItem>();
+            fireTableDataChanged();
         }
 
         public EnglishTranslationModel(ArrayList<String> db, ArrayList<String> cedict)
@@ -248,7 +258,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             super();
             db_words = db;
             cedict_words = cedict;
-            new_words = new ArrayList<String>();
             words_list = new ArrayList<EnglishTranslationItem>();
             prepare_list();
         }
@@ -259,34 +268,33 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             cedict_words.clear();
             if (cedict != null)
                 cedict_words.addAll(cedict);
-            new_words.clear();
             prepare_list();
         }
 
         private void prepare_list()
         {
             System.out.println("Prepare list with " + db_words.size() + " words in DB and " + cedict_words.size() + " words in cedict");
-            /*
             int i;
             EnglishTranslationItem item;
-            this.removeAllElements();
+
+            words_list.clear();
             for (i=0; i<db_words.size(); i++)
             {
-                item = new EnglishTranslationItem(db_words.get(i), origin_t.DB_WORD);
-                super.addElement(item);
+                item = new EnglishTranslationItem(db_words.get(i), origin_t.DB_WORD, true);
+                words_list.add(item);
             }
-            item = new EnglishTranslationItem("new", origin_t.EMPTY_WORD);
-            super.addElement(item);
+            item = new EnglishTranslationItem("", origin_t.EMPTY_WORD, false);
+            words_list.add(item);
             for (i=0; i<cedict_words.size(); i++)
             {
                 if (!db_words.contains(cedict_words.get(i)))
                 {
-                    item = new EnglishTranslationItem(cedict_words.get(i), origin_t.CEDICT_WORD);
-                    super.addElement(item);
+                    item = new EnglishTranslationItem(cedict_words.get(i), origin_t.CEDICT_WORD, false);
+                    words_list.add(item);
                 }
             }
-            System.out.println("Now I have " + this.getSize() + " elements in the list");
-            */
+            System.out.println("Now I have " + words_list.size() + " elements in the list");
+            fireTableDataChanged();
         }
 
         @Override
@@ -294,9 +302,9 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         {
             switch(c)
             {
-                case 1:
-                    return Boolean.class;
                 case 0:
+                    return Boolean.class;
+                case 1:
                 default:
                     return String.class;
             }
@@ -305,30 +313,115 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         @Override
         public int getColumnCount()
         {
-            return 0;
+            return 2;
         }
 
         @Override
         public int getRowCount()
         {
-            return 0;
+            if (words_list == null)
+                return 0;
+            return words_list.size();
         }
 
         @Override
         public String getColumnName(int c)
         {
-            return "nope";
+            switch(c)
+            {
+                case 0:
+                    return "Add";
+                case 1:
+                    return "Word";
+                default:
+                    return "";
+            }
         }
 
         @Override
         public void setValueAt(Object value, int row, int col)
         {
+            EnglishTranslationItem item = words_list.get(row);
+            switch(col)
+            {
+                case 0 :
+                    if (item.get_origin() != origin_t.NEW_WORD)
+                    {
+                        item.set_enabled((Boolean)value);
+                        fireTableRowsUpdated(row, row);
+                        System.out.println("updated row " + row);
+                    }
+                    break;
+                case 1:
+                    switch (item.get_origin())
+                    {
+                        case DB_WORD:
+                        case NEW_WORD:
+                            item.set_word((String)value);
+                            fireTableRowsUpdated(row, row);
+                            System.out.println("updated row " + row);
+                            break;
+                        case EMPTY_WORD:
+                            item.set_word((String)value);
+                            item.set_enabled(true);
+                            item.set_origin(origin_t.NEW_WORD);
+                            fireTableRowsUpdated(row, row);
+                            System.out.println("updated row " + row);
+
+                            EnglishTranslationItem new_item = new EnglishTranslationItem("", origin_t.EMPTY_WORD, false);
+                            words_list.add(row+1 , new_item);
+                            fireTableRowsInserted(row+1,row+1);
+                            System.out.println("inserted row " + row +1);
+                            break;
+                        case CEDICT_WORD:
+                        default:
+                            break;
+                    }
+            }
+
+            System.out.println("Trying to change the content at " + row + ", " + col);
+            System.out.println("Now I have " + words_list.size() + " elements in the list");
+
+        }
+
+        @Override
+        public boolean isCellEditable(int r, int c)
+        {
+            switch (c)
+            {
+                case 0:
+                    return true;
+                case 1:
+                    EnglishTranslationItem item = words_list.get(r);
+                    if (item.get_origin() != origin_t.CEDICT_WORD)
+                        return true;
+            }
+            return false;
         }
 
         @Override
         public Object getValueAt(int row, int col)
         {
-            return null;
+            EnglishTranslationItem item = words_list.get(row);
+            switch(col)
+            {
+                case 0:
+                    return item.get_enabled();
+                case 1:
+                    String word = item.get_word();
+                    switch (item.get_origin())
+                    {
+                        case DB_WORD:
+                        case EMPTY_WORD:
+                            return word;
+                        case NEW_WORD:
+                            return "<html><b>" + word + "</b></html>";
+                        case CEDICT_WORD:
+                            return "<html><i>" + word + "</i></html>";
+                    }
+                default:
+                    return null;
+            }
         }
         /*
         @Override
@@ -480,7 +573,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
     private void ResetButtonActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
         ChineseTextField.setText("");
-        EnglishTextField.setText("");
     }
 
     private void ChineseTextFieldFocusLost(java.awt.event.FocusEvent evt) {
@@ -496,7 +588,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
     private javax.swing.JLabel ChineseLabel;
     private javax.swing.JTextField ChineseTextField;
     private javax.swing.JLabel EnglishLabel;
-    private javax.swing.JTextField EnglishTextField;
     private javax.swing.JTable EnglishTranslationsTable;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JScrollPane PinyinScroll;
