@@ -1,0 +1,69 @@
+----- unicode stuff
+http://www.utf8-chartable.de/unicode-utf8-table.pl
+
+----- Load database
+RUNSCRIPT FROM 'c:\my_db_test.ktdb' CIPHER AES PASSWORD 'ILoveChinese'
+RUNSCRIPT FROM 'c:\my_db_test.ktdb'
+
+
+
+----- Adding score into tables 
+ALTER TABLE CHARACTER ADD SCORE INTEGER
+...
+SCRIPT TO 'c:\saved.ktdb'
+
+
+----- Creating view
+CREATE VIEW english_pinyin_chinese AS 
+ (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin,
+ GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations
+ FROM (SELECT cpb.cword_id,
+ GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi,
+ GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin
+ FROM cword AS cw
+ JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id
+ JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id
+ JOIN character AS ch ON ch.char_id=cp.char_id
+ GROUP BY cpb.cword_id) AS c_words
+ JOIN english AS e ON e.cword_id=c_words.cword_id 
+ GROUP BY e.cword_id )
+
+with score :
+CREATE VIEW english_pinyin_chinese AS 
+ (SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin,
+ GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations, c_words.score
+ FROM (SELECT cpb.cword_id,
+ GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi,
+ GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin,
+ cw.score
+ FROM cword AS cw
+ JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id
+ JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id
+ JOIN character AS ch ON ch.char_id=cp.char_id
+ GROUP BY cpb.cword_id) AS c_words
+ JOIN english AS e ON e.cword_id=c_words.cword_id 
+ GROUP BY e.cword_id )
+
+
+------ Create a separate table for score
+DROP TABLE cword_score;
+CREATE TABLE cword_score ( cword_id INT NOT NULL, score INT,FOREIGN KEY (cword_id)  REFERENCES cword(cword_id)) AS (SELECT cword_id, score FROM cword);
+... (same for characters)
+
+-------------
+CREATE VIEW english_pinyin_chinese AS
+(SELECT c_words.cword_id, c_words.hanzi, c_words.pinyin,
+GROUP_CONCAT(DISTINCT e.translation SEPARATOR ', ') AS translations, c_words.score
+FROM (SELECT cpb.cword_id,
+GROUP_CONCAT(ch.hanzi ORDER BY cpb.pos ASC SEPARATOR '') AS hanzi,
+GROUP_CONCAT(CONCAT(cp.pinyin,cp.tone) ORDER BY cpb.pos ASC SEPARATOR '') AS pinyin,
+cw_s.score
+FROM cword AS cw
+JOIN cword_pinyin_bridge AS cpb ON cpb.cword_id=cw.cword_id
+JOIN character_pinyin AS cp ON cp.character_pinyin_id=cpb.character_pinyin_id
+JOIN character AS ch ON ch.char_id=cp.char_id
+JOIN cword_score AS cw_s ON cw_s.cword_id=cw.cword_id
+GROUP BY cpb.cword_id) AS c_words
+JOIN english AS e ON e.cword_id=c_words.cword_id 
+GROUP BY e.cword_id );
+
