@@ -42,7 +42,7 @@ public class HanziDBscore extends HanziDB
     public HanziDBscore()
     {
         super();
-        System.out.println("HanziDBscore initialized");
+        System.out.println("HanziDBscore constructor");
     }
 
     /**

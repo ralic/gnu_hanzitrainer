@@ -46,6 +46,7 @@ public abstract class HanziDB
 
     public HanziDB()
     {
+        System.out.println("HanziDB constructor");
         database_init();
 
         create_database();

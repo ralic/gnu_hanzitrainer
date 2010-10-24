@@ -72,7 +72,7 @@ public class HanziTrainerView extends FrameView implements HanziApplicationUpdat
         }
         else
         {
-            System.out.print("No previous database to reopen");
+            System.out.println("No previous database to reopen");
         }
         cedict_parser = new CedictParser(this.getFrame());
 
