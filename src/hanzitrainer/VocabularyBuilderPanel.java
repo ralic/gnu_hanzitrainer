@@ -10,20 +10,20 @@ import java.awt.Font;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
+import java.awt.FlowLayout;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.JPanel;
+import javax.swing.JCheckBox;
+import javax.swing.JTextField;
 
 /**
  *
  * @author  matthieu
  */
 public class VocabularyBuilderPanel extends javax.swing.JPanel
-    implements ListSelectionListener, hanzitrainer.internals.HanziTab
+    implements hanzitrainer.internals.HanziTab
 {
 
     /** Creates new form VocabularyBuilderPanel */
@@ -71,10 +71,9 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         AddButton = new javax.swing.JButton();
         ResetButton = new javax.swing.JButton();
         PinyinScroll = new javax.swing.JScrollPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        EnglishTranslationsListModel = new DefaultListModel();
-        ETRenderer = new EnglishTranslationsRenderer();
-        EnglishTranslations = new javax.swing.JList();
+        EnglishTranslationsScroll = new javax.swing.JScrollPane();
+        ETTableModel = new EnglishTranslationModel();
+        EnglishTranslationsTable = new javax.swing.JTable();
 
         setName("Form");
 
@@ -135,14 +134,14 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
 
         PinyinScroll.setName("PinyinScroll");
 
-        jScrollPane1.setName("jScrollPane1");
+        EnglishTranslationsScroll.setName("EnglishTranslationsScroll");
 
-        EnglishTranslations.setModel(EnglishTranslationsListModel);
-        EnglishTranslations.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        EnglishTranslations.setName("EnglishTranslations");
-        EnglishTranslations.addListSelectionListener(this);
-        EnglishTranslations.setCellRenderer(ETRenderer);
-        jScrollPane1.setViewportView(EnglishTranslations);
+        EnglishTranslationsTable.setModel(ETTableModel);
+        //EnglishTranslationsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        EnglishTranslationsTable.setName("EnglishTranslationsTable");
+        //EnglishTranslationsTable.addListSelectionListener(this);
+        //EnglishTranslationsTable.setLayoutOrientation(JList.VERTICAL);
+        EnglishTranslationsScroll.setViewportView(EnglishTranslationsTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -156,7 +155,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                 .addGroup(layout.createParallelGroup()
                     .addComponent(ChineseTextField)
                     .addComponent(PinyinScroll)
-                    .addComponent(jScrollPane1)
+                    .addComponent(EnglishTranslationsScroll)
                     .addComponent(EnglishTextField)
                     .addGroup(javax.swing.GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
                         .addComponent(ResetButton)
@@ -172,7 +171,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                     .addComponent(PinyinScroll, 68, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
+                        .addComponent(EnglishTranslationsScroll)
                         .addComponent(EnglishTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(ResetButton)
@@ -181,46 +180,198 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                 );
     }
 
-    private class EnglishTranslationsRenderer extends JLabel implements ListCellRenderer
+    public enum origin_t
     {
-        private int change_index;
-        private DefaultListCellRenderer default_renderer;
+        DB_WORD,
+        CEDICT_WORD,
+        NEW_WORD,
+        EMPTY_WORD
+    }
 
-        public EnglishTranslationsRenderer()
+    private class EnglishTranslationItem
+    {
+
+        private String word;
+        private origin_t origin;
+
+        public EnglishTranslationItem(String w, origin_t o)
         {
-            change_index = -1;
-            default_renderer = new DefaultListCellRenderer();
+            this.word = w;
+            this.origin = o;
         }
 
-        public EnglishTranslationsRenderer(int index)
+        public void set_word(String w)
         {
-            change_index = index;
-            default_renderer = new DefaultListCellRenderer();
+            this.word = w;
         }
 
-        public void set_change_index(int index)
+        public void set_origin(origin_t o)
         {
-            change_index = index;
+            this.origin = o;
+        }
+
+        public String get_word()
+        {
+            return word;
+        }
+        
+        public origin_t get_origin()
+        {
+            return origin;
         }
 
         @Override
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
-            {
-                Component comp = default_renderer.getListCellRendererComponent(list,value,index,isSelected,cellHasFocus);
-                setText(value.toString());
-                if ((change_index != -1) && (index >= change_index))
-                {
-                    System.out.println("index " + index + ", change " + change_index + ", text " +value.toString());
-                    setFont(comp.getFont().deriveFont(Font.ITALIC));
-                }
-                else
-                {
-                    setFont(comp.getFont().deriveFont(Font.PLAIN));
-                }
-
-                return this;
-            }
+        public String toString()
+        {
+            return word;
+        }
     }
+
+    private class EnglishTranslationModel extends DefaultTableModel
+    {
+        private ArrayList<String> db_words;
+        private ArrayList<String> cedict_words;
+        private ArrayList<String> new_words;
+        private ArrayList<EnglishTranslationItem> words_list;
+
+        public EnglishTranslationModel()
+        {
+            super();
+            db_words = new ArrayList<String>();
+            cedict_words = new ArrayList<String>();
+            new_words = new ArrayList<String>();
+            words_list = new ArrayList<EnglishTranslationItem>();
+        }
+
+        public EnglishTranslationModel(ArrayList<String> db, ArrayList<String> cedict)
+        {
+            super();
+            db_words = db;
+            cedict_words = cedict;
+            new_words = new ArrayList<String>();
+            words_list = new ArrayList<EnglishTranslationItem>();
+            prepare_list();
+        }
+
+        public void change_content(ArrayList<String> db, ArrayList<String> cedict)
+        {
+            db_words = db;
+            cedict_words.clear();
+            if (cedict != null)
+                cedict_words.addAll(cedict);
+            new_words.clear();
+            prepare_list();
+        }
+
+        private void prepare_list()
+        {
+            System.out.println("Prepare list with " + db_words.size() + " words in DB and " + cedict_words.size() + " words in cedict");
+            /*
+            int i;
+            EnglishTranslationItem item;
+            this.removeAllElements();
+            for (i=0; i<db_words.size(); i++)
+            {
+                item = new EnglishTranslationItem(db_words.get(i), origin_t.DB_WORD);
+                super.addElement(item);
+            }
+            item = new EnglishTranslationItem("new", origin_t.EMPTY_WORD);
+            super.addElement(item);
+            for (i=0; i<cedict_words.size(); i++)
+            {
+                if (!db_words.contains(cedict_words.get(i)))
+                {
+                    item = new EnglishTranslationItem(cedict_words.get(i), origin_t.CEDICT_WORD);
+                    super.addElement(item);
+                }
+            }
+            System.out.println("Now I have " + this.getSize() + " elements in the list");
+            */
+        }
+
+        @Override
+        public Class getColumnClass(int c)
+        {
+            switch(c)
+            {
+                case 1:
+                    return Boolean.class;
+                case 0:
+                default:
+                    return String.class;
+            }
+        }
+
+        @Override
+        public int getColumnCount()
+        {
+            return 0;
+        }
+
+        @Override
+        public int getRowCount()
+        {
+            return 0;
+        }
+
+        @Override
+        public String getColumnName(int c)
+        {
+            return "nope";
+        }
+
+        @Override
+        public void setValueAt(Object value, int row, int col)
+        {
+        }
+
+        @Override
+        public Object getValueAt(int row, int col)
+        {
+            return null;
+        }
+        /*
+        @Override
+        public void addElement(Object obj)
+        {
+            String word = obj.toString();
+            if ((!db_words.contains(word)) && (!new_words.contains(word)))
+            {
+                System.out.println("add " + word + ", at " + db_words.size() + " + " + new_words.size() + "-1");
+                new_words.add(word);
+                EnglishTranslationItem item = new EnglishTranslationItem(word, origin_t.NEW_WORD);
+                super.add(db_words.size() + new_words.size() - 1, item);
+            }
+        }
+
+        @Override
+        public void setElementAt(Object obj, int index)
+        {
+            set(index, obj);
+        }
+
+        @Override
+        public Object set(int index, Object element)
+        {
+            EnglishTranslationItem previous_item = (EnglishTranslationItem) get(index);
+            String word = element.toString();
+
+            if ((previous_item.get_origin() == origin_t.DB_WORD) || (previous_item.get_origin() == origin_t.NEW_WORD))
+            {
+                EnglishTranslationItem new_item = new EnglishTranslationItem(word, origin_t.DB_WORD);
+                super.set(index, new_item);
+            }
+            else if (previous_item.get_origin() == origin_t.EMPTY_WORD)
+            {
+                addElement(word);
+            }
+
+            return previous_item;
+        }
+        */
+    }
+
+
 
     private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {
         ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
@@ -231,41 +382,21 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         return ChineseTextField.getText();
     }
 
-    protected void setEnglishTranslationsList(ArrayList<String> content)
+    protected void setEnglishTranslationsList(ArrayList<String> db_words)
     {
         int i;
 
-        EnglishTranslationsListModel.removeAllElements();
-        EnglishTranslationsListModel.addElement("[new]");
-        for (i = 0; i < content.size(); i++)
-        {
-            EnglishTranslationsListModel.addElement(content.get(i));
-        }
-        EnglishTranslations.setSelectedIndex(0);
-        EnglishTranslations.ensureIndexIsVisible(0);
+        ETTableModel.change_content(db_words, null);
     }
 
-    protected void setEnglishTranslationsList(ArrayList<String> content, ArrayList<String> secondary)
+    protected void setEnglishTranslationsList(ArrayList<String> db_words, ArrayList<String> cedict_words)
     {
-        int i;
-
-        EnglishTranslationsListModel.removeAllElements();
-        EnglishTranslationsListModel.addElement("[new]");
-        for (i = 0; i < content.size(); i++)
-        {
-            EnglishTranslationsListModel.addElement(content.get(i));
-        }
-        for (i = 0; i < secondary.size(); i++)
-        {
-            EnglishTranslationsListModel.addElement(secondary.get(i));
-        }
-        ETRenderer.set_change_index(content.size()+1);
-        EnglishTranslations.setSelectedIndex(0);
-        EnglishTranslations.ensureIndexIsVisible(0);
+        ETTableModel.change_content(db_words, cedict_words);
     }
 
     private void SaveAction()
     {
+        /* TODO, rebuild translations in database...
         String english = EnglishTextField.getText();
         ArrayList<String> pinyin = PinyinChooser.get_pinyins();
         String hanzi_string = ChineseTextField.getText();
@@ -288,7 +419,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             hanzi.add(hanzi_string.substring(from, to));
         }
 
-        listIndex = EnglishTranslations.getSelectedIndex();
+        listIndex = EnglishTranslationsTable.getSelectedIndex();
 
         if (listIndex == 0)
         {
@@ -310,11 +441,12 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             if (english.length() == 0)
             {
                 main_database.delete_translation(
-                        (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
+                        (String) ETTableModel.getElementAt(EnglishTranslationsTable.getSelectedIndex()), hanzi);
+
             }
             else
             {
-                if (EnglishTranslations.getSelectedIndex() == 0)
+                if (EnglishTranslationsTable.getSelectedIndex() == 0)
                 {
                     return;
                 }
@@ -323,17 +455,18 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                     return;
                 }
                 main_database.delete_translation(
-                        (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex()), hanzi);
+                        (String) ETTableModel.getElementAt(EnglishTranslationsTable.getSelectedIndex()), hanzi);
                 main_database.add_translation(english, pinyin, hanzi);
             }
         }
 
         parent_app.update_database();
 
-        EnglishTranslationsListModel.removeAllElements();
+        ETTableModel.removeAllElements();
         ChineseTextField.setText("");
         EnglishTextField.setText("");
         ChineseTextField.requestFocus();
+        */
     }
 
     private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -364,31 +497,17 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
     private javax.swing.JTextField ChineseTextField;
     private javax.swing.JLabel EnglishLabel;
     private javax.swing.JTextField EnglishTextField;
-    private javax.swing.JList EnglishTranslations;
+    private javax.swing.JTable EnglishTranslationsTable;
     private javax.swing.JLabel PinyinLabel;
     private javax.swing.JScrollPane PinyinScroll;
     private javax.swing.JButton ResetButton;
     private javax.swing.JButton AddButton;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane EnglishTranslationsScroll;
     // End of variables declaration
-    private DefaultListModel EnglishTranslationsListModel;
-    private EnglishTranslationsRenderer ETRenderer;
+    private EnglishTranslationModel ETTableModel;
     private HanziDBscore main_database;
     private HanziApplicationUpdater parent_app;
     private CedictParser cedict_database=null;
     private PinyinChooserFrame PinyinChooser;
     private VocabularyBuilderPanelUpdater VocabularyBuilderUpdater;
-
-    public void valueChanged(ListSelectionEvent e)
-    {
-        int listIndex;
-        String value;
-
-        listIndex = EnglishTranslations.getSelectedIndex();
-        if ((listIndex != 0) && (listIndex != -1))
-        {
-            value = (String) EnglishTranslationsListModel.getElementAt(EnglishTranslations.getSelectedIndex());
-            EnglishTextField.setText(value);
-        }
-    }
 }
