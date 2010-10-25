@@ -311,7 +311,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
 
         private void prepare_list()
         {
-            System.out.println("Prepare list with " + db_words.size() + " words in DB and " + cedict_words.size() + " words in cedict");
             int i;
             EnglishTranslationItem item;
 
@@ -331,7 +330,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                     words_list.add(item);
                 }
             }
-            System.out.println("Now I have " + words_list.size() + " elements in the list");
             fireTableDataChanged();
         }
 
