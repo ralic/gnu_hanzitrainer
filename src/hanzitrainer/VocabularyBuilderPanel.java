@@ -129,10 +129,8 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         EnglishTranslationsScroll.setName("EnglishTranslationsScroll");
 
         EnglishTranslationsTable.setModel(ETTableModel);
-        //EnglishTranslationsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        EnglishTranslationsTable.setTableHeader(null);
         EnglishTranslationsTable.setName("EnglishTranslationsTable");
-        //EnglishTranslationsTable.addListSelectionListener(this);
-        //EnglishTranslationsTable.setLayoutOrientation(JList.VERTICAL);
         EnglishTranslationsScroll.setViewportView(EnglishTranslationsTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -182,6 +180,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
     {
 
         private String word;
+        private String original_word;
         private origin_t origin;
         private Boolean enabled;
         private Boolean modified;
@@ -189,6 +188,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
         public EnglishTranslationItem(String w, origin_t o, Boolean e)
         {
             word = w;
+            original_word = w;
             origin = o;
             enabled = e;
             modified = false;
@@ -231,6 +231,11 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             return modified;
         }
 
+        public String get_original_word()
+        {
+            return original_word;
+        }
+
         @Override
         public String toString()
         {
@@ -260,6 +265,7 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             cedict_words = cedict;
             words_list = new ArrayList<EnglishTranslationItem>();
             prepare_list();
+            fireTableDataChanged();
         }
 
         public void change_content(ArrayList<String> db, ArrayList<String> cedict)
@@ -268,7 +274,17 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             cedict_words.clear();
             if (cedict != null)
                 cedict_words.addAll(cedict);
+            words_list.clear();
             prepare_list();
+            fireTableDataChanged();
+        }
+
+        public void clear_content()
+        {
+            db_words.clear();
+            cedict_words.clear();
+            words_list.clear();
+            fireTableDataChanged();
         }
 
         private void prepare_list()
@@ -322,20 +338,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             if (words_list == null)
                 return 0;
             return words_list.size();
-        }
-
-        @Override
-        public String getColumnName(int c)
-        {
-            switch(c)
-            {
-                case 0:
-                    return "Add";
-                case 1:
-                    return "Word";
-                default:
-                    return "";
-            }
         }
 
         @Override
@@ -423,48 +425,12 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                     return null;
             }
         }
-        /*
-        @Override
-        public void addElement(Object obj)
+
+        public ArrayList<EnglishTranslationItem> getCurrentList()
         {
-            String word = obj.toString();
-            if ((!db_words.contains(word)) && (!new_words.contains(word)))
-            {
-                System.out.println("add " + word + ", at " + db_words.size() + " + " + new_words.size() + "-1");
-                new_words.add(word);
-                EnglishTranslationItem item = new EnglishTranslationItem(word, origin_t.NEW_WORD);
-                super.add(db_words.size() + new_words.size() - 1, item);
-            }
+            return new ArrayList<EnglishTranslationItem>(words_list);
         }
-
-        @Override
-        public void setElementAt(Object obj, int index)
-        {
-            set(index, obj);
-        }
-
-        @Override
-        public Object set(int index, Object element)
-        {
-            EnglishTranslationItem previous_item = (EnglishTranslationItem) get(index);
-            String word = element.toString();
-
-            if ((previous_item.get_origin() == origin_t.DB_WORD) || (previous_item.get_origin() == origin_t.NEW_WORD))
-            {
-                EnglishTranslationItem new_item = new EnglishTranslationItem(word, origin_t.DB_WORD);
-                super.set(index, new_item);
-            }
-            else if (previous_item.get_origin() == origin_t.EMPTY_WORD)
-            {
-                addElement(word);
-            }
-
-            return previous_item;
-        }
-        */
     }
-
-
 
     private void ChineseTextFieldFocusGained(java.awt.event.FocusEvent evt) {
         ChineseTextField.getInputContext().selectInputMethod(Locale.CHINA);
@@ -489,12 +455,11 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
 
     private void SaveAction()
     {
-        /* TODO, rebuild translations in database...
-        String english = EnglishTextField.getText();
+        int i;
+        ArrayList<EnglishTranslationItem> state = ETTableModel.getCurrentList();
         ArrayList<String> pinyin = PinyinChooser.get_pinyins();
         String hanzi_string = ChineseTextField.getText();
         ArrayList<String> hanzi = new ArrayList<String>();
-        int i, listIndex;
 
         for (i = 0; i < pinyin.size(); i++)
         {
@@ -503,7 +468,6 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
                 return;
             }
         }
-
         for (i = 0; i < hanzi_string.codePointCount(0, hanzi_string.length()); i++)
         {
             int from = hanzi_string.offsetByCodePoints(0, i);
@@ -512,54 +476,41 @@ public class VocabularyBuilderPanel extends javax.swing.JPanel
             hanzi.add(hanzi_string.substring(from, to));
         }
 
-        listIndex = EnglishTranslationsTable.getSelectedIndex();
 
-        if (listIndex == 0)
+        for (i=0; i<state.size(); i++)
         {
-            if (english.length() == 0)
+            EnglishTranslationItem item = state.get(i);
+            switch (item.get_origin())
             {
-                return;
-            }
-            StringTokenizer english_tokens = new StringTokenizer(english, ",");
-
-            while (english_tokens.hasMoreTokens())
-            {
-                String current_token = english_tokens.nextToken().trim();
-
-                main_database.add_translation(current_token, pinyin, hanzi);
+                case DB_WORD:
+                    if ((item.get_modified()) && (item.get_enabled()))
+                    {
+                        main_database.add_translation(item.get_word(), pinyin, hanzi);
+                        main_database.delete_translation(item.get_original_word(), hanzi);
+                    }
+                    if (!item.get_enabled())
+                    {
+                        main_database.delete_translation(item.get_original_word(), hanzi);
+                    }
+                case NEW_WORD:
+                    main_database.add_translation(item.get_word(), pinyin, hanzi);
+                    break;
+                case CEDICT_WORD:
+                    if (item.get_enabled())
+                    {
+                        main_database.add_translation(item.get_word(), pinyin, hanzi);
+                    }
+                    break;
+                case EMPTY_WORD:
+                default:
+                    break;
             }
         }
-        else
-        {
-            if (english.length() == 0)
-            {
-                main_database.delete_translation(
-                        (String) ETTableModel.getElementAt(EnglishTranslationsTable.getSelectedIndex()), hanzi);
-
-            }
-            else
-            {
-                if (EnglishTranslationsTable.getSelectedIndex() == 0)
-                {
-                    return;
-                }
-                if (english.length() == 0)
-                {
-                    return;
-                }
-                main_database.delete_translation(
-                        (String) ETTableModel.getElementAt(EnglishTranslationsTable.getSelectedIndex()), hanzi);
-                main_database.add_translation(english, pinyin, hanzi);
-            }
-        }
-
         parent_app.update_database();
 
-        ETTableModel.removeAllElements();
+        ETTableModel.clear_content();
         ChineseTextField.setText("");
-        EnglishTextField.setText("");
         ChineseTextField.requestFocus();
-        */
     }
 
     private void EnglishTextFieldSaveButtonActionPerformed(java.awt.event.ActionEvent evt) {
