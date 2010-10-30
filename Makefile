@@ -1,6 +1,7 @@
 .SUFFIXES: .java .class
 
 target_jar = rel/hanzitrainer.jar
+updater_jar = rel/hanziupdater.jar
 
 packages = hanzitrainer hanzitrainer/md5 hanzitrainer/settings hanzitrainer/internals
 classes = $(foreach dir, $(packages), $(wildcard src/$(dir)/*.java))
@@ -13,9 +14,16 @@ all : dirs $(target_jar) libs
 libs : 
 	cp -Rf lib/ rel/lib
 
-$(target_jar) : src/MANIFEST.MF $(objects)
+.PHONY : updater
+updater : dirs $(updater_jar) libs
+
+$(updater_jar) : src/MANIFEST_updater.MF $(objects)
 	cp -Rf resources/* obj/
-	jar cfm $@ src/MANIFEST.MF -C obj . 
+	jar cfm $@ src/MANIFEST_updater.MF -C obj . 
+
+$(target_jar) : src/MANIFEST_main.MF $(objects)
+	cp -Rf resources/* obj/
+	jar cfm $@ src/MANIFEST_main.MF -C obj . 
 
 $(objects) : obj/%.class : src/%.java 
 	@echo javac: $<

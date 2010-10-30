@@ -1,0 +1,2 @@
+Main-Class: hanzitrainer.HanziTrainerUpdater
+Class-Path: lib/appframework-1.0.3.jar lib/swing-worker-1.1.jar lib/h2.jar
