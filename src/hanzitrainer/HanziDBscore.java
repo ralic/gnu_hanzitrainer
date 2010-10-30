@@ -43,6 +43,7 @@ public class HanziDBscore extends HanziDB
     {
         super();
         System.out.println("HanziDBscore constructor");
+        
     }
 
     /**
@@ -97,8 +98,6 @@ public class HanziDBscore extends HanziDB
         res |= upgrade_score_database();
 
         res |= super.upgrade_database();
-
-        finish_score_database_upgrade();
 
         return res;
     }
@@ -228,29 +227,31 @@ public class HanziDBscore extends HanziDB
 
             upgrade_change = true;
         }
+        if (get_score_database_version() <= 3)
+        {
+            System.out.println("Upgrade score database to version 4");
+            // getting rid of the score view
+            try
+            {
+                Statement st = conn.createStatement();
+               
+                st.executeUpdate("DROP VIEW IF EXISTS english_pinyin_chinese_score");
+                st.executeUpdate("UPDATE database_info" +
+                        " SET value='4' WHERE field='score_db_version'");
+
+                st.close();
+            }
+            catch (SQLException ex)
+            {
+                ex.printStackTrace();
+            }
+
+            upgrade_change = true;
+        }
 
         return upgrade_change;
     }
 
-    protected void finish_score_database_upgrade()
-    {
-        // always refresh the view if it was changed in the master class...
-        try
-        {
-            Statement st = conn.createStatement();
-
-            st.executeUpdate("DROP VIEW IF EXISTS english_pinyin_chinese_score");
-            st.executeUpdate("CREATE VIEW english_pinyin_chinese_score AS" +
-                    " (SELECT cword_score.cword_id, hanzi, pinyin, translations, score" +
-                    " FROM english_pinyin_chinese" +
-                    " JOIN cword_score ON cword_score.cword_id = english_pinyin_chinese.cword_id)");
-            st.close();
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
 
     @Override
     protected synchronized int add_pinyin(String character, String pinyin) throws SQLException
@@ -381,15 +382,8 @@ public class HanziDBscore extends HanziDB
                     " score INT)");
 
 
-            st.executeUpdate("INSERT INTO database_info(field,value) VALUES('score_db_version', '3')");
+            st.executeUpdate("INSERT INTO database_info(field,value) VALUES('score_db_version', '4')");
 
-            // create a new view
-            st.executeUpdate("CREATE VIEW english_pinyin_chinese_score AS" +
-                    " (SELECT cword_score.cword_id, hanzi, pinyin, translations, score" +
-                    " FROM english_pinyin_chinese" +
-                    " JOIN cword_score ON cword_score.cword_id = english_pinyin_chinese.cword_id)");
-
-            st.executeUpdate("INSERT INTO database_info(field,value) VALUES('score_db_version', '2')");
             st.close();
         }
         catch (SQLException ex)
@@ -418,15 +412,17 @@ public class HanziDBscore extends HanziDB
             Statement st = conn.createStatement();
             ResultSet rs = null;
 
-            rs = st.executeQuery("SELECT * FROM english_pinyin_chinese_score WHERE cword_id=" + index);
+            rs = st.executeQuery("SELECT hanzi, pinyin, translations, cword_score.score FROM english_pinyin_chinese " +
+                    " JOIN cword_score ON english_pinyin_chinese.cword_id=cword_score.cword_id " +
+                    " WHERE english_pinyin_chinese.cword_id=" + index);
             if (!rs.next())
             {
                 return res;
             }
+            res.add(rs.getString(1));
             res.add(rs.getString(2));
             res.add(rs.getString(3));
             res.add(rs.getString(4));
-            res.add(rs.getString(5));
             st.close();
         }
         catch (SQLException ex)
@@ -577,10 +573,12 @@ public class HanziDBscore extends HanziDB
             {
                 case 0:
                 default:
-                    rs = st.executeQuery("SELECT * FROM english_pinyin_chinese_score ORDER BY pinyin, hanzi");
+                    rs = st.executeQuery("SELECT * FROM english_pinyin_chinese ORDER BY pinyin, hanzi");
                     break;
                 case 1:
-                    rs = st.executeQuery("SELECT * FROM english_pinyin_chinese_score ORDER BY score ASC, pinyin, hanzi");
+                    rs = st.executeQuery("SELECT * FROM english_pinyin_chinese" +
+                            " JOIN cword_score ON cword_score.cword_id=english_pinyin_chinese.cword_id" +
+                            " ORDER BY cword_score.score ASC, pinyin, hanzi");
                     break;
             }
 
